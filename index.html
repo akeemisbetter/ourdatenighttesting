@@ -8,19 +8,38 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; min-height: 100vh; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-secondary); min-height: 100vh; color: var(--text-primary); transition: background 0.3s, color 0.3s; }
     
     /* Colors */
     :root {
       --primary: #ff6b6b;
       --secondary: #667eea;
       --success: #4ecdc4;
+      --bg-primary: #ffffff;
+      --bg-secondary: #f8f9fa;
+      --bg-card: #ffffff;
+      --text-primary: #333333;
+      --text-secondary: #666666;
+      --text-muted: #888888;
+      --border-color: #eeeeee;
+      --shadow-color: rgba(0,0,0,0.08);
+    }
+    
+    [data-theme="dark"] {
+      --bg-primary: #121212;
+      --bg-secondary: #1e1e1e;
+      --bg-card: #252525;
+      --text-primary: #f0f0f0;
+      --text-secondary: #cccccc;
+      --text-muted: #999999;
+      --border-color: #333333;
+      --shadow-color: rgba(0,0,0,0.3);
     }
     
     /* Loading Overlay */
-    .loading-overlay { position: fixed; inset: 0; background: white; display: flex; align-items: center; justify-content: center; z-index: 9999; flex-direction: column; gap: 16px; }
+    .loading-overlay { position: fixed; inset: 0; background: var(--bg-primary); display: flex; align-items: center; justify-content: center; z-index: 9999; flex-direction: column; gap: 16px; color: var(--text-primary); }
     .loading-overlay.hidden { display: none; }
-    .loading-spinner { width: 48px; height: 48px; border: 4px solid #eee; border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+    .loading-spinner { width: 48px; height: 48px; border: 4px solid var(--border-color); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
     
     /* Welcome Screen */
@@ -223,7 +242,7 @@
     .logout-btn { background: #eee; color: #666; margin-top: 12px; }
     
     /* Bottom Nav */
-    .nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #eee; padding: 8px 16px 12px; display: flex; justify-content: space-around; align-items: flex-end; z-index: 100; }
+    .nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-card); border-top: 1px solid var(--border-color); padding: 8px 16px 12px; display: flex; justify-content: space-around; align-items: flex-end; z-index: 100; transition: background 0.3s; }
     .nav-item { display: flex; flex-direction: column; align-items: center; background: none; border: none; cursor: pointer; padding: 4px 8px; }
     .nav-icon { font-size: 20px; color: #aaa; }
     .nav-label { font-size: 11px; color: #aaa; margin-top: 2px; }
@@ -619,6 +638,103 @@
     /* Location Photos Grid (50 photos) */
     .location-photos-full { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-height: 400px; overflow-y: auto; }
     .location-photos-full .location-photo { aspect-ratio: 1; }
+    
+    /* Dark Mode Toggle */
+    .dark-mode-toggle { display: flex; align-items: center; justify-content: space-between; padding: 16px; background: var(--bg-card); border-radius: 12px; margin-bottom: 16px; }
+    .dark-mode-toggle-label { display: flex; align-items: center; gap: 10px; font-weight: 600; color: var(--text-primary); }
+    .dark-mode-toggle-label span { font-size: 20px; }
+    .toggle-switch { position: relative; width: 52px; height: 28px; background: #ccc; border-radius: 14px; cursor: pointer; transition: background 0.3s; }
+    .toggle-switch.active { background: var(--secondary); }
+    .toggle-switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; background: white; border-radius: 50%; transition: transform 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+    .toggle-switch.active::after { transform: translateX(24px); }
+    
+    /* Dark Mode Overrides */
+    [data-theme="dark"] .swipe-card { background: var(--bg-card); }
+    [data-theme="dark"] .card-body { background: var(--bg-card); }
+    [data-theme="dark"] .card-title { color: var(--text-primary); }
+    [data-theme="dark"] .card-meta { color: var(--text-muted); }
+    [data-theme="dark"] .card-desc { color: var(--text-secondary); }
+    [data-theme="dark"] .card-user-info { border-color: var(--border-color); }
+    [data-theme="dark"] .card-user-name { color: var(--text-primary); }
+    
+    [data-theme="dark"] .profile-card { background: var(--bg-card); }
+    [data-theme="dark"] .profile-card p { color: var(--text-secondary); }
+    [data-theme="dark"] .profile-card strong { color: var(--text-primary); }
+    [data-theme="dark"] .profile-type-btn { background: var(--bg-card); border-color: var(--border-color); }
+    [data-theme="dark"] .profile-type-btn:hover { background: var(--bg-secondary); border-color: #555; }
+    [data-theme="dark"] .profile-type-btn span:last-child { color: var(--text-primary); }
+    [data-theme="dark"] .logout-btn { background: var(--bg-secondary); color: var(--text-muted); }
+    
+    [data-theme="dark"] .filter-chip { background: var(--bg-card); color: var(--text-secondary); border-color: var(--border-color); }
+    [data-theme="dark"] .filter-chip:hover { background: var(--bg-secondary); }
+    
+    [data-theme="dark"] .browse-card { background: var(--bg-card); box-shadow: 0 4px 12px var(--shadow-color); }
+    [data-theme="dark"] .browse-card-title { color: var(--text-primary); }
+    [data-theme="dark"] .browse-card-meta { color: var(--text-muted); }
+    [data-theme="dark"] .browse-card-desc { color: var(--text-secondary); }
+    [data-theme="dark"] .browse-card-photos { border-color: var(--border-color); }
+    [data-theme="dark"] .browse-card-photo-more { background: var(--bg-secondary); color: var(--text-muted); }
+    
+    [data-theme="dark"] .search-filters { background: var(--bg-card); }
+    [data-theme="dark"] .search-input { background: var(--bg-secondary); border-color: var(--border-color); color: var(--text-primary); }
+    [data-theme="dark"] .search-input::placeholder { color: var(--text-muted); }
+    [data-theme="dark"] .search-filter-label { color: var(--text-muted); }
+    [data-theme="dark"] .activity-type-btn { background: var(--bg-card); border-color: var(--border-color); color: var(--text-secondary); }
+    [data-theme="dark"] .activity-type-btn:hover { background: var(--bg-secondary); }
+    [data-theme="dark"] .cuisine-filter { border-color: var(--border-color); }
+    [data-theme="dark"] .cuisine-btn { background: var(--bg-card); border-color: var(--border-color); color: var(--text-secondary); }
+    [data-theme="dark"] .distance-select { background: var(--bg-secondary); border-color: var(--border-color); color: var(--text-primary); }
+    
+    [data-theme="dark"] .section-title { color: var(--text-primary); }
+    [data-theme="dark"] .empty-state { color: var(--text-muted); }
+    [data-theme="dark"] .no-results { color: var(--text-muted); }
+    
+    [data-theme="dark"] .list-item { background: var(--bg-card); }
+    [data-theme="dark"] .list-title { color: var(--text-primary); }
+    [data-theme="dark"] .list-meta { color: var(--text-muted); }
+    
+    [data-theme="dark"] .date-card { background: var(--bg-card); }
+    [data-theme="dark"] .plan-card { background: var(--bg-card); }
+    [data-theme="dark"] .plan-header { color: var(--text-primary); }
+    
+    [data-theme="dark"] .nav-icon { color: var(--text-muted); }
+    [data-theme="dark"] .nav-label { color: var(--text-muted); }
+    
+    [data-theme="dark"] .admin-section { background: rgba(212,175,125,0.1); }
+    [data-theme="dark"] .admin-item { background: var(--bg-secondary); }
+    [data-theme="dark"] .admin-card { background: var(--bg-card); }
+    [data-theme="dark"] .admin-dashboard { background: var(--bg-secondary); }
+    [data-theme="dark"] .metric-card { background: var(--bg-card); color: var(--text-primary); }
+    [data-theme="dark"] .admin-table th { color: var(--text-muted); border-color: var(--border-color); }
+    [data-theme="dark"] .admin-table td { color: var(--text-primary); border-color: var(--border-color); }
+    
+    [data-theme="dark"] .location-modal-content { background: var(--bg-card); }
+    [data-theme="dark"] .location-name { color: var(--text-primary); }
+    [data-theme="dark"] .location-address { color: var(--text-muted); }
+    [data-theme="dark"] .location-desc { color: var(--text-secondary); }
+    
+    [data-theme="dark"] .user-profile-modal-content { background: var(--bg-card); }
+    [data-theme="dark"] .user-profile-name { color: var(--text-primary); }
+    [data-theme="dark"] .user-profile-stats { color: var(--text-muted); }
+    
+    [data-theme="dark"] .payment-box { background: var(--bg-card); }
+    [data-theme="dark"] .payment-box h2, [data-theme="dark"] .payment-box h3 { color: var(--text-primary); }
+    [data-theme="dark"] .payment-box p { color: var(--text-secondary); }
+    [data-theme="dark"] .payment-input { background: var(--bg-secondary); border-color: var(--border-color); color: var(--text-primary); }
+    [data-theme="dark"] .saved-card { background: var(--bg-secondary); }
+    [data-theme="dark"] .saved-card-number { color: var(--text-primary); }
+    
+    [data-theme="dark"] .side-menu { background: var(--bg-card); }
+    [data-theme="dark"] .side-menu-header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); }
+    [data-theme="dark"] .side-menu-item { color: var(--text-primary); }
+    [data-theme="dark"] .side-menu-item:hover { background: var(--bg-secondary); }
+    [data-theme="dark"] .side-menu-divider { background: var(--border-color); }
+    
+    [data-theme="dark"] .verify-box { background: var(--bg-card); }
+    [data-theme="dark"] .verify-box h2 { color: var(--text-primary); }
+    [data-theme="dark"] .verify-box p { color: var(--text-secondary); }
+    [data-theme="dark"] .upload-box { background: var(--bg-card); }
+    [data-theme="dark"] .upload-box h2 { color: var(--text-primary); }
   </style>
 </head>
 <body>
@@ -921,6 +1037,16 @@
       <div class="upload-grid" id="myUploadsGrid">
         <p style="color:#888;font-size:13px;grid-column:1/-1;">You haven't uploaded anything yet.</p>
       </div>
+    </div>
+    
+    <!-- Settings -->
+    <h3 style="font-weight:700;margin-bottom:12px;">Settings</h3>
+    <div class="dark-mode-toggle">
+      <div class="dark-mode-toggle-label">
+        <span>🌙</span>
+        <span>Dark Mode</span>
+      </div>
+      <div class="toggle-switch" id="darkModeToggle" onclick="toggleDarkMode()"></div>
     </div>
     
     <h3 style="font-weight:700;margin-bottom:12px;">Interests</h3>
@@ -2042,6 +2168,49 @@ async function logout() {
   }
 }
 
+// ============ DARK MODE ============
+function toggleDarkMode() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  
+  if (isDark) {
+    document.documentElement.removeAttribute('data-theme');
+    localStorage.setItem('darkMode', 'false');
+  } else {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    localStorage.setItem('darkMode', 'true');
+  }
+  
+  updateDarkModeToggle();
+}
+
+function updateDarkModeToggle() {
+  const toggle = document.getElementById('darkModeToggle');
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  
+  if (toggle) {
+    if (isDark) {
+      toggle.classList.add('active');
+    } else {
+      toggle.classList.remove('active');
+    }
+  }
+}
+
+function initDarkMode() {
+  const savedPreference = localStorage.getItem('darkMode');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  
+  // Use saved preference, or fallback to system preference
+  if (savedPreference === 'true' || (savedPreference === null && prefersDark)) {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+  
+  updateDarkModeToggle();
+}
+
+// Initialize dark mode on page load
+initDarkMode();
+
 // ============ DISCOVER ============
 function getDiscoverPool() {
   const userContent = userGeneratedContent
@@ -2787,6 +2956,7 @@ async function renderProfile() {
   `).join('');
   
   updateUIForLoggedInUser();
+  updateDarkModeToggle();
   
   // Render admin panel if user is admin
   if (isLoggedIn && userProfile?.is_admin) {
