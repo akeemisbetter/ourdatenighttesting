@@ -622,6 +622,34 @@
     .follow-list-btn.following { background: var(--secondary); color: white; border-color: var(--secondary); }
     .follow-list-btn:hover { opacity: 0.8; }
     .follow-list-empty { text-align: center; padding: 32px; color: var(--text-muted); }
+    
+    /* Find Friends Modal */
+    .find-friends-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 350; padding: 16px; }
+    .find-friends-modal.active { display: flex; }
+    .find-friends-box { background: var(--bg-card); border-radius: 20px; width: 100%; max-width: 420px; max-height: 80vh; overflow: hidden; display: flex; flex-direction: column; }
+    .find-friends-header { padding: 20px; border-bottom: 1px solid var(--border-color); }
+    .find-friends-header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .find-friends-title { font-size: 20px; font-weight: 700; color: var(--text-primary); }
+    .find-friends-close { background: none; border: none; font-size: 24px; color: var(--text-muted); cursor: pointer; }
+    .find-friends-search { display: flex; gap: 8px; }
+    .find-friends-input { flex: 1; padding: 12px 16px; border: 1px solid var(--border-color); border-radius: 12px; font-size: 15px; background: var(--bg-secondary); color: var(--text-primary); }
+    .find-friends-input::placeholder { color: var(--text-muted); }
+    .find-friends-btn { padding: 12px 20px; background: var(--secondary); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
+    .find-friends-btn:hover { opacity: 0.9; }
+    .find-friends-content { flex: 1; overflow-y: auto; padding: 16px; }
+    .find-friends-results { display: flex; flex-direction: column; gap: 12px; }
+    .find-friends-result { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-secondary); border-radius: 12px; cursor: pointer; transition: transform 0.2s; }
+    .find-friends-result:hover { transform: translateX(4px); }
+    .find-friends-avatar { width: 50px; height: 50px; border-radius: 50%; background: var(--secondary); display: flex; align-items: center; justify-content: center; font-size: 22px; color: white; overflow: hidden; flex-shrink: 0; }
+    .find-friends-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .find-friends-info { flex: 1; }
+    .find-friends-name { font-weight: 600; color: var(--text-primary); }
+    .find-friends-meta { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+    .find-friends-action { padding: 8px 16px; background: var(--secondary); color: white; border: none; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .find-friends-empty { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+    .find-friends-empty-icon { font-size: 48px; margin-bottom: 12px; }
+    .find-friends-suggestions { margin-top: 16px; }
+    .find-friends-suggestions-title { font-size: 14px; font-weight: 600; color: var(--text-muted); margin-bottom: 12px; }
     .user-profile-body { padding: 20px; }
     .user-profile-section-title { font-weight: 700; margin-bottom: 12px; }
     .user-profile-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
@@ -899,6 +927,15 @@
     [data-theme="dark"] .follow-list-name { color: var(--text-primary); }
     [data-theme="dark"] .follow-list-meta { color: var(--text-muted); }
     [data-theme="dark"] .follow-list-btn { background: var(--bg-secondary); border-color: var(--border-color); color: var(--text-primary); }
+    
+    [data-theme="dark"] .find-friends-box { background: var(--bg-card); }
+    [data-theme="dark"] .find-friends-header { border-color: var(--border-color); }
+    [data-theme="dark"] .find-friends-title { color: var(--text-primary); }
+    [data-theme="dark"] .find-friends-input { background: var(--bg-secondary); border-color: var(--border-color); color: var(--text-primary); }
+    [data-theme="dark"] .find-friends-result { background: var(--bg-secondary); }
+    [data-theme="dark"] .find-friends-name { color: var(--text-primary); }
+    [data-theme="dark"] .find-friends-meta { color: var(--text-muted); }
+    [data-theme="dark"] .find-friends-empty { color: var(--text-muted); }
     
     [data-theme="dark"] .payment-box { background: var(--bg-card); }
     [data-theme="dark"] .payment-box h2, [data-theme="dark"] .payment-box h3 { color: var(--text-primary); }
@@ -1212,6 +1249,7 @@
       <p><strong>Email:</strong> <span id="profileEmail">-</span></p>
       <p><strong>Location:</strong> New York, NY</p>
       <p style="margin-top:8px;"><strong>Stats:</strong> ❤️ <span id="statLiked">0</span> liked • ✖ <span id="statPassed">0</span> passed</p>
+      <p style="margin-top:8px;"><strong>Social:</strong> 👥 <span id="profileFollowers">0</span> followers • <span id="profileFollowing">0</span> following</p>
       <p id="accountStatus" style="margin-top:8px;color:var(--success);font-size:13px;"></p>
     </div>
     
@@ -1466,6 +1504,10 @@
       <span class="side-menu-item-icon">👤</span>
       <span class="side-menu-item-text">My Public Profile</span>
     </div>
+    <div class="side-menu-item" onclick="openFindFriendsModal()">
+      <span class="side-menu-item-icon">🔍</span>
+      <span class="side-menu-item-text">Find Friends</span>
+    </div>
     <div class="side-menu-item" onclick="openPaymentModal()">
       <span class="side-menu-item-icon">💳</span>
       <span class="side-menu-item-text">Payments</span>
@@ -1577,6 +1619,37 @@
     </div>
     <div class="follow-list-content" id="followListContent">
       <!-- Filled by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- Find Friends Modal -->
+<div class="find-friends-modal" id="findFriendsModal">
+  <div class="find-friends-box">
+    <div class="find-friends-header">
+      <div class="find-friends-header-top">
+        <div class="find-friends-title">🔍 Find Friends</div>
+        <button class="find-friends-close" onclick="closeFindFriendsModal()">✕</button>
+      </div>
+      <div class="find-friends-search">
+        <input type="text" class="find-friends-input" id="findFriendsInput" placeholder="Search by name, email, or phone..." oninput="searchFriends()">
+        <button class="find-friends-btn" onclick="searchFriends()">Search</button>
+      </div>
+    </div>
+    <div class="find-friends-content" id="findFriendsContent">
+      <div class="find-friends-empty" id="findFriendsEmpty">
+        <div class="find-friends-empty-icon">👥</div>
+        <div>Search for friends by their name, email, or phone number</div>
+      </div>
+      <div class="find-friends-results" id="findFriendsResults" style="display:none;">
+        <!-- Filled by JS -->
+      </div>
+      <div class="find-friends-suggestions" id="findFriendsSuggestions">
+        <div class="find-friends-suggestions-title">Suggested People</div>
+        <div class="find-friends-results" id="findFriendsSuggestionsResults">
+          <!-- Filled by JS -->
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -3653,6 +3726,7 @@ async function renderProfile() {
   updateUIForLoggedInUser();
   updateDarkModeToggle();
   renderChallenges();
+  updateProfileFollowStats();
   
   // Render admin panel if user is admin
   if (isLoggedIn && userProfile?.is_admin) {
@@ -4454,7 +4528,8 @@ function closeUserProfileModal() {
 let followData = {
   following: [], // Array of user IDs I'm following
   followers: [], // Array of user IDs following me
-  activityFeed: [] // Activity from people I follow
+  activityFeed: [], // Activity from people I follow
+  likedContent: [] // Array of content IDs I've liked (to prevent double-liking)
 };
 
 function loadFollowData() {
@@ -4502,6 +4577,7 @@ async function toggleFollow() {
   
   saveFollowData();
   updateFollowCounts();
+  updateProfileFollowStats();
   renderFollowingFeed();
 }
 
@@ -4756,6 +4832,196 @@ function getTimeAgo(timestamp) {
 // Initialize follow data on load
 loadFollowData();
 
+// ============ FIND FRIENDS ============
+function openFindFriendsModal() {
+  closeSideMenu();
+  document.getElementById('findFriendsInput').value = '';
+  document.getElementById('findFriendsResults').style.display = 'none';
+  document.getElementById('findFriendsEmpty').style.display = 'block';
+  
+  // Load suggestions (people with content who you don't follow)
+  renderFriendSuggestions();
+  
+  document.getElementById('findFriendsModal').classList.add('active');
+}
+
+function closeFindFriendsModal() {
+  document.getElementById('findFriendsModal').classList.remove('active');
+}
+
+function renderFriendSuggestions() {
+  // Get unique users from user generated content
+  const usersMap = {};
+  userGeneratedContent.forEach(c => {
+    if (c.user_id && !usersMap[c.user_id]) {
+      usersMap[c.user_id] = {
+        id: c.user_id,
+        name: c.user_name,
+        avatar: c.user_avatar,
+        postCount: 1,
+        verified: c.user_verified
+      };
+    } else if (c.user_id) {
+      usersMap[c.user_id].postCount++;
+    }
+  });
+  
+  // Filter out yourself and people you already follow
+  const suggestions = Object.values(usersMap)
+    .filter(u => {
+      if (isLoggedIn && currentUser && u.id === currentUser.id) return false;
+      if (followData.following.includes(u.id)) return false;
+      return true;
+    })
+    .slice(0, 5);
+  
+  const container = document.getElementById('findFriendsSuggestionsResults');
+  const suggestionsSection = document.getElementById('findFriendsSuggestions');
+  
+  if (suggestions.length === 0) {
+    suggestionsSection.style.display = 'none';
+    return;
+  }
+  
+  suggestionsSection.style.display = 'block';
+  container.innerHTML = suggestions.map(user => renderFriendResult(user)).join('');
+}
+
+function searchFriends() {
+  const query = document.getElementById('findFriendsInput').value.toLowerCase().trim();
+  const resultsContainer = document.getElementById('findFriendsResults');
+  const emptyContainer = document.getElementById('findFriendsEmpty');
+  const suggestionsContainer = document.getElementById('findFriendsSuggestions');
+  
+  if (!query) {
+    resultsContainer.style.display = 'none';
+    emptyContainer.style.display = 'block';
+    suggestionsContainer.style.display = 'block';
+    renderFriendSuggestions();
+    return;
+  }
+  
+  // Get unique users from user generated content
+  const usersMap = {};
+  userGeneratedContent.forEach(c => {
+    if (c.user_id && !usersMap[c.user_id]) {
+      usersMap[c.user_id] = {
+        id: c.user_id,
+        name: c.user_name,
+        avatar: c.user_avatar,
+        email: c.user_email || '',
+        phone: c.user_phone || '',
+        postCount: 1,
+        verified: c.user_verified
+      };
+    } else if (c.user_id) {
+      usersMap[c.user_id].postCount++;
+    }
+  });
+  
+  // Search by name, email, or phone
+  const results = Object.values(usersMap).filter(user => {
+    const nameMatch = user.name && user.name.toLowerCase().includes(query);
+    const emailMatch = user.email && user.email.toLowerCase().includes(query);
+    const phoneMatch = user.phone && user.phone.includes(query);
+    return nameMatch || emailMatch || phoneMatch;
+  });
+  
+  // Filter out yourself
+  const filteredResults = results.filter(u => {
+    if (isLoggedIn && currentUser && u.id === currentUser.id) return false;
+    return true;
+  });
+  
+  emptyContainer.style.display = 'none';
+  suggestionsContainer.style.display = 'none';
+  resultsContainer.style.display = 'block';
+  
+  if (filteredResults.length === 0) {
+    resultsContainer.innerHTML = `
+      <div class="find-friends-empty">
+        <div class="find-friends-empty-icon">🔍</div>
+        <div>No users found matching "${query}"</div>
+      </div>
+    `;
+    return;
+  }
+  
+  resultsContainer.innerHTML = filteredResults.map(user => renderFriendResult(user)).join('');
+}
+
+function renderFriendResult(user) {
+  let avatarHtml = '';
+  if (user.avatar && user.avatar.startsWith('http')) {
+    avatarHtml = `<img src="${user.avatar}" alt="">`;
+  } else if (user.avatar) {
+    avatarHtml = user.avatar;
+  } else {
+    avatarHtml = user.name.charAt(0).toUpperCase();
+  }
+  
+  const isFollowingUser = followData.following.includes(user.id);
+  const followBtnText = isFollowingUser ? 'Following' : 'Follow';
+  const followBtnClass = isFollowingUser ? 'following' : '';
+  
+  return `
+    <div class="find-friends-result">
+      <div class="find-friends-avatar" onclick="viewFriendProfile('${user.id}', '${user.name}')">
+        ${avatarHtml}
+      </div>
+      <div class="find-friends-info" onclick="viewFriendProfile('${user.id}', '${user.name}')">
+        <div class="find-friends-name">${user.name} ${user.verified ? '✓' : ''}</div>
+        <div class="find-friends-meta">${user.postCount} post${user.postCount !== 1 ? 's' : ''}</div>
+      </div>
+      <button class="find-friends-action ${followBtnClass}" onclick="followFromSearch('${user.id}', '${user.name}', this)">
+        ${followBtnText}
+      </button>
+    </div>
+  `;
+}
+
+function viewFriendProfile(userId, userName) {
+  closeFindFriendsModal();
+  openUserProfileModal(userId, userName);
+}
+
+function followFromSearch(userId, userName, btn) {
+  if (!isLoggedIn) {
+    alert('Please log in to follow users');
+    return;
+  }
+  
+  if (isFollowing(userId)) {
+    // Unfollow
+    followData.following = followData.following.filter(id => id !== userId);
+    btn.textContent = 'Follow';
+    btn.classList.remove('following');
+  } else {
+    // Follow
+    followData.following.push(userId);
+    btn.textContent = 'Following';
+    btn.classList.add('following');
+    recordFollowActivity(userId, userName);
+  }
+  
+  saveFollowData();
+  updateProfileFollowStats();
+  renderFollowingFeed();
+}
+
+// Update profile tab follow stats
+function updateProfileFollowStats() {
+  const followersEl = document.getElementById('profileFollowers');
+  const followingEl = document.getElementById('profileFollowing');
+  
+  if (followersEl) {
+    followersEl.textContent = followData.followers.length;
+  }
+  if (followingEl) {
+    followingEl.textContent = followData.following.length;
+  }
+}
+
 function openMyPublicProfile() {
   closeSideMenu();
   if (!isLoggedIn || !currentUser || state.verificationStatus !== 'verified') {
@@ -4842,7 +5108,17 @@ function openContentDetail(contentId) {
   document.getElementById('contentViewerPlace').textContent = content.place_name;
   document.getElementById('contentViewerCaption').textContent = content.caption || '';
   document.getElementById('contentViewerLikeCount').textContent = `${content.likes || 0} likes`;
-  document.getElementById('contentViewerLikeBtn').textContent = '🤍';
+  
+  // Check if already liked
+  loadFollowData();
+  const likeBtn = document.getElementById('contentViewerLikeBtn');
+  if (followData.likedContent.includes(contentId)) {
+    likeBtn.textContent = '❤️';
+    likeBtn.classList.add('liked');
+  } else {
+    likeBtn.textContent = '🤍';
+    likeBtn.classList.remove('liked');
+  }
   
   document.getElementById('contentViewerModal').classList.add('active');
 }
@@ -4865,6 +5141,13 @@ async function likeCurrentContent() {
     return;
   }
   
+  // Check if already liked
+  loadFollowData();
+  if (followData.likedContent.includes(currentViewingContent.id)) {
+    alert('You have already liked this content');
+    return;
+  }
+  
   try {
     const newLikes = (currentViewingContent.likes || 0) + 1;
     
@@ -4878,6 +5161,10 @@ async function likeCurrentContent() {
       return;
     }
     
+    // Track that we've liked this content
+    followData.likedContent.push(currentViewingContent.id);
+    saveFollowData();
+    
     // Update local state
     currentViewingContent.likes = newLikes;
     const contentInArray = userGeneratedContent.find(c => c.id === currentViewingContent.id);
@@ -4886,6 +5173,7 @@ async function likeCurrentContent() {
     // Update UI
     document.getElementById('contentViewerLikeCount').textContent = `${newLikes} likes`;
     document.getElementById('contentViewerLikeBtn').textContent = '❤️';
+    document.getElementById('contentViewerLikeBtn').classList.add('liked');
     
   } catch (err) {
     console.error('likeCurrentContent error:', err);
@@ -4895,6 +5183,13 @@ async function likeCurrentContent() {
 async function likeContent(contentId) {
   if (!isLoggedIn) {
     alert('Please log in to like content');
+    return;
+  }
+  
+  // Check if already liked
+  loadFollowData();
+  if (followData.likedContent.includes(contentId)) {
+    alert('You have already liked this content');
     return;
   }
   
@@ -4914,6 +5209,10 @@ async function likeContent(contentId) {
       console.error('Error liking content:', error);
       return;
     }
+    
+    // Track that we've liked this content
+    followData.likedContent.push(contentId);
+    saveFollowData();
     
     // Update local state
     content.likes = newLikes;
@@ -5797,6 +6096,12 @@ document.getElementById('avatarModal').addEventListener('click', function(e) {
 });
 document.getElementById('adminDashboardModal').addEventListener('click', function(e) {
   if (e.target === this) closeAdminDashboard();
+});
+document.getElementById('followListModal').addEventListener('click', function(e) {
+  if (e.target === this) closeFollowListModal();
+});
+document.getElementById('findFriendsModal').addEventListener('click', function(e) {
+  if (e.target === this) closeFindFriendsModal();
 });
 </script>
 </body>
