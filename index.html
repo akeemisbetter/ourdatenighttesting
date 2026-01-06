@@ -82,7 +82,8 @@
     .header-info { text-align: right; }
     .header-type { color: white; font-size: 13px; font-weight: 500; }
     .header-location { color: #ccc; font-size: 11px; }
-    .header-avatar { width: 32px; height: 32px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .header-avatar { width: 36px; height: 36px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; }
+    .header-avatar img { width: 100%; height: 100%; object-fit: cover; }
     .logged-in-badge { background: var(--success); color: white; font-size: 9px; padding: 2px 6px; border-radius: 10px; margin-left: 4px; }
     
     /* Content */
@@ -643,7 +644,7 @@
         </div>
         <div class="header-location">📍 New York, NY</div>
       </div>
-      <div class="header-avatar">👤</div>
+      <div class="header-avatar" id="headerAvatar" onclick="switchTab('profile')">👤</div>
     </div>
   </header>
 
@@ -1855,6 +1856,7 @@ function getDiscoverPool() {
       mediaType: c.media_type,
       isUserContent: true,
       userName: c.user_name,
+      userAvatar: c.user_avatar,
       userVerified: c.user_verified,
       createdAt: c.created_at,
       likes: c.likes || 0
@@ -1918,10 +1920,23 @@ function renderDiscover() {
       </div>
     ` : '';
     
+    // Build avatar HTML for user content
+    let userAvatarHtml = item.userName.charAt(0).toUpperCase();
+    if (item.userAvatar) {
+      if (item.userAvatar.startsWith('http')) {
+        userAvatarHtml = `<img src="${item.userAvatar}" style="width:100%;height:100%;object-fit:cover;">`;
+      } else if (item.userAvatar.includes(':')) {
+        const [emoji, animation] = item.userAvatar.split(':');
+        userAvatarHtml = `<span class="avatar-animated avatar-${animation}" style="font-size:16px;">${emoji}</span>`;
+      } else {
+        userAvatarHtml = item.userAvatar;
+      }
+    }
+    
     const userInfo = item.isUserContent ? `
       <div class="card-user-info card-user-clickable" onclick="event.stopPropagation(); openUserProfileModal('${item.odOriginalUserId || ''}', '${item.userName}')">
-        <div style="width:32px;height:32px;border-radius:50%;background:var(--secondary);display:flex;align-items:center;justify-content:center;color:white;font-size:14px;">
-          ${item.userName.charAt(0).toUpperCase()}
+        <div style="width:32px;height:32px;border-radius:50%;background:var(--secondary);display:flex;align-items:center;justify-content:center;color:white;font-size:14px;overflow:hidden;">
+          ${userAvatarHtml}
         </div>
         <span class="card-user-name">${item.userName}</span>
         ${item.userVerified ? '<span class="card-user-verified">✓ Verified</span>' : ''}
@@ -3034,6 +3049,7 @@ function initApp() {
   renderDates();
   renderPlan();
   renderProfile();
+  updateHeaderAvatar();
   document.querySelector('.nav-center').classList.add('active');
 }
 
@@ -3360,6 +3376,31 @@ let selectedAvatar = null;
 let selectedAnimation = null;
 let customAvatarUrl = null;
 
+function updateHeaderAvatar() {
+  const headerAvatar = document.getElementById('headerAvatar');
+  if (!headerAvatar) return;
+  
+  if (!isLoggedIn || !userProfile) {
+    headerAvatar.innerHTML = '👤';
+    return;
+  }
+  
+  const avatar = userProfile.avatar;
+  
+  if (avatar && avatar.startsWith('http')) {
+    headerAvatar.innerHTML = `<img src="${avatar}" alt="">`;
+  } else if (avatar && avatar.includes(':')) {
+    const [emoji, animation] = avatar.split(':');
+    headerAvatar.innerHTML = `<span class="avatar-animated avatar-${animation}" style="font-size:18px;">${emoji}</span>`;
+  } else if (avatar) {
+    headerAvatar.innerHTML = `<span style="font-size:18px;">${avatar}</span>`;
+  } else if (userProfile.name) {
+    headerAvatar.innerHTML = userProfile.name.charAt(0).toUpperCase();
+  } else {
+    headerAvatar.innerHTML = '👤';
+  }
+}
+
 function openAvatarSelector() {
   // Only allow editing own profile
   if (!isOwnProfile) return;
@@ -3461,6 +3502,7 @@ async function saveAvatar() {
     
     // Update UI
     updateAvatarDisplay(avatarValue);
+    updateHeaderAvatar();
     
     closeAvatarModal();
     alert('Avatar updated!');
