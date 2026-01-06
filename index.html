@@ -109,12 +109,12 @@
     .card-gallery-btn { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.6); color: white; border: none; padding: 6px 12px; border-radius: 20px; font-size: 13px; cursor: pointer; }
     
     /* Swipe Buttons */
-    .swipe-buttons { display: flex; justify-content: center; gap: 64px; margin-top: 24px; }
-    .swipe-btn { width: 64px; height: 64px; border-radius: 50%; border: 4px solid; background: white; font-size: 24px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+    .swipe-buttons { display: flex; justify-content: center; gap: 64px; margin-top: 24px; padding-bottom: 100px; position: relative; z-index: 10; }
+    .swipe-btn { width: 64px; height: 64px; border-radius: 50%; border: 4px solid; background: white; font-size: 24px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent; }
     .swipe-btn.pass { border-color: var(--primary); }
-    .swipe-btn.pass:hover { background: var(--primary); }
+    .swipe-btn.pass:hover, .swipe-btn.pass:active { background: var(--primary); }
     .swipe-btn.like { border-color: var(--success); }
-    .swipe-btn.like:hover { background: var(--success); }
+    .swipe-btn.like:hover, .swipe-btn.like:active { background: var(--success); }
     .swipe-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     
     /* Empty State */
@@ -416,8 +416,8 @@
       </div>
     </div>
     <div class="swipe-buttons" id="swipeButtons">
-      <button class="swipe-btn pass" onclick="passActivity()">✖</button>
-      <button class="swipe-btn like" onclick="likeActivity()">❤️</button>
+      <button class="swipe-btn pass" onclick="passActivity(); return false;">✖</button>
+      <button class="swipe-btn like" onclick="likeActivity(); return false;">❤️</button>
     </div>
   </div>
 
@@ -1414,43 +1414,61 @@ function changeCardImage(idx) {
 }
 
 async function likeActivity() {
-  const pool = getDiscoverPool();
-  if (pool.length === 0) return;
-  const item = pool[0];
-  
-  state.swipedIds.push(item.id);
-  state.stats.liked++;
-  
-  if (!item.isUserContent && !state.savedItems.find(i => i.id === item.id)) {
-    state.savedItems.push(item);
-    if (isLoggedIn) {
-      await saveSavedItem(item.id);
+  console.log('Like button clicked');
+  try {
+    const pool = getDiscoverPool();
+    console.log('Pool length:', pool.length);
+    if (pool.length === 0) return;
+    const item = pool[0];
+    console.log('Liking item:', item.id);
+    
+    state.swipedIds.push(item.id);
+    state.stats.liked++;
+    
+    if (!item.isUserContent && !state.savedItems.find(i => i.id === item.id)) {
+      state.savedItems.push(item);
+      if (isLoggedIn) {
+        saveSavedItem(item.id).catch(e => console.error('Save error:', e));
+      }
     }
+    
+    if (isLoggedIn) {
+      saveSwipedItem(item.id, 'like').catch(e => console.error('Swipe error:', e));
+      updateUserProfile({ stats_liked: state.stats.liked }).catch(e => console.error('Profile error:', e));
+    }
+    
+    cardImageIndex = 0;
+    renderDiscover();
+    console.log('Like complete');
+  } catch (err) {
+    console.error('likeActivity error:', err);
+    renderDiscover();
   }
-  
-  if (isLoggedIn) {
-    await saveSwipedItem(item.id, 'like');
-    await updateUserProfile({ stats_liked: state.stats.liked });
-  }
-  
-  cardImageIndex = 0;
-  renderDiscover();
 }
 
 async function passActivity() {
-  const pool = getDiscoverPool();
-  if (pool.length === 0) return;
-  
-  state.swipedIds.push(pool[0].id);
-  state.stats.passed++;
-  
-  if (isLoggedIn) {
-    await saveSwipedItem(pool[0].id, 'pass');
-    await updateUserProfile({ stats_passed: state.stats.passed });
+  console.log('Pass button clicked');
+  try {
+    const pool = getDiscoverPool();
+    console.log('Pool length:', pool.length);
+    if (pool.length === 0) return;
+    console.log('Passing item:', pool[0].id);
+    
+    state.swipedIds.push(pool[0].id);
+    state.stats.passed++;
+    
+    if (isLoggedIn) {
+      saveSwipedItem(pool[0].id, 'pass').catch(e => console.error('Swipe error:', e));
+      updateUserProfile({ stats_passed: state.stats.passed }).catch(e => console.error('Profile error:', e));
+    }
+    
+    cardImageIndex = 0;
+    renderDiscover();
+    console.log('Pass complete');
+  } catch (err) {
+    console.error('passActivity error:', err);
+    renderDiscover();
   }
-  
-  cardImageIndex = 0;
-  renderDiscover();
 }
 
 // ============ TABS ============
