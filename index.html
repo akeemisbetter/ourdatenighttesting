@@ -2507,6 +2507,7 @@ function getChallengeProgress(challenge) {
 
 function renderChallenges() {
   loadChallengesData();
+  checkBadges(); // Check for any newly earned badges
   
   // Render streak
   document.getElementById('streakCount').textContent = userChallengesData.streak;
@@ -3549,6 +3550,7 @@ async function submitVerification() {
     updateVerifyModalUI();
     updateProfileVerificationUI();
     updateHeaderAvatar();
+    checkBadges(); // Check for verified badge
     
     alert('🎉 Congratulations! Your account has been verified. You can now upload your own content!');
     closeVerifyModal();
