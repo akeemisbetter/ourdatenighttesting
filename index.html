@@ -24,50 +24,71 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     
     /* Welcome Screen */
-    .welcome { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; background: linear-gradient(135deg, #667eea 0%, #ff6b6b 100%); }
+    .welcome { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; background: linear-gradient(145deg, #1a1a1a 0%, #0d0d0d 50%, #1a1a1a 100%); position: relative; overflow: hidden; }
+    .welcome::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(212,175,125,0.1) 0%, transparent 50%); animation: shimmer 8s ease-in-out infinite; }
+    @keyframes shimmer { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(10%, 10%); } }
     .welcome.hidden { display: none; }
-    .welcome-content { text-align: center; max-width: 400px; }
-    .welcome-logo { font-size: 64px; margin-bottom: 16px; }
-    .welcome h1 { font-size: 36px; font-weight: 800; color: white; margin-bottom: 8px; }
-    .welcome p { color: rgba(255,255,255,0.9); margin-bottom: 48px; font-size: 18px; }
-    .welcome-btn { width: 100%; padding: 16px 24px; border-radius: 30px; border: none; font-size: 16px; font-weight: 600; cursor: pointer; margin-bottom: 16px; transition: transform 0.2s, box-shadow 0.2s; }
+    .welcome-content { text-align: center; max-width: 400px; flex: 1; display: flex; flex-direction: column; justify-content: center; z-index: 1; }
+    .welcome-logo { font-size: 80px; margin-bottom: 24px; filter: drop-shadow(0 0 20px rgba(212,175,125,0.5)); }
+    .welcome h1 { font-size: 42px; font-weight: 800; color: #d4af7d; margin-bottom: 12px; text-shadow: 0 2px 20px rgba(212,175,125,0.3); }
+    .welcome p { color: rgba(255,255,255,0.7); margin-bottom: 48px; font-size: 18px; }
+    .welcome-footer { width: 100%; padding-bottom: 40px; z-index: 1; }
+    .welcome-btn { width: 100%; padding: 18px 24px; border-radius: 30px; border: none; font-size: 17px; font-weight: 600; cursor: pointer; margin-bottom: 16px; transition: transform 0.2s, box-shadow 0.2s; }
     .welcome-btn:hover { transform: translateY(-2px); }
-    .welcome-btn.login { background: white; color: var(--secondary); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-    .welcome-btn.guest { background: transparent; color: white; border: 2px solid white; }
-    .welcome-btn.guest:hover { background: rgba(255,255,255,0.1); }
+    .welcome-btn.login { background: linear-gradient(135deg, #d4af7d 0%, #c9a066 100%); color: #1a1a1a; box-shadow: 0 4px 20px rgba(212,175,125,0.4); }
+    .welcome-btn.login:hover { box-shadow: 0 6px 30px rgba(212,175,125,0.6); }
+    .welcome-btn.guest { background: transparent; color: #d4af7d; border: 2px solid #d4af7d; }
+    .welcome-btn.guest:hover { background: rgba(212,175,125,0.1); }
+    .welcome-btn.continue { background: linear-gradient(135deg, #d4af7d 0%, #c9a066 100%); color: #1a1a1a; box-shadow: 0 4px 20px rgba(212,175,125,0.4); }
+    .welcome-btn.continue:hover { box-shadow: 0 6px 30px rgba(212,175,125,0.6); }
+    
+    /* Welcome Step 2 - After Login/Guest */
+    .welcome2 { min-height: 100vh; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 24px; background: linear-gradient(145deg, #1a1a1a 0%, #0d0d0d 50%, #1a1a1a 100%); position: relative; overflow: hidden; }
+    .welcome2::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(212,175,125,0.1) 0%, transparent 50%); animation: shimmer 8s ease-in-out infinite; }
+    .welcome2.active { display: flex; }
+    .welcome2-content { text-align: center; max-width: 400px; flex: 1; display: flex; flex-direction: column; justify-content: center; z-index: 1; }
+    .welcome2-logo { font-size: 100px; margin-bottom: 32px; filter: drop-shadow(0 0 30px rgba(212,175,125,0.5)); }
+    .welcome2 h2 { font-size: 22px; color: rgba(255,255,255,0.6); margin-bottom: 8px; font-weight: 400; }
+    .welcome2 h1 { font-size: 38px; font-weight: 800; color: #d4af7d; margin-bottom: 16px; text-shadow: 0 2px 20px rgba(212,175,125,0.3); }
+    .welcome2 p { color: rgba(255,255,255,0.5); font-size: 16px; }
+    .welcome2 .user-greeting { font-size: 15px; color: #d4af7d; margin-top: 24px; background: rgba(212,175,125,0.1); padding: 10px 20px; border-radius: 25px; display: inline-block; }
+    .welcome2-footer { width: 100%; max-width: 400px; padding-bottom: 50px; z-index: 1; }
     
     /* Login Modal */
-    .login-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 300; padding: 24px; }
+    .login-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 300; padding: 24px; }
     .login-modal.active { display: flex; }
-    .login-box { background: white; border-radius: 24px; padding: 32px; width: 100%; max-width: 360px; }
-    .login-box h2 { font-size: 24px; margin-bottom: 8px; color: #333; }
-    .login-box p { color: #888; margin-bottom: 24px; font-size: 14px; }
-    .login-input { width: 100%; padding: 14px 16px; border: 2px solid #eee; border-radius: 12px; font-size: 16px; margin-bottom: 12px; transition: border-color 0.2s; }
-    .login-input:focus { outline: none; border-color: var(--secondary); }
-    .login-submit { width: 100%; padding: 14px; border-radius: 12px; border: none; background: var(--secondary); color: white; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 8px; }
-    .login-submit:hover { background: #5a6fd6; }
-    .login-submit:disabled { background: #ccc; cursor: not-allowed; }
-    .login-switch { text-align: center; margin-top: 16px; font-size: 14px; color: #888; }
-    .login-switch a { color: var(--secondary); cursor: pointer; font-weight: 600; }
-    .login-close { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.9); border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 20px; cursor: pointer; }
-    .login-error { color: var(--primary); font-size: 13px; margin-bottom: 12px; display: none; }
+    .login-box { background: linear-gradient(145deg, #1a1a1a 0%, #0d0d0d 100%); border: 1px solid rgba(212,175,125,0.3); border-radius: 24px; padding: 32px; width: 100%; max-width: 360px; }
+    .login-box h2 { font-size: 24px; margin-bottom: 8px; color: #d4af7d; }
+    .login-box p { color: rgba(255,255,255,0.6); margin-bottom: 24px; font-size: 14px; }
+    .login-input { width: 100%; padding: 14px 16px; border: 2px solid rgba(212,175,125,0.3); border-radius: 12px; font-size: 16px; margin-bottom: 12px; transition: border-color 0.2s; background: rgba(255,255,255,0.05); color: white; }
+    .login-input:focus { outline: none; border-color: #d4af7d; }
+    .login-input::placeholder { color: rgba(255,255,255,0.4); }
+    .login-submit { width: 100%; padding: 14px; border-radius: 12px; border: none; background: linear-gradient(135deg, #d4af7d 0%, #c9a066 100%); color: #1a1a1a; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 8px; }
+    .login-submit:hover { box-shadow: 0 4px 20px rgba(212,175,125,0.4); }
+    .login-submit:disabled { background: #444; color: #888; cursor: not-allowed; }
+    .login-switch { text-align: center; margin-top: 16px; font-size: 14px; color: rgba(255,255,255,0.6); }
+    .login-switch a { color: #d4af7d; cursor: pointer; font-weight: 600; }
+    .login-close { position: absolute; top: 20px; right: 20px; background: rgba(212,175,125,0.2); border: 1px solid rgba(212,175,125,0.3); color: #d4af7d; width: 36px; height: 36px; border-radius: 50%; font-size: 20px; cursor: pointer; }
+    .login-error { color: #ff6b6b; font-size: 13px; margin-bottom: 12px; display: none; }
     .login-error.show { display: block; }
-    .login-success { color: var(--success); font-size: 13px; margin-bottom: 12px; display: none; }
+    .login-success { color: #4ecdc4; font-size: 13px; margin-bottom: 12px; display: none; }
     .login-success.show { display: block; }
     
     /* Onboarding */
-    .onboarding { min-height: 100vh; display: none; align-items: center; justify-content: center; padding: 24px; }
+    .onboarding { min-height: 100vh; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 24px; background: linear-gradient(145deg, #1a1a1a 0%, #0d0d0d 50%, #1a1a1a 100%); position: relative; overflow: hidden; }
+    .onboarding::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(212,175,125,0.1) 0%, transparent 50%); animation: shimmer 8s ease-in-out infinite; }
     .onboarding.active { display: flex; }
-    .onboarding-content { text-align: center; max-width: 400px; }
-    .onboarding h2 { font-size: 20px; color: #666; margin-bottom: 4px; }
-    .onboarding h1 { font-size: 32px; font-weight: 800; color: var(--primary); margin-bottom: 8px; }
-    .onboarding p { color: #888; margin-bottom: 32px; }
-    .onboarding .user-greeting { font-size: 14px; color: var(--secondary); margin-bottom: 24px; }
-    .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .profile-btn { background: white; border: none; border-radius: 16px; padding: 24px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: transform 0.2s, box-shadow 0.2s; }
-    .profile-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
-    .profile-btn .emoji { font-size: 32px; display: block; margin-bottom: 8px; }
-    .profile-btn .label { font-weight: 600; color: #333; }
+    .onboarding-content { text-align: center; max-width: 400px; z-index: 1; }
+    .onboarding h2 { font-size: 18px; color: rgba(255,255,255,0.6); margin-bottom: 8px; font-weight: 400; }
+    .onboarding h1 { font-size: 32px; font-weight: 800; color: #d4af7d; margin-bottom: 16px; text-shadow: 0 2px 20px rgba(212,175,125,0.3); }
+    .onboarding p { color: rgba(255,255,255,0.6); margin-bottom: 40px; }
+    .onboarding .user-greeting { font-size: 14px; color: #d4af7d; margin-bottom: 24px; background: rgba(212,175,125,0.1); padding: 8px 16px; border-radius: 20px; display: inline-block; }
+    .profile-grid { display: flex; flex-direction: column; gap: 16px; width: 100%; }
+    .profile-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(212,175,125,0.2); border-radius: 20px; padding: 24px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 20px; }
+    .profile-btn:hover { transform: translateY(-2px); background: rgba(212,175,125,0.1); border-color: #d4af7d; box-shadow: 0 8px 30px rgba(212,175,125,0.2); }
+    .profile-btn .emoji { font-size: 48px; display: flex; align-items: center; justify-content: center; width: 70px; height: 70px; background: rgba(212,175,125,0.1); border-radius: 50%; }
+    .profile-btn .label { font-weight: 600; color: white; font-size: 20px; }
+    .profile-btn .sublabel { color: rgba(255,255,255,0.5); font-size: 14px; margin-top: 4px; }
     
     /* App Container */
     .app { display: none; min-height: 100vh; padding-bottom: 80px; }
@@ -570,7 +591,9 @@
   <div class="welcome-content">
     <div class="welcome-logo">💕</div>
     <h1>Our Date Night</h1>
-    <p>Plan the perfect date together</p>
+    <p>Plan unforgettable moments together</p>
+  </div>
+  <div class="welcome-footer">
     <button class="welcome-btn login" onclick="showLoginModal()">Log In / Sign Up</button>
     <button class="welcome-btn guest" onclick="continueAsGuest()">Continue as Guest</button>
   </div>
@@ -594,29 +617,47 @@
   </div>
 </div>
 
-<!-- Onboarding Screen -->
-<div class="onboarding" id="onboarding">
-  <div class="onboarding-content">
+<!-- Welcome Step 2 - After Login/Guest -->
+<div class="welcome2" id="welcome2">
+  <div class="welcome2-content">
+    <div class="welcome2-logo">💕</div>
     <h2>Welcome to</h2>
     <h1>Our Date Night</h1>
-    <div class="user-greeting" id="userGreeting"></div>
-    <p>Choose how you're planning to date.</p>
+    <p>Let's plan something unforgettable</p>
+    <div class="user-greeting" id="userGreeting2"></div>
+  </div>
+  <div class="welcome2-footer">
+    <button class="welcome-btn continue" onclick="goToProfileSelect()">Continue Planning</button>
+  </div>
+</div>
+
+<!-- Profile Selection Screen -->
+<div class="onboarding" id="onboarding">
+  <div class="onboarding-content">
+    <h2>Who's joining you?</h2>
+    <h1>Plan Your Night</h1>
+    <p>Select how you'll be experiencing your date</p>
     <div class="profile-grid">
-      <button class="profile-btn" onclick="selectProfile('Individual')">
-        <span class="emoji">🧍</span>
-        <span class="label">Individual</span>
+      <button class="profile-btn" onclick="selectProfile('Solo')">
+        <div class="emoji"><span class="avatar-animated avatar-float">🧘</span></div>
+        <div>
+          <div class="label">Solo</div>
+          <div class="sublabel">Just me, myself & I</div>
+        </div>
       </button>
       <button class="profile-btn" onclick="selectProfile('Couple')">
-        <span class="emoji">❤️</span>
-        <span class="label">Couple</span>
-      </button>
-      <button class="profile-btn" onclick="selectProfile('Group')">
-        <span class="emoji">👥</span>
-        <span class="label">Group</span>
+        <div class="emoji"><span class="avatar-animated avatar-heartbeat">💑</span></div>
+        <div>
+          <div class="label">Couple</div>
+          <div class="sublabel">Romantic date for two</div>
+        </div>
       </button>
       <button class="profile-btn" onclick="selectProfile('Friends')">
-        <span class="emoji">🎉</span>
-        <span class="label">Friends</span>
+        <div class="emoji"><span class="avatar-animated avatar-bounce">🎉</span></div>
+        <div>
+          <div class="label">Friends</div>
+          <div class="sublabel">Fun night with the crew</div>
+        </div>
       </button>
     </div>
   </div>
@@ -1556,12 +1597,12 @@ async function checkSession() {
           updateUIForLoggedInUser();
           initApp();
         } else {
-          document.getElementById('onboarding').classList.add('active');
-          document.getElementById('userGreeting').textContent = `Welcome, ${userProfile.name}!`;
+          document.getElementById('welcome2').classList.add('active');
+          document.getElementById('userGreeting2').textContent = `Welcome, ${userProfile.name}!`;
         }
       } else {
-        document.getElementById('onboarding').classList.add('active');
-        document.getElementById('userGreeting').textContent = `Welcome!`;
+        document.getElementById('welcome2').classList.add('active');
+        document.getElementById('userGreeting2').textContent = `Welcome!`;
       }
     } else {
       // Load user content for guests too
@@ -1699,8 +1740,8 @@ async function handleLogin() {
         userGeneratedContent = await loadUserContent();
         
         document.getElementById('welcome').classList.add('hidden');
-        document.getElementById('onboarding').classList.add('active');
-        document.getElementById('userGreeting').textContent = `Welcome, ${name}!`;
+        document.getElementById('welcome2').classList.add('active');
+        document.getElementById('userGreeting2').textContent = `Welcome, ${name}!`;
       }
       
     } else {
@@ -1743,8 +1784,8 @@ async function handleLogin() {
           updateUIForLoggedInUser();
           initApp();
         } else {
-          document.getElementById('onboarding').classList.add('active');
-          document.getElementById('userGreeting').textContent = `Welcome back, ${userProfile.name}!`;
+          document.getElementById('welcome2').classList.add('active');
+          document.getElementById('userGreeting2').textContent = `Welcome back, ${userProfile.name}!`;
         }
       }
     }
@@ -1784,8 +1825,13 @@ async function continueAsGuest() {
   userGeneratedContent = await loadUserContent();
   
   document.getElementById('welcome').classList.add('hidden');
+  document.getElementById('welcome2').classList.add('active');
+  document.getElementById('userGreeting2').textContent = 'Guest Mode';
+}
+
+function goToProfileSelect() {
+  document.getElementById('welcome2').classList.remove('active');
   document.getElementById('onboarding').classList.add('active');
-  document.getElementById('userGreeting').textContent = 'Guest Mode - your data won\'t be saved';
 }
 
 async function selectProfile(type) {
@@ -1794,6 +1840,7 @@ async function selectProfile(type) {
     userProfile.profile_type = type;
   }
   
+  document.getElementById('welcome2').classList.remove('active');
   document.getElementById('onboarding').classList.remove('active');
   document.getElementById('app').classList.add('active');
   updateUIForLoggedInUser();
