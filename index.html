@@ -648,6 +648,57 @@
     .toggle-switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; background: white; border-radius: 50%; transition: transform 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
     .toggle-switch.active::after { transform: translateX(24px); }
     
+    /* Challenges & Achievements */
+    .challenges-section { margin-bottom: 24px; }
+    .streak-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px; padding: 20px; color: white; margin-bottom: 16px; position: relative; overflow: hidden; }
+    .streak-card::before { content: '🔥'; position: absolute; right: -10px; top: -10px; font-size: 80px; opacity: 0.2; }
+    .streak-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .streak-icon { font-size: 32px; }
+    .streak-title { font-size: 14px; opacity: 0.9; }
+    .streak-count { font-size: 48px; font-weight: 800; line-height: 1; }
+    .streak-label { font-size: 13px; opacity: 0.8; margin-top: 4px; }
+    .streak-week { display: flex; gap: 8px; margin-top: 16px; }
+    .streak-day { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; }
+    .streak-day.completed { background: white; color: #667eea; }
+    .streak-day.today { border: 2px solid white; }
+    
+    .challenges-card { background: var(--bg-card); border-radius: 16px; padding: 16px; margin-bottom: 16px; }
+    .challenges-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 12px; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+    .challenge-item { background: var(--bg-secondary); border-radius: 12px; padding: 14px; margin-bottom: 10px; }
+    .challenge-item:last-child { margin-bottom: 0; }
+    .challenge-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .challenge-title { font-weight: 600; font-size: 14px; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+    .challenge-reward { font-size: 12px; color: var(--secondary); font-weight: 600; }
+    .challenge-progress-bar { height: 8px; background: var(--border-color); border-radius: 4px; overflow: hidden; }
+    .challenge-progress-fill { height: 100%; background: linear-gradient(90deg, var(--secondary), #764ba2); border-radius: 4px; transition: width 0.3s; }
+    .challenge-meta { display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; color: var(--text-muted); }
+    .challenge-complete { background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%); }
+    .challenge-complete .challenge-title, .challenge-complete .challenge-meta { color: white; }
+    .challenge-complete .challenge-reward { color: rgba(255,255,255,0.9); }
+    .challenge-complete .challenge-progress-bar { background: rgba(255,255,255,0.3); }
+    .challenge-complete .challenge-progress-fill { background: white; }
+    
+    .badges-card { background: var(--bg-card); border-radius: 16px; padding: 16px; }
+    .badges-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 12px; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+    .badges-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .badge-item { text-align: center; cursor: pointer; }
+    .badge-icon { width: 56px; height: 56px; border-radius: 50%; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 6px; transition: transform 0.2s; border: 3px solid transparent; }
+    .badge-item:hover .badge-icon { transform: scale(1.1); }
+    .badge-item.earned .badge-icon { background: linear-gradient(135deg, #ffd700 0%, #ffb700 100%); border-color: #ffa500; box-shadow: 0 4px 12px rgba(255,183,0,0.4); }
+    .badge-item.locked .badge-icon { filter: grayscale(1); opacity: 0.4; }
+    .badge-name { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+    .badge-item.earned .badge-name { color: var(--text-primary); font-weight: 600; }
+    
+    .badge-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 500; padding: 24px; }
+    .badge-modal.active { display: flex; }
+    .badge-modal-content { background: var(--bg-card); border-radius: 24px; padding: 32px; text-align: center; max-width: 320px; width: 100%; }
+    .badge-modal-icon { font-size: 72px; margin-bottom: 16px; }
+    .badge-modal-title { font-size: 24px; font-weight: 800; color: var(--text-primary); margin-bottom: 8px; }
+    .badge-modal-desc { color: var(--text-secondary); font-size: 14px; margin-bottom: 8px; }
+    .badge-modal-date { color: var(--text-muted); font-size: 12px; margin-bottom: 20px; }
+    .badge-modal-locked { color: var(--text-muted); font-size: 13px; font-style: italic; }
+    .badge-modal-close { background: var(--secondary); color: white; border: none; padding: 12px 32px; border-radius: 24px; font-size: 14px; font-weight: 600; cursor: pointer; }
+    
     /* Dark Mode Overrides */
     [data-theme="dark"] .swipe-card { background: var(--bg-card); }
     [data-theme="dark"] .card-body { background: var(--bg-card); }
@@ -735,6 +786,25 @@
     [data-theme="dark"] .verify-box p { color: var(--text-secondary); }
     [data-theme="dark"] .upload-box { background: var(--bg-card); }
     [data-theme="dark"] .upload-box h2 { color: var(--text-primary); }
+    
+    [data-theme="dark"] .challenges-card { background: var(--bg-card); }
+    [data-theme="dark"] .challenges-card h3 { color: var(--text-primary); }
+    [data-theme="dark"] .challenge-item { background: var(--bg-secondary); }
+    [data-theme="dark"] .challenge-title { color: var(--text-primary); }
+    [data-theme="dark"] .challenge-meta { color: var(--text-muted); }
+    [data-theme="dark"] .challenge-progress-bar { background: var(--border-color); }
+    
+    [data-theme="dark"] .badges-card { background: var(--bg-card); }
+    [data-theme="dark"] .badges-card h3 { color: var(--text-primary); }
+    [data-theme="dark"] .badge-icon { background: var(--bg-secondary); }
+    [data-theme="dark"] .badge-name { color: var(--text-muted); }
+    [data-theme="dark"] .badge-item.earned .badge-name { color: var(--text-primary); }
+    
+    [data-theme="dark"] .badge-modal-content { background: var(--bg-card); }
+    [data-theme="dark"] .badge-modal-title { color: var(--text-primary); }
+    [data-theme="dark"] .badge-modal-desc { color: var(--text-secondary); }
+    [data-theme="dark"] .badge-modal-date { color: var(--text-muted); }
+    [data-theme="dark"] .badge-modal-locked { color: var(--text-muted); }
   </style>
 </head>
 <body>
@@ -1006,6 +1076,40 @@
       </div>
     </div>
     
+    <!-- Challenges & Achievements Section -->
+    <div class="challenges-section" id="challengesSection">
+      <!-- Streak Card -->
+      <div class="streak-card">
+        <div class="streak-header">
+          <span class="streak-icon">🔥</span>
+          <div>
+            <div class="streak-title">Date Night Streak</div>
+            <div class="streak-count" id="streakCount">0</div>
+            <div class="streak-label">weeks in a row</div>
+          </div>
+        </div>
+        <div class="streak-week" id="streakWeek">
+          <!-- Filled by JS -->
+        </div>
+      </div>
+      
+      <!-- Active Challenges -->
+      <div class="challenges-card">
+        <h3>🎯 Active Challenges</h3>
+        <div id="activeChallenges">
+          <!-- Filled by JS -->
+        </div>
+      </div>
+      
+      <!-- Badges -->
+      <div class="badges-card">
+        <h3>🏆 Achievements</h3>
+        <div class="badges-grid" id="badgesGrid">
+          <!-- Filled by JS -->
+        </div>
+      </div>
+    </div>
+    
     <!-- Admin Panel (only visible to admins) -->
     <div id="adminSection" class="admin-section" style="display:none;">
       <h3>👑 Admin Panel</h3>
@@ -1079,6 +1183,18 @@
       <span class="nav-label">Plan</span>
     </button>
   </nav>
+</div>
+
+<!-- Badge Modal -->
+<div class="badge-modal" id="badgeModal" onclick="closeBadgeModal(event)">
+  <div class="badge-modal-content" onclick="event.stopPropagation()">
+    <div class="badge-modal-icon" id="badgeModalIcon">🏆</div>
+    <div class="badge-modal-title" id="badgeModalTitle">Badge Name</div>
+    <div class="badge-modal-desc" id="badgeModalDesc">Badge description</div>
+    <div class="badge-modal-date" id="badgeModalDate"></div>
+    <div class="badge-modal-locked" id="badgeModalLocked"></div>
+    <button class="badge-modal-close" onclick="closeBadgeModal()">Got it!</button>
+  </div>
 </div>
 
 <!-- Gallery Modal -->
@@ -2211,6 +2327,256 @@ function initDarkMode() {
 // Initialize dark mode on page load
 initDarkMode();
 
+// ============ CHALLENGES & BADGES ============
+const BADGES = [
+  { id: 'first_date', icon: '💕', name: 'First Date', desc: 'Complete your first planned date', requirement: { type: 'dates', count: 1 } },
+  { id: 'date_night_5', icon: '🌙', name: 'Regular', desc: 'Complete 5 dates', requirement: { type: 'dates', count: 5 } },
+  { id: 'date_night_10', icon: '⭐', name: 'Date Pro', desc: 'Complete 10 dates', requirement: { type: 'dates', count: 10 } },
+  { id: 'date_night_25', icon: '👑', name: 'Royalty', desc: 'Complete 25 dates', requirement: { type: 'dates', count: 25 } },
+  { id: 'adventurer', icon: '🧭', name: 'Adventurer', desc: 'Try 5 different activity types', requirement: { type: 'categories', count: 5 } },
+  { id: 'foodie', icon: '🍽️', name: 'Foodie', desc: 'Visit 10 restaurants', requirement: { type: 'restaurant_visits', count: 10 } },
+  { id: 'culture', icon: '🎨', name: 'Cultured', desc: 'Visit 5 arts venues', requirement: { type: 'arts_visits', count: 5 } },
+  { id: 'streak_4', icon: '🔥', name: 'On Fire', desc: 'Maintain a 4-week streak', requirement: { type: 'streak', count: 4 } },
+  { id: 'streak_8', icon: '💎', name: 'Unstoppable', desc: 'Maintain an 8-week streak', requirement: { type: 'streak', count: 8 } },
+  { id: 'explorer', icon: '🗺️', name: 'Explorer', desc: 'Save 20 places to your list', requirement: { type: 'saved', count: 20 } },
+  { id: 'photographer', icon: '📸', name: 'Photographer', desc: 'Upload 5 photos', requirement: { type: 'uploads', count: 5 } },
+  { id: 'verified', icon: '✅', name: 'Verified', desc: 'Get your account verified', requirement: { type: 'verified', count: 1 } },
+];
+
+const CHALLENGES = [
+  { id: 'restaurants_month', icon: '🍽️', title: 'Restaurant Explorer', desc: 'Try 3 new restaurants this month', target: 3, type: 'restaurant_visits', reward: '50 pts', duration: 'month' },
+  { id: 'outdoor_week', icon: '🌳', title: 'Fresh Air', desc: 'Do 2 outdoor activities this week', target: 2, type: 'outdoor_visits', reward: '25 pts', duration: 'week' },
+  { id: 'dates_week', icon: '💕', title: 'Date Night Champion', desc: 'Complete 2 dates this week', target: 2, type: 'dates_week', reward: '30 pts', duration: 'week' },
+  { id: 'new_category', icon: '🎯', title: 'Try Something New', desc: 'Visit a new type of place', target: 1, type: 'new_category', reward: '20 pts', duration: 'week' },
+  { id: 'upload_photo', icon: '📸', title: 'Share the Moment', desc: 'Upload a photo from your date', target: 1, type: 'uploads', reward: '15 pts', duration: 'week' },
+];
+
+let userChallengesData = {
+  streak: 0,
+  lastDateWeek: null,
+  weekDates: [false, false, false, false, false, false, false],
+  earnedBadges: [],
+  challengeProgress: {},
+  stats: {
+    totalDates: 0,
+    restaurantVisits: 0,
+    outdoorVisits: 0,
+    artsVisits: 0,
+    categoriesVisited: [],
+    uploads: 0
+  }
+};
+
+function loadChallengesData() {
+  const saved = localStorage.getItem('challengesData');
+  if (saved) {
+    userChallengesData = { ...userChallengesData, ...JSON.parse(saved) };
+  }
+  
+  // Check for week reset
+  const currentWeek = getWeekNumber(new Date());
+  if (userChallengesData.lastDateWeek !== currentWeek) {
+    // New week - check if they maintained streak
+    if (userChallengesData.weekDates.some(d => d)) {
+      userChallengesData.streak++;
+    } else if (userChallengesData.lastDateWeek !== null) {
+      userChallengesData.streak = 0;
+    }
+    userChallengesData.weekDates = [false, false, false, false, false, false, false];
+    userChallengesData.lastDateWeek = currentWeek;
+    saveChallengesData();
+  }
+}
+
+function saveChallengesData() {
+  localStorage.setItem('challengesData', JSON.stringify(userChallengesData));
+}
+
+function getWeekNumber(date) {
+  const startOfYear = new Date(date.getFullYear(), 0, 1);
+  const days = Math.floor((date - startOfYear) / (24 * 60 * 60 * 1000));
+  return Math.ceil((days + startOfYear.getDay() + 1) / 7);
+}
+
+function recordDateActivity(category) {
+  const today = new Date().getDay();
+  userChallengesData.weekDates[today] = true;
+  userChallengesData.stats.totalDates++;
+  
+  // Track category
+  if (!userChallengesData.stats.categoriesVisited.includes(category)) {
+    userChallengesData.stats.categoriesVisited.push(category);
+  }
+  
+  // Track specific types
+  if (category === 'Dining' || category === 'restaurants') {
+    userChallengesData.stats.restaurantVisits++;
+  } else if (category === 'Outdoor' || category === 'outdoor') {
+    userChallengesData.stats.outdoorVisits++;
+  } else if (category === 'Arts & Culture' || category === 'arts') {
+    userChallengesData.stats.artsVisits++;
+  }
+  
+  saveChallengesData();
+  checkBadges();
+  renderChallenges();
+}
+
+function recordUpload() {
+  userChallengesData.stats.uploads++;
+  saveChallengesData();
+  checkBadges();
+  renderChallenges();
+}
+
+function checkBadges() {
+  const stats = userChallengesData.stats;
+  
+  BADGES.forEach(badge => {
+    if (userChallengesData.earnedBadges.includes(badge.id)) return;
+    
+    let earned = false;
+    const req = badge.requirement;
+    
+    switch (req.type) {
+      case 'dates':
+        earned = stats.totalDates >= req.count;
+        break;
+      case 'categories':
+        earned = stats.categoriesVisited.length >= req.count;
+        break;
+      case 'restaurant_visits':
+        earned = stats.restaurantVisits >= req.count;
+        break;
+      case 'arts_visits':
+        earned = stats.artsVisits >= req.count;
+        break;
+      case 'streak':
+        earned = userChallengesData.streak >= req.count;
+        break;
+      case 'saved':
+        earned = (state.savedItems?.length || 0) >= req.count;
+        break;
+      case 'uploads':
+        earned = stats.uploads >= req.count;
+        break;
+      case 'verified':
+        earned = state.verificationStatus === 'verified';
+        break;
+    }
+    
+    if (earned) {
+      userChallengesData.earnedBadges.push(badge.id);
+      saveChallengesData();
+      showBadgeEarned(badge);
+    }
+  });
+}
+
+function showBadgeEarned(badge) {
+  // Could add a celebration animation here
+  alert(`🎉 Badge Earned: ${badge.name}!\n${badge.desc}`);
+}
+
+function getChallengeProgress(challenge) {
+  const stats = userChallengesData.stats;
+  
+  switch (challenge.type) {
+    case 'restaurant_visits':
+      return Math.min(stats.restaurantVisits, challenge.target);
+    case 'outdoor_visits':
+      return Math.min(stats.outdoorVisits, challenge.target);
+    case 'dates_week':
+      return Math.min(userChallengesData.weekDates.filter(d => d).length, challenge.target);
+    case 'new_category':
+      return stats.categoriesVisited.length > 0 ? 1 : 0;
+    case 'uploads':
+      return Math.min(stats.uploads, challenge.target);
+    default:
+      return 0;
+  }
+}
+
+function renderChallenges() {
+  loadChallengesData();
+  
+  // Render streak
+  document.getElementById('streakCount').textContent = userChallengesData.streak;
+  
+  const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+  const today = new Date().getDay();
+  document.getElementById('streakWeek').innerHTML = days.map((day, i) => `
+    <div class="streak-day ${userChallengesData.weekDates[i] ? 'completed' : ''} ${i === today ? 'today' : ''}">
+      ${userChallengesData.weekDates[i] ? '✓' : day}
+    </div>
+  `).join('');
+  
+  // Render active challenges
+  const challengesHtml = CHALLENGES.slice(0, 3).map(challenge => {
+    const progress = getChallengeProgress(challenge);
+    const percent = Math.min((progress / challenge.target) * 100, 100);
+    const isComplete = progress >= challenge.target;
+    
+    return `
+      <div class="challenge-item ${isComplete ? 'challenge-complete' : ''}">
+        <div class="challenge-header">
+          <span class="challenge-title">${challenge.icon} ${challenge.title}</span>
+          <span class="challenge-reward">${challenge.reward}</span>
+        </div>
+        <div class="challenge-progress-bar">
+          <div class="challenge-progress-fill" style="width: ${percent}%"></div>
+        </div>
+        <div class="challenge-meta">
+          <span>${challenge.desc}</span>
+          <span>${progress}/${challenge.target}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+  
+  document.getElementById('activeChallenges').innerHTML = challengesHtml;
+  
+  // Render badges
+  const badgesHtml = BADGES.map(badge => {
+    const earned = userChallengesData.earnedBadges.includes(badge.id);
+    return `
+      <div class="badge-item ${earned ? 'earned' : 'locked'}" onclick="openBadgeModal('${badge.id}')">
+        <div class="badge-icon">${badge.icon}</div>
+        <div class="badge-name">${badge.name}</div>
+      </div>
+    `;
+  }).join('');
+  
+  document.getElementById('badgesGrid').innerHTML = badgesHtml;
+}
+
+function openBadgeModal(badgeId) {
+  const badge = BADGES.find(b => b.id === badgeId);
+  if (!badge) return;
+  
+  const earned = userChallengesData.earnedBadges.includes(badge.id);
+  
+  document.getElementById('badgeModalIcon').textContent = badge.icon;
+  document.getElementById('badgeModalTitle').textContent = badge.name;
+  document.getElementById('badgeModalDesc').textContent = badge.desc;
+  
+  if (earned) {
+    document.getElementById('badgeModalDate').textContent = '✓ Earned';
+    document.getElementById('badgeModalDate').style.color = 'var(--success)';
+    document.getElementById('badgeModalLocked').textContent = '';
+  } else {
+    document.getElementById('badgeModalDate').textContent = '';
+    document.getElementById('badgeModalLocked').textContent = '🔒 Keep going to unlock this badge!';
+  }
+  
+  document.getElementById('badgeModal').classList.add('active');
+}
+
+function closeBadgeModal(event) {
+  if (event && event.target !== event.currentTarget) return;
+  document.getElementById('badgeModal').classList.remove('active');
+}
+
 // ============ DISCOVER ============
 function getDiscoverPool() {
   const userContent = userGeneratedContent
@@ -2504,6 +2870,10 @@ async function likeActivity() {
         saveSavedItem(item.id).catch(e => console.error('Save error:', e));
       }
     }
+    
+    // Record activity for challenges (use category from item)
+    const category = item.category || item.tags?.[0] || 'other';
+    recordDateActivity(category);
     
     if (isLoggedIn) {
       saveSwipedItem(item.id, 'like').catch(e => console.error('Swipe error:', e));
@@ -2957,6 +3327,7 @@ async function renderProfile() {
   
   updateUIForLoggedInUser();
   updateDarkModeToggle();
+  renderChallenges();
   
   // Render admin panel if user is admin
   if (isLoggedIn && userProfile?.is_admin) {
@@ -3466,6 +3837,9 @@ async function submitContent() {
     
     // Reload user content
     userGeneratedContent = await loadUserContent();
+    
+    // Record upload for challenges
+    recordUpload();
     
     closeUploadModal();
     alert('🎉 Your content has been posted!');
