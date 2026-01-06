@@ -318,6 +318,75 @@
     .admin-btn.approve { background: var(--success); color: white; }
     .admin-btn.reject { background: var(--primary); color: white; }
     .admin-btn.view { background: #eee; color: #333; }
+    
+    /* My Uploads Section */
+    .my-uploads { margin-top: 24px; }
+    .my-uploads h3 { font-weight: 700; margin-bottom: 12px; }
+    .upload-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .upload-thumb { position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden; cursor: pointer; }
+    .upload-thumb img, .upload-thumb video { width: 100%; height: 100%; object-fit: cover; }
+    .upload-thumb-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; }
+    .upload-thumb:hover .upload-thumb-overlay { opacity: 1; }
+    .upload-thumb-delete { background: var(--primary); color: white; border: none; padding: 8px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; }
+    .upload-thumb-video-icon { position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.6); color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; }
+    
+    /* Location Detail Modal */
+    .location-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: flex-start; justify-content: center; z-index: 300; padding: 16px; overflow-y: auto; }
+    .location-modal.active { display: flex; }
+    .location-box { background: white; border-radius: 24px; width: 100%; max-width: 500px; margin: auto; overflow: hidden; }
+    .location-header { position: relative; height: 200px; }
+    .location-header img { width: 100%; height: 100%; object-fit: cover; }
+    .location-header-overlay { position: absolute; inset: 0; background: linear-gradient(transparent 50%, rgba(0,0,0,0.7)); }
+    .location-close { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.5); color: white; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 18px; cursor: pointer; }
+    .location-title { position: absolute; bottom: 16px; left: 16px; right: 16px; color: white; }
+    .location-title h2 { font-size: 24px; margin-bottom: 4px; }
+    .location-title p { font-size: 14px; opacity: 0.9; }
+    .location-body { padding: 20px; }
+    .location-meta { display: flex; gap: 16px; margin-bottom: 16px; font-size: 14px; color: #666; }
+    .location-desc { color: #555; line-height: 1.5; margin-bottom: 16px; }
+    .location-address { color: #888; font-size: 14px; margin-bottom: 24px; }
+    .location-section-title { font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+    .location-section-title span { font-size: 13px; color: #888; font-weight: 400; }
+    .location-photos { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 16px; }
+    .location-photo { aspect-ratio: 1; border-radius: 12px; overflow: hidden; cursor: pointer; position: relative; }
+    .location-photo img, .location-photo video { width: 100%; height: 100%; object-fit: cover; }
+    .location-photo-user { position: absolute; bottom: 8px; left: 8px; background: rgba(0,0,0,0.6); color: white; padding: 4px 8px; border-radius: 12px; font-size: 11px; display: flex; align-items: center; gap: 4px; }
+    .location-photo-likes { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.6); color: white; padding: 4px 8px; border-radius: 12px; font-size: 11px; }
+    .location-actions { display: flex; gap: 12px; }
+    .location-actions button { flex: 1; }
+    
+    /* User Profile Modal */
+    .user-profile-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: flex-start; justify-content: center; z-index: 300; padding: 16px; overflow-y: auto; }
+    .user-profile-modal.active { display: flex; }
+    .user-profile-box { background: white; border-radius: 24px; width: 100%; max-width: 500px; margin: auto; overflow: hidden; }
+    .user-profile-header { background: linear-gradient(135deg, #667eea 0%, #ff6b6b 100%); padding: 32px 20px; text-align: center; color: white; position: relative; }
+    .user-profile-close { position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.2); color: white; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 18px; cursor: pointer; }
+    .user-profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto 12px; color: var(--secondary); }
+    .user-profile-name { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+    .user-profile-verified { font-size: 14px; opacity: 0.9; }
+    .user-profile-stats { display: flex; justify-content: center; gap: 32px; margin-top: 16px; }
+    .user-profile-stat { text-align: center; }
+    .user-profile-stat-num { font-size: 20px; font-weight: 700; }
+    .user-profile-stat-label { font-size: 12px; opacity: 0.8; }
+    .user-profile-body { padding: 20px; }
+    .user-profile-section-title { font-weight: 700; margin-bottom: 12px; }
+    .user-profile-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .user-profile-item { aspect-ratio: 1; border-radius: 8px; overflow: hidden; cursor: pointer; position: relative; }
+    .user-profile-item img, .user-profile-item video { width: 100%; height: 100%; object-fit: cover; }
+    .user-profile-item-likes { position: absolute; bottom: 4px; right: 4px; background: rgba(0,0,0,0.6); color: white; padding: 2px 6px; border-radius: 8px; font-size: 10px; }
+    
+    /* Content Like Button */
+    .content-like-btn { background: none; border: none; cursor: pointer; font-size: 20px; display: flex; align-items: center; gap: 4px; color: #888; padding: 4px; }
+    .content-like-btn.liked { color: var(--primary); }
+    .content-like-btn span { font-size: 14px; }
+    
+    /* Card clickable title */
+    .card-title-link { cursor: pointer; color: #222; transition: color 0.2s; }
+    .card-title-link:hover { color: var(--secondary); }
+    
+    /* Card user clickable */
+    .card-user-clickable { cursor: pointer; }
+    .card-user-clickable:hover .card-user-name { color: var(--secondary); }
   </style>
 </head>
 <body>
@@ -525,6 +594,14 @@
       </div>
     </div>
     
+    <!-- My Uploads Section (verified users only) -->
+    <div id="myUploadsSection" class="profile-card my-uploads" style="display:none;">
+      <h3>📸 My Uploads</h3>
+      <div class="upload-grid" id="myUploadsGrid">
+        <p style="color:#888;font-size:13px;grid-column:1/-1;">You haven't uploaded anything yet.</p>
+      </div>
+    </div>
+    
     <h3 style="font-weight:700;margin-bottom:12px;">Interests</h3>
     <div class="filter-chips" id="interestChips"></div>
     
@@ -680,6 +757,71 @@
       <span class="side-menu-item-icon">📱</span>
       <span class="side-menu-item-text">Contact Us</span>
     </a>
+  </div>
+</div>
+
+<!-- Location Detail Modal -->
+<div class="location-modal" id="locationModal">
+  <div class="location-box">
+    <div class="location-header">
+      <img id="locationImage" src="" alt="">
+      <div class="location-header-overlay"></div>
+      <button class="location-close" onclick="closeLocationModal()">✕</button>
+      <div class="location-title">
+        <h2 id="locationName"></h2>
+        <p id="locationCategory"></p>
+      </div>
+    </div>
+    <div class="location-body">
+      <div class="location-meta">
+        <span id="locationRating">⭐ 4.5</span>
+        <span id="locationReviews">• 1,234 reviews</span>
+        <span id="locationPrice">• $$</span>
+      </div>
+      <p class="location-desc" id="locationDesc"></p>
+      <p class="location-address" id="locationAddress">📍 </p>
+      
+      <div class="location-section-title">
+        📸 User Photos & Videos
+        <span id="locationPhotoCount">0 posts</span>
+      </div>
+      <div class="location-photos" id="locationPhotos">
+        <p style="color:#888;font-size:13px;grid-column:1/-1;">No user content yet. Be the first to share!</p>
+      </div>
+      
+      <div class="location-actions">
+        <button class="btn-full secondary" onclick="saveLocationFromModal()">❤️ Save</button>
+        <button class="btn-full primary" onclick="bookLocationFromModal()">Book Now</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- User Profile Modal -->
+<div class="user-profile-modal" id="userProfileModal">
+  <div class="user-profile-box">
+    <div class="user-profile-header">
+      <button class="user-profile-close" onclick="closeUserProfileModal()">✕</button>
+      <div class="user-profile-avatar" id="userProfileAvatar">J</div>
+      <div class="user-profile-name" id="userProfileName">John Doe</div>
+      <div class="user-profile-verified">✓ Verified Reviewer</div>
+      <div class="user-profile-stats">
+        <div class="user-profile-stat">
+          <div class="user-profile-stat-num" id="userProfilePosts">0</div>
+          <div class="user-profile-stat-label">Posts</div>
+        </div>
+        <div class="user-profile-stat">
+          <div class="user-profile-stat-num" id="userProfileLikes">0</div>
+          <div class="user-profile-stat-label">Likes</div>
+        </div>
+      </div>
+    </div>
+    <div class="user-profile-body">
+      <div class="user-profile-section-title">📸 Reviews</div>
+      <div class="user-profile-grid" id="userProfileGrid">
+        <p style="color:#888;font-size:13px;grid-column:1/-1;">No posts yet.</p>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1316,6 +1458,8 @@ function getDiscoverPool() {
     .filter(c => !state.swipedIds.includes('user-' + c.id))
     .map(c => ({
       id: 'user-' + c.id,
+      odOriginalUserId: c.user_id,
+      originalPlaceId: c.place_id,
       title: c.place_name,
       category: c.place_category,
       description: c.caption || `Shared by ${c.user_name}`,
@@ -1330,7 +1474,8 @@ function getDiscoverPool() {
       isUserContent: true,
       userName: c.user_name,
       userVerified: c.user_verified,
-      createdAt: c.created_at
+      createdAt: c.created_at,
+      likes: c.likes || 0
     }));
   
   const regularActivities = NYC_ACTIVITIES
@@ -1355,6 +1500,36 @@ function renderDiscover() {
     btns.classList.remove('hidden');
     const item = pool[0];
     
+    // Get popular content for this location (if not user content itself)
+    let popularPhotos = '';
+    if (!item.isUserContent) {
+      const locationContent = userGeneratedContent
+        .filter(c => c.place_id === item.id)
+        .sort((a, b) => calculatePopularity(b) - calculatePopularity(a))
+        .slice(0, 10);
+      
+      if (locationContent.length > 0) {
+        popularPhotos = `
+          <div style="padding: 12px 16px; border-top: 1px solid #eee;">
+            <div style="font-weight:600;font-size:13px;margin-bottom:8px;display:flex;justify-content:space-between;">
+              <span>📸 Popular Photos (${locationContent.length})</span>
+              <span style="color:var(--secondary);cursor:pointer;" onclick="event.stopPropagation(); openLocationModal('${item.id}')">See All</span>
+            </div>
+            <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;">
+              ${locationContent.slice(0, 5).map(c => `
+                <div style="flex-shrink:0;width:60px;height:60px;border-radius:8px;overflow:hidden;cursor:pointer;position:relative;" onclick="event.stopPropagation(); openUserProfileModal('${c.user_id}', '${c.user_name}')">
+                  ${c.media_type === 'video' 
+                    ? `<video src="${c.media_url}" style="width:100%;height:100%;object-fit:cover;" muted></video><span style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.6);color:white;padding:1px 4px;border-radius:3px;font-size:8px;">▶</span>`
+                    : `<img src="${c.media_url}" style="width:100%;height:100%;object-fit:cover;">`
+                  }
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+    }
+    
     const userBadge = item.isUserContent ? `
       <div class="user-content-badge">
         <span>📸</span> ${item.userName} ${item.userVerified ? '<span class="verified-check">✓</span>' : ''}
@@ -1362,7 +1537,7 @@ function renderDiscover() {
     ` : '';
     
     const userInfo = item.isUserContent ? `
-      <div class="card-user-info">
+      <div class="card-user-info card-user-clickable" onclick="event.stopPropagation(); openUserProfileModal('${item.odOriginalUserId || ''}', '${item.userName}')">
         <div style="width:32px;height:32px;border-radius:50%;background:var(--secondary);display:flex;align-items:center;justify-content:center;color:white;font-size:14px;">
           ${item.userName.charAt(0).toUpperCase()}
         </div>
@@ -1376,6 +1551,9 @@ function renderDiscover() {
     ` : `
       <img class="card-image" src="${item.media[0]}" alt="${item.title}" id="cardImage">
     `;
+    
+    // Get original activity ID for user content
+    const originalActivityId = item.isUserContent ? item.originalPlaceId : item.id;
     
     card.innerHTML = `
       <div class="swipe-card" id="currentCard">
@@ -1394,7 +1572,7 @@ function renderDiscover() {
         <div class="card-body">
           ${userInfo}
           <div class="card-header">
-            <h3 class="card-title">${item.title}</h3>
+            <h3 class="card-title card-title-link" onclick="event.stopPropagation(); openLocationModal('${originalActivityId || item.id}')">${item.title}</h3>
             <span class="card-price">${item.price}</span>
           </div>
           <div class="card-meta">
@@ -1405,6 +1583,7 @@ function renderDiscover() {
           <p class="card-desc">${item.description}</p>
           <p class="card-address">📍 ${item.address}</p>
         </div>
+        ${popularPhotos}
       </div>
     `;
     
@@ -1892,6 +2071,9 @@ async function renderProfile() {
   if (isLoggedIn && userProfile?.is_admin) {
     await renderAdminPanel();
   }
+  
+  // Load my uploads if verified
+  await loadMyUploads();
 }
 
 async function toggleInterest(key) {
@@ -2489,6 +2671,234 @@ function initApp() {
   document.querySelector('.nav-center').classList.add('active');
 }
 
+// ============ LOCATION DETAIL MODAL ============
+let currentLocationId = null;
+
+function openLocationModal(activityId) {
+  const activity = NYC_ACTIVITIES.find(a => a.id === activityId);
+  if (!activity) return;
+  
+  currentLocationId = activityId;
+  
+  document.getElementById('locationImage').src = activity.media[0];
+  document.getElementById('locationName').textContent = activity.title;
+  document.getElementById('locationCategory').textContent = activity.category;
+  document.getElementById('locationRating').textContent = `⭐ ${activity.rating}`;
+  document.getElementById('locationReviews').textContent = `• ${activity.reviewCount} reviews`;
+  document.getElementById('locationPrice').textContent = `• ${activity.price}`;
+  document.getElementById('locationDesc').textContent = activity.description;
+  document.getElementById('locationAddress').textContent = `📍 ${activity.address}`;
+  
+  // Load user content for this location
+  loadLocationContent(activityId);
+  
+  document.getElementById('locationModal').classList.add('active');
+}
+
+function closeLocationModal() {
+  document.getElementById('locationModal').classList.remove('active');
+  currentLocationId = null;
+}
+
+async function loadLocationContent(activityId) {
+  const container = document.getElementById('locationPhotos');
+  const countEl = document.getElementById('locationPhotoCount');
+  
+  // Filter content for this location and sort by popularity
+  const locationContent = userGeneratedContent
+    .filter(c => c.place_id === activityId)
+    .sort((a, b) => calculatePopularity(b) - calculatePopularity(a))
+    .slice(0, 10);
+  
+  countEl.textContent = `${locationContent.length} posts`;
+  
+  if (locationContent.length === 0) {
+    container.innerHTML = '<p style="color:#888;font-size:13px;grid-column:1/-1;">No user content yet. Be the first to share!</p>';
+    return;
+  }
+  
+  container.innerHTML = locationContent.map(content => `
+    <div class="location-photo" onclick="openContentDetail(${content.id})">
+      ${content.media_type === 'video' 
+        ? `<video src="${content.media_url}" muted></video><span class="upload-thumb-video-icon">▶</span>`
+        : `<img src="${content.media_url}" alt="">`
+      }
+      <div class="location-photo-user" onclick="event.stopPropagation(); openUserProfileModal('${content.user_id}', '${content.user_name}')">${content.user_name}</div>
+      <div class="location-photo-likes">❤️ ${content.likes || 0}</div>
+    </div>
+  `).join('');
+}
+
+function saveLocationFromModal() {
+  if (currentLocationId) {
+    saveItem(currentLocationId);
+  }
+}
+
+function bookLocationFromModal() {
+  const activity = NYC_ACTIVITIES.find(a => a.id === currentLocationId);
+  if (activity) {
+    openBooking(activity.title);
+  }
+}
+
+// ============ USER PROFILE MODAL ============
+let currentProfileUserId = null;
+
+async function openUserProfileModal(userId, userName) {
+  currentProfileUserId = userId;
+  
+  document.getElementById('userProfileAvatar').textContent = userName.charAt(0).toUpperCase();
+  document.getElementById('userProfileName').textContent = userName;
+  
+  // Get user's content
+  const userContent = userGeneratedContent.filter(c => c.user_id === userId);
+  const totalLikes = userContent.reduce((sum, c) => sum + (c.likes || 0), 0);
+  
+  document.getElementById('userProfilePosts').textContent = userContent.length;
+  document.getElementById('userProfileLikes').textContent = totalLikes;
+  
+  const grid = document.getElementById('userProfileGrid');
+  
+  if (userContent.length === 0) {
+    grid.innerHTML = '<p style="color:#888;font-size:13px;grid-column:1/-1;">No posts yet.</p>';
+  } else {
+    grid.innerHTML = userContent.map(content => `
+      <div class="user-profile-item" onclick="openContentDetail(${content.id})">
+        ${content.media_type === 'video' 
+          ? `<video src="${content.media_url}" muted></video><span class="upload-thumb-video-icon">▶</span>`
+          : `<img src="${content.media_url}" alt="">`
+        }
+        <div class="user-profile-item-likes">❤️ ${content.likes || 0}</div>
+      </div>
+    `).join('');
+  }
+  
+  document.getElementById('userProfileModal').classList.add('active');
+}
+
+function closeUserProfileModal() {
+  document.getElementById('userProfileModal').classList.remove('active');
+  currentProfileUserId = null;
+}
+
+// ============ CONTENT DETAIL & LIKES ============
+function openContentDetail(contentId) {
+  const content = userGeneratedContent.find(c => c.id === contentId);
+  if (!content) return;
+  
+  // For now, open in gallery modal
+  state.modalMedia = [content.media_url];
+  state.modalIndex = 0;
+  updateModal();
+  document.getElementById('galleryModal').classList.add('active');
+}
+
+async function likeContent(contentId) {
+  if (!isLoggedIn) {
+    alert('Please log in to like content');
+    return;
+  }
+  
+  try {
+    // Update likes in database
+    const content = userGeneratedContent.find(c => c.id === contentId);
+    if (!content) return;
+    
+    const newLikes = (content.likes || 0) + 1;
+    
+    const { error } = await db
+      .from('user_content')
+      .update({ likes: newLikes })
+      .eq('id', contentId);
+    
+    if (error) {
+      console.error('Error liking content:', error);
+      return;
+    }
+    
+    // Update local state
+    content.likes = newLikes;
+    
+  } catch (err) {
+    console.error('likeContent error:', err);
+  }
+}
+
+// Popularity formula: likes * 2 + recency bonus (newer = higher)
+function calculatePopularity(content) {
+  const likes = content.likes || 0;
+  const createdAt = new Date(content.created_at).getTime();
+  const now = Date.now();
+  const ageInDays = (now - createdAt) / (1000 * 60 * 60 * 24);
+  
+  // Recency bonus: decays over 30 days
+  const recencyBonus = Math.max(0, 30 - ageInDays);
+  
+  return (likes * 2) + recencyBonus;
+}
+
+// ============ MY UPLOADS ============
+async function loadMyUploads() {
+  if (!isLoggedIn || !currentUser || state.verificationStatus !== 'verified') {
+    document.getElementById('myUploadsSection').style.display = 'none';
+    return;
+  }
+  
+  document.getElementById('myUploadsSection').style.display = 'block';
+  
+  const myContent = userGeneratedContent.filter(c => c.user_id === currentUser.id);
+  const grid = document.getElementById('myUploadsGrid');
+  
+  if (myContent.length === 0) {
+    grid.innerHTML = '<p style="color:#888;font-size:13px;grid-column:1/-1;">You haven\'t uploaded anything yet.</p>';
+    return;
+  }
+  
+  grid.innerHTML = myContent.map(content => `
+    <div class="upload-thumb">
+      ${content.media_type === 'video' 
+        ? `<video src="${content.media_url}" muted></video><span class="upload-thumb-video-icon">▶</span>`
+        : `<img src="${content.media_url}" alt="">`
+      }
+      <div class="upload-thumb-overlay">
+        <button class="upload-thumb-delete" onclick="deleteMyUpload(${content.id})">🗑️ Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function deleteMyUpload(contentId) {
+  if (!confirm('Delete this upload? This cannot be undone.')) return;
+  
+  try {
+    const { error } = await db
+      .from('user_content')
+      .delete()
+      .eq('id', contentId)
+      .eq('user_id', currentUser.id);
+    
+    if (error) {
+      console.error('Error deleting content:', error);
+      alert('Error deleting content');
+      return;
+    }
+    
+    // Remove from local state
+    userGeneratedContent = userGeneratedContent.filter(c => c.id !== contentId);
+    
+    // Refresh UI
+    loadMyUploads();
+    renderDiscover();
+    
+    alert('Upload deleted successfully');
+    
+  } catch (err) {
+    console.error('deleteMyUpload error:', err);
+    alert('Error deleting upload');
+  }
+}
+
 // ============ SIDE MENU ============
 function openSideMenu() {
   document.getElementById('sideMenu').classList.add('active');
@@ -2655,6 +3065,12 @@ document.getElementById('uploadModal').addEventListener('click', function(e) {
 });
 document.getElementById('paymentModal').addEventListener('click', function(e) {
   if (e.target === this) closePaymentModal();
+});
+document.getElementById('locationModal').addEventListener('click', function(e) {
+  if (e.target === this) closeLocationModal();
+});
+document.getElementById('userProfileModal').addEventListener('click', function(e) {
+  if (e.target === this) closeUserProfileModal();
 });
 </script>
 </body>
