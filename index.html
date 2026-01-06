@@ -4216,6 +4216,7 @@ async function submitContent() {
       .insert({
         user_id: currentUser.id,
         user_name: userProfile.name,
+        user_email: currentUser.email || null,
         user_verified: true,
         user_avatar: userProfile.avatar || null,
         place_id: placeId,
@@ -5006,7 +5007,7 @@ function renderFriendshipsSuggestions() {
   container.innerHTML = suggestions.map(user => renderFriendshipsUserItem(user, false)).join('');
 }
 
-function searchFriendships() {
+async function searchFriendships() {
   const query = document.getElementById('friendshipsSearchInput').value.toLowerCase().trim();
   const resultsContainer = document.getElementById('friendshipsSearchResults');
   const suggestionsContainer = document.getElementById('friendshipsSuggestions');
@@ -5017,6 +5018,10 @@ function searchFriendships() {
     renderFriendshipsSuggestions();
     return;
   }
+  
+  // Show loading
+  resultsContainer.innerHTML = '<div class="friendships-empty"><div>Searching...</div></div>';
+  suggestionsContainer.style.display = 'none';
   
   // Get unique users from user generated content
   const usersMap = {};
@@ -5036,6 +5041,37 @@ function searchFriendships() {
     }
   });
   
+  // Also search profiles table for email matches
+  try {
+    const { data: profiles, error } = await db
+      .from('profiles')
+      .select('id, name, email, avatar')
+      .or(`email.ilike.%${query}%,name.ilike.%${query}%`);
+    
+    if (!error && profiles) {
+      profiles.forEach(profile => {
+        if (!usersMap[profile.id]) {
+          usersMap[profile.id] = {
+            id: profile.id,
+            name: profile.name || profile.email?.split('@')[0] || 'User',
+            avatar: profile.avatar || null,
+            email: profile.email || '',
+            phone: '',
+            postCount: 0,
+            verified: false
+          };
+        } else {
+          // Update email if we have it from profile
+          if (profile.email) {
+            usersMap[profile.id].email = profile.email;
+          }
+        }
+      });
+    }
+  } catch (err) {
+    console.log('Profile search error:', err);
+  }
+  
   // Search by name, email, or phone
   const results = Object.values(usersMap).filter(user => {
     const nameMatch = user.name && user.name.toLowerCase().includes(query);
@@ -5049,8 +5085,6 @@ function searchFriendships() {
     if (isLoggedIn && currentUser && u.id === currentUser.id) return false;
     return true;
   });
-  
-  suggestionsContainer.style.display = 'none';
   
   if (filteredResults.length === 0) {
     resultsContainer.innerHTML = `
