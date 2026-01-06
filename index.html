@@ -387,6 +387,22 @@
     /* Card user clickable */
     .card-user-clickable { cursor: pointer; }
     .card-user-clickable:hover .card-user-name { color: var(--secondary); }
+    
+    /* Browse Cards */
+    .browse-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 16px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+    .browse-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.12); }
+    .browse-card-image { width: 100%; height: 160px; object-fit: cover; }
+    .browse-card-body { padding: 16px; }
+    .browse-card-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+    .browse-card-meta { display: flex; gap: 12px; font-size: 13px; color: #888; margin-bottom: 8px; }
+    .browse-card-desc { font-size: 14px; color: #666; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .browse-card-photos { display: flex; gap: 4px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee; }
+    .browse-card-photo { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; }
+    .browse-card-photo-more { width: 40px; height: 40px; border-radius: 6px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #666; font-weight: 600; }
+    
+    /* Location Photos Grid (50 photos) */
+    .location-photos-full { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-height: 400px; overflow-y: auto; }
+    .location-photos-full .location-photo { aspect-ratio: 1; }
   </style>
 </head>
 <body>
@@ -748,6 +764,10 @@
     <p>Plan the perfect date</p>
   </div>
   <div class="side-menu-items">
+    <div class="side-menu-item" id="myPublicProfileItem" style="display:none;" onclick="openMyPublicProfile()">
+      <span class="side-menu-item-icon">👤</span>
+      <span class="side-menu-item-text">My Public Profile</span>
+    </div>
     <div class="side-menu-item" onclick="openPaymentModal()">
       <span class="side-menu-item-icon">💳</span>
       <span class="side-menu-item-text">Payments</span>
@@ -815,6 +835,9 @@
           <div class="user-profile-stat-label">Likes</div>
         </div>
       </div>
+      <button class="btn-full" id="shareProfileBtn" style="display:none;margin-top:16px;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.5);" onclick="shareProfile()">
+        📤 Share Profile
+      </button>
     </div>
     <div class="user-profile-body">
       <div class="user-profile-section-title">📸 Reviews</div>
@@ -1820,20 +1843,39 @@ function renderBrowse() {
     items = items.filter(item => item.tags.some(t => state.browseFilters.includes(t)));
   }
   
-  document.getElementById('browseList').innerHTML = items.map(item => `
-    <div class="list-item">
-      <img class="list-image" src="${item.media[0]}" alt="${item.title}" onclick="openGallery('${item.id}')">
-      <div class="list-content">
-        <div class="list-title">${item.title}</div>
-        <div class="list-meta">${item.category} • ${item.price} • ${item.distance}</div>
-        <div class="list-rating">⭐ ${item.rating}</div>
-        <div class="list-actions">
-          <button class="btn-small btn-success" onclick="openBooking('${item.title}')">Book</button>
-          <button class="btn-small btn-primary" onclick="saveItem('${item.id}')">Save</button>
+  document.getElementById('browseList').innerHTML = items.map(item => {
+    // Get popular photos for this location
+    const locationContent = userGeneratedContent
+      .filter(c => c.place_id === item.id)
+      .sort((a, b) => calculatePopularity(b) - calculatePopularity(a))
+      .slice(0, 5);
+    
+    const photoPreview = locationContent.length > 0 ? `
+      <div class="browse-card-photos">
+        ${locationContent.slice(0, 4).map(c => `
+          <img class="browse-card-photo" src="${c.media_url}" alt="">
+        `).join('')}
+        ${locationContent.length > 4 ? `<div class="browse-card-photo-more">+${locationContent.length - 4}</div>` : ''}
+      </div>
+    ` : '';
+    
+    return `
+      <div class="browse-card" onclick="openLocationModal('${item.id}')">
+        <img class="browse-card-image" src="${item.media[0]}" alt="${item.title}">
+        <div class="browse-card-body">
+          <div class="browse-card-title">${item.title}</div>
+          <div class="browse-card-meta">
+            <span>⭐ ${item.rating}</span>
+            <span>${item.price}</span>
+            <span>${item.distance}</span>
+            <span>📸 ${locationContent.length}</span>
+          </div>
+          <p class="browse-card-desc">${item.description}</p>
+          ${photoPreview}
         </div>
       </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 }
 
 function toggleBrowseFilter(key) {
@@ -2704,18 +2746,22 @@ async function loadLocationContent(activityId) {
   const container = document.getElementById('locationPhotos');
   const countEl = document.getElementById('locationPhotoCount');
   
-  // Filter content for this location and sort by popularity
+  // Filter content for this location and sort by popularity - up to 50
   const locationContent = userGeneratedContent
     .filter(c => c.place_id === activityId)
     .sort((a, b) => calculatePopularity(b) - calculatePopularity(a))
-    .slice(0, 10);
+    .slice(0, 50);
   
   countEl.textContent = `${locationContent.length} posts`;
   
   if (locationContent.length === 0) {
     container.innerHTML = '<p style="color:#888;font-size:13px;grid-column:1/-1;">No user content yet. Be the first to share!</p>';
+    container.className = 'location-photos';
     return;
   }
+  
+  // Use full grid for more photos
+  container.className = locationContent.length > 4 ? 'location-photos-full' : 'location-photos';
   
   container.innerHTML = locationContent.map(content => `
     <div class="location-photo" onclick="openContentDetail(${content.id})">
@@ -2744,12 +2790,17 @@ function bookLocationFromModal() {
 
 // ============ USER PROFILE MODAL ============
 let currentProfileUserId = null;
+let isOwnProfile = false;
 
 async function openUserProfileModal(userId, userName) {
   currentProfileUserId = userId;
+  isOwnProfile = isLoggedIn && currentUser && currentUser.id === userId;
   
   document.getElementById('userProfileAvatar').textContent = userName.charAt(0).toUpperCase();
   document.getElementById('userProfileName').textContent = userName;
+  
+  // Show share button only for own profile
+  document.getElementById('shareProfileBtn').style.display = isOwnProfile ? 'block' : 'none';
   
   // Get user's content
   const userContent = userGeneratedContent.filter(c => c.user_id === userId);
@@ -2780,6 +2831,55 @@ async function openUserProfileModal(userId, userName) {
 function closeUserProfileModal() {
   document.getElementById('userProfileModal').classList.remove('active');
   currentProfileUserId = null;
+  isOwnProfile = false;
+}
+
+function openMyPublicProfile() {
+  closeSideMenu();
+  if (!isLoggedIn || !currentUser || state.verificationStatus !== 'verified') {
+    alert('You need to be verified to have a public profile.');
+    return;
+  }
+  openUserProfileModal(currentUser.id, userProfile?.name || 'User');
+}
+
+async function shareProfile() {
+  if (!currentProfileUserId) return;
+  
+  const userName = document.getElementById('userProfileName').textContent;
+  const shareUrl = `${window.location.origin}${window.location.pathname}?user=${currentProfileUserId}`;
+  const shareText = `Check out ${userName}'s date reviews on Our Date Night! 💕`;
+  
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: `${userName} on Our Date Night`,
+        text: shareText,
+        url: shareUrl
+      });
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        copyToClipboard(shareUrl);
+      }
+    }
+  } else {
+    copyToClipboard(shareUrl);
+  }
+}
+
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    alert('Profile link copied to clipboard! 📋');
+  }).catch(() => {
+    // Fallback for older browsers
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+    alert('Profile link copied to clipboard! 📋');
+  });
 }
 
 // ============ CONTENT DETAIL & LIKES ============
@@ -2901,6 +3001,14 @@ async function deleteMyUpload(contentId) {
 
 // ============ SIDE MENU ============
 function openSideMenu() {
+  // Show/hide My Public Profile based on verification status
+  const myProfileItem = document.getElementById('myPublicProfileItem');
+  if (isLoggedIn && state.verificationStatus === 'verified') {
+    myProfileItem.style.display = 'flex';
+  } else {
+    myProfileItem.style.display = 'none';
+  }
+  
   document.getElementById('sideMenu').classList.add('active');
   document.getElementById('sideMenuOverlay').classList.add('active');
 }
@@ -3040,6 +3148,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     }, 5000);
     
     await checkSession();
+    
+    // Check for shared user profile URL
+    checkSharedProfileUrl();
   } catch (err) {
     console.error('Startup error:', err);
     hideLoading();
@@ -3049,6 +3160,23 @@ document.addEventListener('DOMContentLoaded', async function() {
   // Add event listener for place selection
   document.getElementById('uploadPlace').addEventListener('change', checkUploadFormComplete);
 });
+
+// Check for shared profile URL parameter
+function checkSharedProfileUrl() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const sharedUserId = urlParams.get('user');
+  
+  if (sharedUserId && userGeneratedContent.length > 0) {
+    // Find content from this user to get their name
+    const userContent = userGeneratedContent.find(c => c.user_id === sharedUserId);
+    if (userContent) {
+      // Small delay to ensure UI is ready
+      setTimeout(() => {
+        openUserProfileModal(sharedUserId, userContent.user_name);
+      }, 500);
+    }
+  }
+}
 
 // Close modals on backdrop click
 document.getElementById('galleryModal').addEventListener('click', function(e) {
