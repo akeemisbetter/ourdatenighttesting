@@ -414,6 +414,63 @@
     .admin-btn.reject { background: var(--primary); color: white; }
     .admin-btn.view { background: #eee; color: #333; }
     
+    /* Admin Dashboard Modal */
+    .admin-dashboard-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; z-index: 400; overflow-y: auto; }
+    .admin-dashboard-modal.active { display: block; }
+    .admin-dashboard { background: #f8f9fa; min-height: 100%; padding: 20px; padding-bottom: 100px; }
+    .admin-dashboard-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    .admin-dashboard-header h1 { font-size: 24px; color: #333; }
+    .admin-dashboard-close { background: white; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    
+    /* Metrics Grid */
+    .metrics-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 24px; }
+    .metric-card { background: white; border-radius: 16px; padding: 20px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .metric-card.highlight { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+    .metric-value { font-size: 32px; font-weight: 700; margin-bottom: 4px; }
+    .metric-label { font-size: 13px; opacity: 0.8; }
+    .metric-change { font-size: 11px; margin-top: 4px; }
+    .metric-change.up { color: var(--success); }
+    .metric-change.down { color: var(--primary); }
+    
+    /* Admin Sections */
+    .admin-card { background: white; border-radius: 16px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .admin-card h3 { font-size: 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .admin-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .admin-card-header h3 { margin-bottom: 0; }
+    
+    /* Admin Tables */
+    .admin-table { width: 100%; border-collapse: collapse; }
+    .admin-table th { text-align: left; padding: 12px 8px; font-size: 12px; color: #888; border-bottom: 1px solid #eee; }
+    .admin-table td { padding: 12px 8px; font-size: 13px; border-bottom: 1px solid #eee; }
+    .admin-table tr:last-child td { border-bottom: none; }
+    .admin-table-user { display: flex; align-items: center; gap: 8px; }
+    .admin-table-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--secondary); display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; overflow: hidden; }
+    .admin-table-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .admin-status { padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+    .admin-status.verified { background: #d4edda; color: #155724; }
+    .admin-status.pending { background: #fff3cd; color: #856404; }
+    .admin-status.none { background: #f0f0f0; color: #666; }
+    
+    /* Admin Actions */
+    .admin-action-btn { padding: 6px 12px; border: none; border-radius: 8px; font-size: 12px; cursor: pointer; margin-right: 4px; }
+    .admin-action-btn.primary { background: var(--secondary); color: white; }
+    .admin-action-btn.danger { background: var(--primary); color: white; }
+    .admin-action-btn.secondary { background: #eee; color: #333; }
+    
+    /* Top Content List */
+    .top-content-item { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid #eee; }
+    .top-content-item:last-child { border-bottom: none; }
+    .top-content-thumb { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; }
+    .top-content-info { flex: 1; }
+    .top-content-place { font-weight: 600; font-size: 14px; }
+    .top-content-user { font-size: 12px; color: #888; }
+    .top-content-stats { font-size: 12px; color: var(--secondary); }
+    
+    /* Admin Tabs */
+    .admin-tabs { display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; }
+    .admin-tab { padding: 8px 16px; border: none; background: #eee; border-radius: 20px; font-size: 13px; cursor: pointer; white-space: nowrap; }
+    .admin-tab.active { background: var(--secondary); color: white; }
+    
     /* My Uploads Section */
     .my-uploads { margin-top: 24px; }
     .my-uploads h3 { font-weight: 700; margin-bottom: 12px; }
@@ -758,7 +815,7 @@
 <div class="verify-modal" id="verifyModal">
   <div class="verify-box">
     <h2>🛡️ Get Verified</h2>
-    <p>Verify your identity to upload your own date experiences and help others discover great places!</p>
+    <p>Take a quick selfie to verify your account and start sharing your date experiences!</p>
     
     <div id="verifyPendingStatus" class="verify-status pending" style="display:none;">
       ⏳ Your verification is being reviewed. This usually takes 24-48 hours.
@@ -771,21 +828,10 @@
     <div id="verifyForm">
       <div class="verify-step">
         <div class="verify-step-title">
-          <span class="verify-step-num">1</span>
-          Upload Government ID
-        </div>
-        <div class="verify-upload-box" id="idUploadBox" onclick="document.getElementById('idInput').click()">
-          <input type="file" id="idInput" accept="image/*" onchange="handleIdUpload(event)">
-          <div class="verify-upload-icon">🪪</div>
-          <div class="verify-upload-text" id="idUploadText">Tap to upload State ID or Passport</div>
-        </div>
-      </div>
-      
-      <div class="verify-step">
-        <div class="verify-step-title">
-          <span class="verify-step-num">2</span>
+          <span class="verify-step-num">📸</span>
           Take a Selfie
         </div>
+        <p style="font-size:13px;color:#888;margin-bottom:12px;">This helps us ensure real people are sharing genuine experiences.</p>
         <div class="verify-camera-box">
           <video class="verify-video" id="verifyVideo" autoplay playsinline></video>
           <canvas class="verify-canvas" id="verifyCanvas"></canvas>
@@ -859,6 +905,10 @@
     <p>Plan the perfect date</p>
   </div>
   <div class="side-menu-items">
+    <div class="side-menu-item" id="adminDashboardItem" style="display:none;" onclick="openAdminDashboard()">
+      <span class="side-menu-item-icon">📊</span>
+      <span class="side-menu-item-text">Admin Dashboard</span>
+    </div>
     <div class="side-menu-item" id="myPublicProfileItem" style="display:none;" onclick="openMyPublicProfile()">
       <span class="side-menu-item-icon">👤</span>
       <span class="side-menu-item-text">My Public Profile</span>
@@ -968,6 +1018,114 @@
 
 <!-- Avatar Selector Modal -->
 <div class="payment-modal" id="avatarModal">
+
+<!-- Admin Dashboard Modal -->
+<div class="admin-dashboard-modal" id="adminDashboardModal">
+  <div class="admin-dashboard">
+    <div class="admin-dashboard-header">
+      <h1>📊 Admin Dashboard</h1>
+      <button class="admin-dashboard-close" onclick="closeAdminDashboard()">✕</button>
+    </div>
+    
+    <!-- Key Metrics -->
+    <div class="metrics-grid">
+      <div class="metric-card highlight">
+        <div class="metric-value" id="metricTotalUsers">0</div>
+        <div class="metric-label">Total Users</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value" id="metricVerifiedUsers">0</div>
+        <div class="metric-label">Verified Users</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value" id="metricTotalPosts">0</div>
+        <div class="metric-label">Total Posts</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value" id="metricTotalLikes">0</div>
+        <div class="metric-label">Total Likes</div>
+      </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="admin-card">
+      <h3>⚡ Quick Actions</h3>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="admin-action-btn primary" onclick="adminRefreshData()">🔄 Refresh Data</button>
+        <button class="admin-action-btn secondary" onclick="adminExportUsers()">📥 Export Users</button>
+        <button class="admin-action-btn secondary" onclick="adminExportContent()">📥 Export Content</button>
+      </div>
+    </div>
+    
+    <!-- Tabs -->
+    <div class="admin-tabs">
+      <button class="admin-tab active" onclick="showAdminTab('users')">👥 Users</button>
+      <button class="admin-tab" onclick="showAdminTab('content')">📸 Content</button>
+      <button class="admin-tab" onclick="showAdminTab('locations')">📍 Locations</button>
+    </div>
+    
+    <!-- Users Tab -->
+    <div class="admin-card" id="adminTabUsers">
+      <div class="admin-card-header">
+        <h3>👥 All Users</h3>
+        <span style="font-size:12px;color:#888;" id="userCount">0 users</span>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Status</th>
+              <th>Posts</th>
+              <th>Joined</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="adminUsersTable">
+            <tr><td colspan="5" style="text-align:center;color:#888;">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <!-- Content Tab -->
+    <div class="admin-card" id="adminTabContent" style="display:none;">
+      <div class="admin-card-header">
+        <h3>📸 All Content</h3>
+        <span style="font-size:12px;color:#888;" id="contentCount">0 posts</span>
+      </div>
+      <div id="adminContentList">
+        <p style="text-align:center;color:#888;">Loading...</p>
+      </div>
+    </div>
+    
+    <!-- Locations Tab -->
+    <div class="admin-card" id="adminTabLocations" style="display:none;">
+      <div class="admin-card-header">
+        <h3>📍 Top Locations</h3>
+      </div>
+      <div id="adminLocationsList">
+        <p style="text-align:center;color:#888;">Loading...</p>
+      </div>
+    </div>
+    
+    <!-- Top Creators -->
+    <div class="admin-card">
+      <h3>🏆 Top Content Creators</h3>
+      <div id="topCreatorsList">
+        <p style="text-align:center;color:#888;">Loading...</p>
+      </div>
+    </div>
+    
+    <!-- Recent Activity -->
+    <div class="admin-card">
+      <h3>🕐 Recent Activity</h3>
+      <div id="recentActivityList">
+        <p style="text-align:center;color:#888;">Loading...</p>
+      </div>
+    </div>
+  </div>
+</div>
   <div class="payment-box" style="max-height:85vh;overflow-y:auto;">
     <h2>Choose Your Avatar</h2>
     <p>Select an animated avatar or upload your own photo</p>
@@ -1154,7 +1312,7 @@ let state = {
   modalMedia: [],
   modalIndex: 0,
   verificationStatus: 'none',
-  verificationData: { idImage: null, selfieImage: null }
+  verificationData: { selfieImage: null }
 };
 
 let userGeneratedContent = [];
@@ -1620,7 +1778,7 @@ async function continueAsGuest() {
     modalMedia: [],
     modalIndex: 0,
     verificationStatus: 'none',
-    verificationData: { idImage: null, selfieImage: null }
+    verificationData: { selfieImage: null }
   };
   
   userGeneratedContent = await loadUserContent();
@@ -2474,54 +2632,22 @@ function retakeSelfie() {
   checkVerifyFormComplete();
 }
 
-function handleIdUpload(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    state.verificationData.idImage = e.target.result;
-    document.getElementById('idUploadBox').classList.add('has-file');
-    document.getElementById('idUploadText').textContent = '✓ ID uploaded';
-    document.getElementById('idUploadText').classList.add('success');
-    checkVerifyFormComplete();
-  };
-  reader.readAsDataURL(file);
-}
-
 function checkVerifyFormComplete() {
   const btn = document.getElementById('submitVerifyBtn');
-  btn.disabled = !(state.verificationData.idImage && state.verificationData.selfieImage);
+  btn.disabled = !state.verificationData.selfieImage;
 }
 
 async function submitVerification() {
-  if (!state.verificationData.idImage || !state.verificationData.selfieImage) {
-    alert('Please complete both steps.');
+  if (!state.verificationData.selfieImage) {
+    alert('Please take a selfie to verify your account.');
     return;
   }
   
   const submitBtn = document.getElementById('submitVerifyBtn');
   submitBtn.disabled = true;
-  submitBtn.textContent = 'Submitting...';
+  submitBtn.textContent = 'Verifying...';
   
   try {
-    // Upload ID image to storage
-    const idResponse = await fetch(state.verificationData.idImage);
-    const idBlob = await idResponse.blob();
-    const idFileName = `verifications/${currentUser.id}/id-${Date.now()}.jpg`;
-    
-    const { error: idUploadError } = await db.storage
-      .from('user-uploads')
-      .upload(idFileName, idBlob, { contentType: 'image/jpeg' });
-    
-    if (idUploadError) {
-      console.error('ID upload error:', idUploadError);
-      alert('Error uploading ID. Please try again.');
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Submit for Verification';
-      return;
-    }
-    
     // Upload selfie to storage
     const selfieResponse = await fetch(state.verificationData.selfieImage);
     const selfieBlob = await selfieResponse.blob();
@@ -2539,16 +2665,14 @@ async function submitVerification() {
       return;
     }
     
-    // Get public URLs
-    const { data: idUrl } = db.storage.from('user-uploads').getPublicUrl(idFileName);
+    // Get public URL
     const { data: selfieUrl } = db.storage.from('user-uploads').getPublicUrl(selfieFileName);
     
-    // Update profile with pending status
-    state.verificationStatus = 'pending';
+    // AUTO-APPROVE: Set status directly to verified
+    state.verificationStatus = 'verified';
     
     await updateUserProfile({
-      verification_status: 'pending',
-      verification_id_image: idUrl.publicUrl,
+      verification_status: 'verified',
       verification_selfie: selfieUrl.publicUrl,
       verification_submitted_at: new Date().toISOString()
     });
@@ -2556,7 +2680,7 @@ async function submitVerification() {
     updateVerifyModalUI();
     updateProfileVerificationUI();
     
-    alert('✅ Your verification request has been submitted! An admin will review it within 24-48 hours.');
+    alert('🎉 Congratulations! Your account has been verified. You can now upload your own content!');
     closeVerifyModal();
     
   } catch (err) {
@@ -2579,7 +2703,7 @@ async function loadPendingVerifications() {
   try {
     const { data, error } = await db
       .from('profiles')
-      .select('id, email, name, verification_status, verification_id_image, verification_selfie, verification_submitted_at')
+      .select('id, email, name, verification_status, verification_selfie, verification_submitted_at')
       .eq('verification_status', 'pending')
       .order('verification_submitted_at', { ascending: true });
     
@@ -2625,7 +2749,6 @@ async function rejectVerification(userId) {
       .from('profiles')
       .update({ 
         verification_status: 'none',
-        verification_id_image: null,
         verification_selfie: null,
         verification_submitted_at: null
       })
@@ -2644,9 +2767,8 @@ async function rejectVerification(userId) {
   }
 }
 
-function viewVerificationDocs(idImage, selfieImage) {
-  // Open images in new tabs
-  if (idImage) window.open(idImage, '_blank');
+function viewVerificationSelfie(selfieImage) {
+  // Open selfie in new tab
   if (selfieImage) window.open(selfieImage, '_blank');
 }
 
@@ -2675,7 +2797,7 @@ async function renderAdminPanel() {
         <div class="admin-item-date">Submitted: ${new Date(user.verification_submitted_at).toLocaleDateString()}</div>
       </div>
       <div class="admin-btns">
-        <button class="admin-btn view" onclick="viewVerificationDocs('${user.verification_id_image}', '${user.verification_selfie}')">View</button>
+        <button class="admin-btn view" onclick="viewVerificationSelfie('${user.verification_selfie}')">View</button>
         <button class="admin-btn approve" onclick="approveVerification('${user.id}')">✓</button>
         <button class="admin-btn reject" onclick="rejectVerification('${user.id}')">✗</button>
       </div>
@@ -3470,6 +3592,14 @@ function openSideMenu() {
     myProfileItem.style.display = 'none';
   }
   
+  // Show admin dashboard link for admins
+  const adminDashboardItem = document.getElementById('adminDashboardItem');
+  if (isLoggedIn && userProfile?.is_admin) {
+    adminDashboardItem.style.display = 'flex';
+  } else {
+    adminDashboardItem.style.display = 'none';
+  }
+  
   document.getElementById('sideMenu').classList.add('active');
   document.getElementById('sideMenuOverlay').classList.add('active');
 }
@@ -3477,6 +3607,420 @@ function openSideMenu() {
 function closeSideMenu() {
   document.getElementById('sideMenu').classList.remove('active');
   document.getElementById('sideMenuOverlay').classList.remove('active');
+}
+
+// ============ ADMIN DASHBOARD ============
+let adminUsers = [];
+let adminCurrentTab = 'users';
+
+async function openAdminDashboard() {
+  closeSideMenu();
+  document.getElementById('adminDashboardModal').classList.add('active');
+  await loadAdminDashboardData();
+}
+
+function closeAdminDashboard() {
+  document.getElementById('adminDashboardModal').classList.remove('active');
+}
+
+function showAdminTab(tab) {
+  adminCurrentTab = tab;
+  
+  // Update tab buttons
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  
+  // Show/hide tab content
+  document.getElementById('adminTabUsers').style.display = tab === 'users' ? 'block' : 'none';
+  document.getElementById('adminTabContent').style.display = tab === 'content' ? 'block' : 'none';
+  document.getElementById('adminTabLocations').style.display = tab === 'locations' ? 'block' : 'none';
+}
+
+async function loadAdminDashboardData() {
+  try {
+    // Load all users
+    const { data: users, error: usersError } = await db
+      .from('profiles')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (usersError) {
+      console.error('Error loading users:', usersError);
+      return;
+    }
+    
+    adminUsers = users || [];
+    
+    // Calculate metrics
+    const totalUsers = adminUsers.length;
+    const verifiedUsers = adminUsers.filter(u => u.verification_status === 'verified').length;
+    const totalPosts = userGeneratedContent.length;
+    const totalLikes = userGeneratedContent.reduce((sum, c) => sum + (c.likes || 0), 0);
+    
+    // Update metric cards
+    document.getElementById('metricTotalUsers').textContent = totalUsers;
+    document.getElementById('metricVerifiedUsers').textContent = verifiedUsers;
+    document.getElementById('metricTotalPosts').textContent = totalPosts;
+    document.getElementById('metricTotalLikes').textContent = totalLikes;
+    
+    // Render users table
+    renderAdminUsersTable();
+    
+    // Render content list
+    renderAdminContentList();
+    
+    // Render locations
+    renderAdminLocationsList();
+    
+    // Render top creators
+    renderTopCreators();
+    
+    // Render recent activity
+    renderRecentActivity();
+    
+  } catch (err) {
+    console.error('loadAdminDashboardData error:', err);
+  }
+}
+
+function renderAdminUsersTable() {
+  const tbody = document.getElementById('adminUsersTable');
+  document.getElementById('userCount').textContent = `${adminUsers.length} users`;
+  
+  if (adminUsers.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#888;">No users yet</td></tr>';
+    return;
+  }
+  
+  tbody.innerHTML = adminUsers.map(user => {
+    const userPosts = userGeneratedContent.filter(c => c.user_id === user.id).length;
+    const statusClass = user.verification_status === 'verified' ? 'verified' : 
+                        user.verification_status === 'pending' ? 'pending' : 'none';
+    const statusText = user.verification_status === 'verified' ? 'Verified' :
+                       user.verification_status === 'pending' ? 'Pending' : 'Not Verified';
+    
+    const avatarContent = user.avatar && user.avatar.startsWith('http') 
+      ? `<img src="${user.avatar}" alt="">`
+      : (user.avatar && user.avatar.includes(':') 
+        ? user.avatar.split(':')[0]
+        : (user.name?.charAt(0).toUpperCase() || 'U'));
+    
+    return `
+      <tr>
+        <td>
+          <div class="admin-table-user">
+            <div class="admin-table-avatar">${avatarContent}</div>
+            <div>
+              <div style="font-weight:600;">${user.name || 'Unknown'}</div>
+              <div style="font-size:11px;color:#888;">${user.email}</div>
+            </div>
+          </div>
+        </td>
+        <td><span class="admin-status ${statusClass}">${statusText}</span></td>
+        <td>${userPosts}</td>
+        <td style="font-size:12px;">${user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}</td>
+        <td>
+          ${user.verification_status !== 'verified' 
+            ? `<button class="admin-action-btn primary" onclick="adminVerifyUser('${user.id}')">Verify</button>`
+            : `<button class="admin-action-btn secondary" onclick="adminUnverifyUser('${user.id}')">Unverify</button>`
+          }
+          <button class="admin-action-btn danger" onclick="adminDeleteUser('${user.id}')">Delete</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function renderAdminContentList() {
+  const container = document.getElementById('adminContentList');
+  document.getElementById('contentCount').textContent = `${userGeneratedContent.length} posts`;
+  
+  if (userGeneratedContent.length === 0) {
+    container.innerHTML = '<p style="text-align:center;color:#888;">No content yet</p>';
+    return;
+  }
+  
+  const sortedContent = [...userGeneratedContent].sort((a, b) => 
+    new Date(b.created_at) - new Date(a.created_at)
+  );
+  
+  container.innerHTML = sortedContent.slice(0, 20).map(content => `
+    <div class="top-content-item">
+      ${content.media_type === 'video' 
+        ? `<video class="top-content-thumb" src="${content.media_url}" muted></video>`
+        : `<img class="top-content-thumb" src="${content.media_url}" alt="">`
+      }
+      <div class="top-content-info">
+        <div class="top-content-place">${content.place_name}</div>
+        <div class="top-content-user">by ${content.user_name}</div>
+        <div class="top-content-stats">❤️ ${content.likes || 0} likes • ${new Date(content.created_at).toLocaleDateString()}</div>
+      </div>
+      <button class="admin-action-btn danger" onclick="adminDeleteContent(${content.id})">🗑️</button>
+    </div>
+  `).join('');
+}
+
+function renderAdminLocationsList() {
+  const container = document.getElementById('adminLocationsList');
+  
+  // Count posts per location
+  const locationCounts = {};
+  userGeneratedContent.forEach(c => {
+    if (!locationCounts[c.place_id]) {
+      locationCounts[c.place_id] = { id: c.place_id, name: c.place_name, count: 0, likes: 0 };
+    }
+    locationCounts[c.place_id].count++;
+    locationCounts[c.place_id].likes += (c.likes || 0);
+  });
+  
+  const sortedLocations = Object.values(locationCounts).sort((a, b) => b.count - a.count);
+  
+  if (sortedLocations.length === 0) {
+    container.innerHTML = '<p style="text-align:center;color:#888;">No location data yet</p>';
+    return;
+  }
+  
+  container.innerHTML = sortedLocations.slice(0, 10).map((loc, i) => {
+    const activity = NYC_ACTIVITIES.find(a => a.id === loc.id);
+    return `
+      <div class="top-content-item">
+        <div style="width:40px;height:40px;border-radius:50%;background:var(--secondary);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;">${i + 1}</div>
+        <div class="top-content-info">
+          <div class="top-content-place">${loc.name}</div>
+          <div class="top-content-stats">📸 ${loc.count} posts • ❤️ ${loc.likes} likes</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderTopCreators() {
+  const container = document.getElementById('topCreatorsList');
+  
+  // Count posts and likes per user
+  const creatorStats = {};
+  userGeneratedContent.forEach(c => {
+    if (!creatorStats[c.user_id]) {
+      creatorStats[c.user_id] = { id: c.user_id, name: c.user_name, avatar: c.user_avatar, posts: 0, likes: 0 };
+    }
+    creatorStats[c.user_id].posts++;
+    creatorStats[c.user_id].likes += (c.likes || 0);
+  });
+  
+  const sortedCreators = Object.values(creatorStats).sort((a, b) => b.posts - a.posts);
+  
+  if (sortedCreators.length === 0) {
+    container.innerHTML = '<p style="text-align:center;color:#888;">No creators yet</p>';
+    return;
+  }
+  
+  container.innerHTML = sortedCreators.slice(0, 5).map((creator, i) => {
+    let avatarContent = creator.name?.charAt(0).toUpperCase() || 'U';
+    if (creator.avatar && creator.avatar.startsWith('http')) {
+      avatarContent = `<img src="${creator.avatar}" style="width:100%;height:100%;object-fit:cover;">`;
+    } else if (creator.avatar && creator.avatar.includes(':')) {
+      avatarContent = creator.avatar.split(':')[0];
+    }
+    
+    return `
+      <div class="top-content-item">
+        <div style="width:40px;height:40px;border-radius:50%;background:${i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? '#cd7f32' : 'var(--secondary)'};display:flex;align-items:center;justify-content:center;color:white;font-size:14px;overflow:hidden;">${avatarContent}</div>
+        <div class="top-content-info">
+          <div class="top-content-place">${creator.name}</div>
+          <div class="top-content-stats">📸 ${creator.posts} posts • ❤️ ${creator.likes} likes</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderRecentActivity() {
+  const container = document.getElementById('recentActivityList');
+  
+  // Combine user signups and content posts
+  const activities = [];
+  
+  adminUsers.forEach(user => {
+    if (user.created_at) {
+      activities.push({
+        type: 'signup',
+        user: user.name || user.email,
+        date: new Date(user.created_at),
+        text: 'joined Our Date Night'
+      });
+    }
+  });
+  
+  userGeneratedContent.forEach(content => {
+    activities.push({
+      type: 'post',
+      user: content.user_name,
+      date: new Date(content.created_at),
+      text: `posted at ${content.place_name}`
+    });
+  });
+  
+  activities.sort((a, b) => b.date - a.date);
+  
+  if (activities.length === 0) {
+    container.innerHTML = '<p style="text-align:center;color:#888;">No activity yet</p>';
+    return;
+  }
+  
+  container.innerHTML = activities.slice(0, 10).map(activity => `
+    <div style="padding:8px 0;border-bottom:1px solid #eee;font-size:13px;">
+      <span style="font-weight:600;">${activity.user}</span>
+      <span style="color:#666;"> ${activity.text}</span>
+      <div style="font-size:11px;color:#888;margin-top:2px;">${formatTimeAgo(activity.date)}</div>
+    </div>
+  `).join('');
+}
+
+function formatTimeAgo(date) {
+  const seconds = Math.floor((new Date() - date) / 1000);
+  if (seconds < 60) return 'Just now';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d ago`;
+  return date.toLocaleDateString();
+}
+
+async function adminVerifyUser(userId) {
+  if (!confirm('Verify this user?')) return;
+  
+  try {
+    const { error } = await db
+      .from('profiles')
+      .update({ verification_status: 'verified' })
+      .eq('id', userId);
+    
+    if (error) throw error;
+    
+    await loadAdminDashboardData();
+    alert('User verified!');
+  } catch (err) {
+    console.error('adminVerifyUser error:', err);
+    alert('Error verifying user');
+  }
+}
+
+async function adminUnverifyUser(userId) {
+  if (!confirm('Remove verification from this user?')) return;
+  
+  try {
+    const { error } = await db
+      .from('profiles')
+      .update({ verification_status: 'none' })
+      .eq('id', userId);
+    
+    if (error) throw error;
+    
+    await loadAdminDashboardData();
+    alert('User unverified');
+  } catch (err) {
+    console.error('adminUnverifyUser error:', err);
+    alert('Error unverifying user');
+  }
+}
+
+async function adminDeleteUser(userId) {
+  if (!confirm('⚠️ Delete this user? This cannot be undone!')) return;
+  if (!confirm('Are you absolutely sure? All their content will also be deleted.')) return;
+  
+  try {
+    // Delete user's content first
+    await db.from('user_content').delete().eq('user_id', userId);
+    await db.from('saved_items').delete().eq('user_id', userId);
+    await db.from('swiped_items').delete().eq('user_id', userId);
+    await db.from('planned_dates').delete().eq('user_id', userId);
+    
+    // Delete user profile
+    const { error } = await db.from('profiles').delete().eq('id', userId);
+    
+    if (error) throw error;
+    
+    // Reload content
+    userGeneratedContent = await loadUserContent();
+    await loadAdminDashboardData();
+    alert('User deleted');
+  } catch (err) {
+    console.error('adminDeleteUser error:', err);
+    alert('Error deleting user');
+  }
+}
+
+async function adminDeleteContent(contentId) {
+  if (!confirm('Delete this content?')) return;
+  
+  try {
+    const { error } = await db
+      .from('user_content')
+      .delete()
+      .eq('id', contentId);
+    
+    if (error) throw error;
+    
+    // Reload content
+    userGeneratedContent = await loadUserContent();
+    await loadAdminDashboardData();
+    renderDiscover();
+    alert('Content deleted');
+  } catch (err) {
+    console.error('adminDeleteContent error:', err);
+    alert('Error deleting content');
+  }
+}
+
+async function adminRefreshData() {
+  userGeneratedContent = await loadUserContent();
+  await loadAdminDashboardData();
+  alert('Data refreshed!');
+}
+
+function adminExportUsers() {
+  const csv = [
+    ['Name', 'Email', 'Status', 'Posts', 'Joined'].join(','),
+    ...adminUsers.map(u => {
+      const posts = userGeneratedContent.filter(c => c.user_id === u.id).length;
+      return [
+        u.name || '',
+        u.email,
+        u.verification_status || 'none',
+        posts,
+        u.created_at ? new Date(u.created_at).toLocaleDateString() : ''
+      ].join(',');
+    })
+  ].join('\n');
+  
+  downloadCSV(csv, 'users.csv');
+}
+
+function adminExportContent() {
+  const csv = [
+    ['User', 'Place', 'Caption', 'Likes', 'Date'].join(','),
+    ...userGeneratedContent.map(c => [
+      c.user_name,
+      `"${c.place_name}"`,
+      `"${(c.caption || '').replace(/"/g, '""')}"`,
+      c.likes || 0,
+      new Date(c.created_at).toLocaleDateString()
+    ].join(','))
+  ].join('\n');
+  
+  downloadCSV(csv, 'content.csv');
+}
+
+function downloadCSV(csv, filename) {
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 // ============ PAYMENT METHODS ============
@@ -3666,6 +4210,9 @@ document.getElementById('contentViewerModal').addEventListener('click', function
 });
 document.getElementById('avatarModal').addEventListener('click', function(e) {
   if (e.target === this) closeAvatarModal();
+});
+document.getElementById('adminDashboardModal').addEventListener('click', function(e) {
+  if (e.target === this) closeAdminDashboard();
 });
 </script>
 </body>
