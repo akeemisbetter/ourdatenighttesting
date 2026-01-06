@@ -15,12 +15,42 @@
       --success: #4ecdc4;
     }
     
+    /* Welcome Screen (NEW) */
+    .welcome { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; background: linear-gradient(135deg, #667eea 0%, #ff6b6b 100%); }
+    .welcome-content { text-align: center; max-width: 400px; }
+    .welcome-logo { font-size: 64px; margin-bottom: 16px; }
+    .welcome h1 { font-size: 36px; font-weight: 800; color: white; margin-bottom: 8px; }
+    .welcome p { color: rgba(255,255,255,0.9); margin-bottom: 48px; font-size: 18px; }
+    .welcome-btn { width: 100%; padding: 16px 24px; border-radius: 30px; border: none; font-size: 16px; font-weight: 600; cursor: pointer; margin-bottom: 16px; transition: transform 0.2s, box-shadow 0.2s; }
+    .welcome-btn:hover { transform: translateY(-2px); }
+    .welcome-btn.login { background: white; color: var(--secondary); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+    .welcome-btn.guest { background: transparent; color: white; border: 2px solid white; }
+    .welcome-btn.guest:hover { background: rgba(255,255,255,0.1); }
+    
+    /* Login Modal */
+    .login-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 300; padding: 24px; }
+    .login-modal.active { display: flex; }
+    .login-box { background: white; border-radius: 24px; padding: 32px; width: 100%; max-width: 360px; }
+    .login-box h2 { font-size: 24px; margin-bottom: 8px; color: #333; }
+    .login-box p { color: #888; margin-bottom: 24px; font-size: 14px; }
+    .login-input { width: 100%; padding: 14px 16px; border: 2px solid #eee; border-radius: 12px; font-size: 16px; margin-bottom: 12px; transition: border-color 0.2s; }
+    .login-input:focus { outline: none; border-color: var(--secondary); }
+    .login-submit { width: 100%; padding: 14px; border-radius: 12px; border: none; background: var(--secondary); color: white; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 8px; }
+    .login-submit:hover { background: #5a6fd6; }
+    .login-switch { text-align: center; margin-top: 16px; font-size: 14px; color: #888; }
+    .login-switch a { color: var(--secondary); cursor: pointer; font-weight: 600; }
+    .login-close { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.9); border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 20px; cursor: pointer; }
+    .login-error { color: var(--primary); font-size: 13px; margin-bottom: 12px; display: none; }
+    .login-error.show { display: block; }
+    
     /* Onboarding */
-    .onboarding { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .onboarding { min-height: 100vh; display: none; align-items: center; justify-content: center; padding: 24px; }
+    .onboarding.active { display: flex; }
     .onboarding-content { text-align: center; max-width: 400px; }
     .onboarding h2 { font-size: 20px; color: #666; margin-bottom: 4px; }
     .onboarding h1 { font-size: 32px; font-weight: 800; color: var(--primary); margin-bottom: 8px; }
     .onboarding p { color: #888; margin-bottom: 32px; }
+    .onboarding .user-greeting { font-size: 14px; color: var(--secondary); margin-bottom: 24px; }
     .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .profile-btn { background: white; border: none; border-radius: 16px; padding: 24px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: transform 0.2s, box-shadow 0.2s; }
     .profile-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
@@ -41,6 +71,7 @@
     .header-type { color: white; font-size: 13px; font-weight: 500; }
     .header-location { color: #ccc; font-size: 11px; }
     .header-avatar { width: 32px; height: 32px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .logged-in-badge { background: var(--success); color: white; font-size: 9px; padding: 2px 6px; border-radius: 10px; margin-left: 4px; }
     
     /* Content */
     .content { padding: 16px; }
@@ -147,6 +178,7 @@
     .profile-card { background: white; border-radius: 16px; padding: 16px; margin-bottom: 24px; }
     .profile-card p { margin-bottom: 4px; }
     .profile-card strong { font-weight: 600; }
+    .logout-btn { background: #eee; color: #666; margin-top: 12px; }
     
     /* Bottom Nav */
     .nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #eee; padding: 8px 16px 12px; display: flex; justify-content: space-around; align-items: flex-end; z-index: 100; }
@@ -171,12 +203,41 @@
   </style>
 </head>
 <body>
- 
+
+<!-- Welcome Screen (NEW) -->
+<div class="welcome" id="welcome">
+  <div class="welcome-content">
+    <div class="welcome-logo">💕</div>
+    <h1>Our Date Night</h1>
+    <p>Plan the perfect date together</p>
+    <button class="welcome-btn login" onclick="showLoginModal()">Log In / Sign Up</button>
+    <button class="welcome-btn guest" onclick="continueAsGuest()">Continue as Guest</button>
+  </div>
+</div>
+
+<!-- Login Modal (NEW) -->
+<div class="login-modal" id="loginModal">
+  <button class="login-close" onclick="closeLoginModal()">✕</button>
+  <div class="login-box">
+    <h2 id="loginTitle">Welcome Back</h2>
+    <p id="loginSubtitle">Log in to save your date plans</p>
+    <div class="login-error" id="loginError">Invalid email or password</div>
+    <input type="email" class="login-input" id="loginEmail" placeholder="Email address">
+    <input type="password" class="login-input" id="loginPassword" placeholder="Password">
+    <input type="text" class="login-input hidden" id="loginName" placeholder="Your name">
+    <button class="login-submit" id="loginSubmit" onclick="handleLogin()">Log In</button>
+    <div class="login-switch">
+      <span id="switchText">Don't have an account?</span> <a id="switchLink" onclick="toggleLoginMode()">Sign Up</a>
+    </div>
+  </div>
+</div>
+
 <!-- Onboarding Screen -->
 <div class="onboarding" id="onboarding">
   <div class="onboarding-content">
     <h2>Welcome to</h2>
     <h1>Our Date Night</h1>
+    <div class="user-greeting" id="userGreeting"></div>
     <p>Choose how you're planning to date.</p>
     <div class="profile-grid">
       <button class="profile-btn" onclick="selectProfile('Individual')">
@@ -191,14 +252,14 @@
         <span class="emoji">👥</span>
         <span class="label">Group</span>
       </button>
-      <button class="profile-btn" onclick="selectProfile('Guest')">
-        <span class="emoji">🎟️</span>
-        <span class="label">Guest</span>
+      <button class="profile-btn" onclick="selectProfile('Friends')">
+        <span class="emoji">🎉</span>
+        <span class="label">Friends</span>
       </button>
     </div>
   </div>
 </div>
- 
+
 <!-- Main App -->
 <div class="app" id="app">
   <!-- Header -->
@@ -209,13 +270,16 @@
     </div>
     <div class="header-right" onclick="showTab('profile')">
       <div class="header-info">
-        <div class="header-type" id="headerType">Guest</div>
+        <div class="header-type">
+          <span id="headerType">Guest</span>
+          <span class="logged-in-badge hidden" id="loggedInBadge">✓</span>
+        </div>
         <div class="header-location">📍 New York, NY</div>
       </div>
       <div class="header-avatar">👤</div>
     </div>
   </header>
- 
+
   <!-- Tab: Discover -->
   <div class="content tab-content" id="tab-discover">
     <h2 class="section-title">Discover Together 💕</h2>
@@ -230,20 +294,20 @@
       <button class="swipe-btn like" onclick="likeActivity()">❤️</button>
     </div>
   </div>
- 
+
   <!-- Tab: Browse -->
   <div class="content tab-content hidden" id="tab-browse">
     <h2 class="section-title">Browse All Ideas 🔎</h2>
     <div class="filter-chips" id="browseFilters"></div>
     <div id="browseList"></div>
   </div>
- 
+
   <!-- Tab: Saved -->
   <div class="content tab-content hidden" id="tab-saved">
     <h2 class="section-title">Saved Ideas ❤️</h2>
     <div id="savedList"></div>
   </div>
- 
+
   <!-- Tab: Dates -->
   <div class="content tab-content hidden" id="tab-dates">
     <h2 class="section-title">Upcoming Dates</h2>
@@ -251,7 +315,7 @@
     <h2 class="section-title" style="margin-top:24px;">Past Dates</h2>
     <div id="pastDates"></div>
   </div>
- 
+
   <!-- Tab: Plan -->
   <div class="content tab-content hidden" id="tab-plan">
     <div id="planSetup">
@@ -293,22 +357,26 @@
       <button class="btn-full secondary" onclick="finishPlan()">Done</button>
     </div>
   </div>
- 
+
   <!-- Tab: Profile -->
   <div class="content tab-content hidden" id="tab-profile">
     <h2 class="section-title">Your Profile 👤</h2>
     <div class="profile-card">
+      <p><strong>Name:</strong> <span id="profileName">Guest</span></p>
+      <p><strong>Email:</strong> <span id="profileEmail">-</span></p>
       <p><strong>Type:</strong> <span id="profileType">Guest</span></p>
       <p><strong>Location:</strong> New York, NY</p>
       <p style="margin-top:8px;"><strong>Stats:</strong> ❤️ <span id="statLiked">0</span> liked • ✖ <span id="statPassed">0</span> passed</p>
+      <p id="accountStatus" style="margin-top:8px;color:var(--success);font-size:13px;"></p>
     </div>
     
     <h3 style="font-weight:700;margin-bottom:12px;">Interests</h3>
     <div class="filter-chips" id="interestChips"></div>
     
     <button class="btn-full primary" style="margin-top:24px;" onclick="resetProfile()">Reset Profile</button>
+    <button class="btn-full logout-btn" id="logoutBtn" onclick="logout()">Log Out</button>
   </div>
- 
+
   <!-- Bottom Nav -->
   <nav class="nav">
     <button class="nav-item" onclick="showTab('dates')">
@@ -333,7 +401,7 @@
     </button>
   </nav>
 </div>
- 
+
 <!-- Gallery Modal -->
 <div class="modal" id="galleryModal">
   <div class="modal-content">
@@ -342,7 +410,7 @@
     <div class="modal-nav" id="modalNav"></div>
   </div>
 </div>
- 
+
 <script>
 // ============ DATA ============
 const NYC_ACTIVITIES = [
@@ -363,7 +431,7 @@ const NYC_ACTIVITIES = [
   { id: 'shopping-0', title: 'SoHo Boutiques', category: 'Shopping', description: "Trendy boutiques in cobblestone SoHo.", price: '$$$', rating: 4.5, reviewCount: 9876, distance: 'NYC', address: 'SoHo, NY', tags: ['shopping'], media: ['https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800', 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800'] },
   { id: 'wellness-0', title: 'Aire Ancient Baths', category: 'Wellness', description: "Luxurious thermal baths in TriBeCa.", price: '$$$', rating: 4.8, reviewCount: 6234, distance: 'NYC', address: 'TriBeCa, NY', tags: ['wellness'], media: ['https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=800', 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800'] },
 ];
- 
+
 const ALL_INTERESTS = [
   { key: 'restaurants', label: '🍽️ Dining' },
   { key: 'movies', label: '🎬 Movies' },
@@ -373,10 +441,14 @@ const ALL_INTERESTS = [
   { key: 'shopping', label: '🛍️ Shopping' },
   { key: 'wellness', label: '🧘 Wellness' },
 ];
- 
+
 const PART_TYPES = ['Coffee', 'Lunch', 'Dinner', 'Movie', 'Activity', 'Drinks'];
- 
+
 // ============ STATE ============
+let isLoggedIn = false;
+let isSignUpMode = false;
+let currentUser = null;
+
 let state = {
   profileType: null,
   interests: ['restaurants', 'nightlife', 'arts'],
@@ -386,29 +458,274 @@ let state = {
   stats: { liked: 0, passed: 0 },
   browseFilters: [],
   currentTab: 'discover',
-  // Plan state
   planDate: '',
   numParts: 2,
   parts: ['Dinner', 'Activity', null, null],
   planStep: 'setup',
   currentPartIndex: 0,
   selectedPlanItems: [null, null, null, null],
-  // Modal
   modalMedia: [],
   modalIndex: 0,
 };
- 
+
+// ============ LOCAL STORAGE ============
+function saveUserData() {
+  if (!isLoggedIn || !currentUser) return;
+  
+  const userData = {
+    email: currentUser.email,
+    name: currentUser.name,
+    password: currentUser.password,
+    state: state
+  };
+  
+  // Save to users list
+  let users = JSON.parse(localStorage.getItem('dateNightUsers') || '{}');
+  users[currentUser.email] = userData;
+  localStorage.setItem('dateNightUsers', JSON.stringify(users));
+  
+  // Save current session
+  localStorage.setItem('dateNightCurrentUser', currentUser.email);
+}
+
+function loadUserData(email) {
+  const users = JSON.parse(localStorage.getItem('dateNightUsers') || '{}');
+  return users[email] || null;
+}
+
+function checkExistingSession() {
+  const savedEmail = localStorage.getItem('dateNightCurrentUser');
+  if (savedEmail) {
+    const userData = loadUserData(savedEmail);
+    if (userData) {
+      isLoggedIn = true;
+      currentUser = {
+        email: userData.email,
+        name: userData.name,
+        password: userData.password
+      };
+      state = userData.state;
+      
+      // Skip to app if profile type already selected
+      if (state.profileType) {
+        document.getElementById('welcome').style.display = 'none';
+        document.getElementById('app').classList.add('active');
+        updateUIForLoggedInUser();
+        initApp();
+      } else {
+        document.getElementById('welcome').style.display = 'none';
+        document.getElementById('onboarding').classList.add('active');
+        document.getElementById('userGreeting').textContent = `Welcome back, ${currentUser.name}!`;
+      }
+      return true;
+    }
+  }
+  return false;
+}
+
+// ============ WELCOME & LOGIN ============
+function showLoginModal() {
+  document.getElementById('loginModal').classList.add('active');
+  isSignUpMode = false;
+  updateLoginModal();
+}
+
+function closeLoginModal() {
+  document.getElementById('loginModal').classList.remove('active');
+  document.getElementById('loginError').classList.remove('show');
+  document.getElementById('loginEmail').value = '';
+  document.getElementById('loginPassword').value = '';
+  document.getElementById('loginName').value = '';
+}
+
+function toggleLoginMode() {
+  isSignUpMode = !isSignUpMode;
+  updateLoginModal();
+}
+
+function updateLoginModal() {
+  const title = document.getElementById('loginTitle');
+  const subtitle = document.getElementById('loginSubtitle');
+  const nameInput = document.getElementById('loginName');
+  const submitBtn = document.getElementById('loginSubmit');
+  const switchText = document.getElementById('switchText');
+  const switchLink = document.getElementById('switchLink');
+  
+  if (isSignUpMode) {
+    title.textContent = 'Create Account';
+    subtitle.textContent = 'Sign up to save your date plans';
+    nameInput.classList.remove('hidden');
+    submitBtn.textContent = 'Sign Up';
+    switchText.textContent = 'Already have an account?';
+    switchLink.textContent = 'Log In';
+  } else {
+    title.textContent = 'Welcome Back';
+    subtitle.textContent = 'Log in to save your date plans';
+    nameInput.classList.add('hidden');
+    submitBtn.textContent = 'Log In';
+    switchText.textContent = "Don't have an account?";
+    switchLink.textContent = 'Sign Up';
+  }
+  
+  document.getElementById('loginError').classList.remove('show');
+}
+
+function handleLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const name = document.getElementById('loginName').value.trim();
+  const errorEl = document.getElementById('loginError');
+  
+  // Validate
+  if (!email || !password) {
+    errorEl.textContent = 'Please fill in all fields';
+    errorEl.classList.add('show');
+    return;
+  }
+  
+  if (!email.includes('@')) {
+    errorEl.textContent = 'Please enter a valid email';
+    errorEl.classList.add('show');
+    return;
+  }
+  
+  if (isSignUpMode) {
+    // Sign Up
+    if (!name) {
+      errorEl.textContent = 'Please enter your name';
+      errorEl.classList.add('show');
+      return;
+    }
+    
+    const existingUser = loadUserData(email);
+    if (existingUser) {
+      errorEl.textContent = 'An account with this email already exists';
+      errorEl.classList.add('show');
+      return;
+    }
+    
+    // Create new user
+    isLoggedIn = true;
+    currentUser = { email, name, password };
+    state = {
+      profileType: null,
+      interests: ['restaurants', 'nightlife', 'arts'],
+      savedItems: [],
+      swipedIds: [],
+      dates: [],
+      stats: { liked: 0, passed: 0 },
+      browseFilters: [],
+      currentTab: 'discover',
+      planDate: '',
+      numParts: 2,
+      parts: ['Dinner', 'Activity', null, null],
+      planStep: 'setup',
+      currentPartIndex: 0,
+      selectedPlanItems: [null, null, null, null],
+      modalMedia: [],
+      modalIndex: 0,
+    };
+    saveUserData();
+    
+  } else {
+    // Log In
+    const userData = loadUserData(email);
+    if (!userData || userData.password !== password) {
+      errorEl.textContent = 'Invalid email or password';
+      errorEl.classList.add('show');
+      return;
+    }
+    
+    isLoggedIn = true;
+    currentUser = {
+      email: userData.email,
+      name: userData.name,
+      password: userData.password
+    };
+    state = userData.state;
+  }
+  
+  closeLoginModal();
+  
+  // Go to next screen
+  document.getElementById('welcome').style.display = 'none';
+  
+  if (state.profileType) {
+    document.getElementById('app').classList.add('active');
+    updateUIForLoggedInUser();
+    initApp();
+  } else {
+    document.getElementById('onboarding').classList.add('active');
+    document.getElementById('userGreeting').textContent = `Welcome, ${currentUser.name}!`;
+  }
+}
+
+function continueAsGuest() {
+  isLoggedIn = false;
+  currentUser = null;
+  state = {
+    profileType: null,
+    interests: ['restaurants', 'nightlife', 'arts'],
+    savedItems: [],
+    swipedIds: [],
+    dates: [],
+    stats: { liked: 0, passed: 0 },
+    browseFilters: [],
+    currentTab: 'discover',
+    planDate: '',
+    numParts: 2,
+    parts: ['Dinner', 'Activity', null, null],
+    planStep: 'setup',
+    currentPartIndex: 0,
+    selectedPlanItems: [null, null, null, null],
+    modalMedia: [],
+    modalIndex: 0,
+  };
+  
+  document.getElementById('welcome').style.display = 'none';
+  document.getElementById('onboarding').classList.add('active');
+  document.getElementById('userGreeting').textContent = 'Guest Mode - your data won\'t be saved';
+}
+
+function updateUIForLoggedInUser() {
+  document.getElementById('headerType').textContent = state.profileType || 'User';
+  document.getElementById('profileType').textContent = state.profileType || '-';
+  
+  if (isLoggedIn && currentUser) {
+    document.getElementById('loggedInBadge').classList.remove('hidden');
+    document.getElementById('profileName').textContent = currentUser.name;
+    document.getElementById('profileEmail').textContent = currentUser.email;
+    document.getElementById('accountStatus').textContent = '✓ Your data is being saved';
+    document.getElementById('logoutBtn').style.display = 'block';
+  } else {
+    document.getElementById('loggedInBadge').classList.add('hidden');
+    document.getElementById('profileName').textContent = 'Guest';
+    document.getElementById('profileEmail').textContent = '-';
+    document.getElementById('accountStatus').textContent = '⚠️ Guest mode - data won\'t be saved';
+    document.getElementById('logoutBtn').style.display = 'none';
+  }
+}
+
+function logout() {
+  if (confirm('Are you sure you want to log out?')) {
+    localStorage.removeItem('dateNightCurrentUser');
+    isLoggedIn = false;
+    currentUser = null;
+    location.reload();
+  }
+}
+
 // ============ HELPERS ============
 function getDiscoverPool() {
   return NYC_ACTIVITIES
     .filter(item => state.interests.length === 0 || item.tags.some(t => state.interests.includes(t)))
     .filter(item => !state.swipedIds.includes(item.id));
 }
- 
+
 function formatDateTime(d) {
   return new Date(d).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 }
- 
+
 function getTagForPart(part) {
   if (['Coffee', 'Lunch', 'Dinner'].includes(part)) return 'restaurants';
   if (part === 'Movie') return 'movies';
@@ -416,17 +733,17 @@ function getTagForPart(part) {
   if (part === 'Drinks') return 'nightlife';
   return null;
 }
- 
+
 // ============ ONBOARDING ============
 function selectProfile(type) {
   state.profileType = type;
-  document.getElementById('onboarding').style.display = 'none';
+  document.getElementById('onboarding').classList.remove('active');
   document.getElementById('app').classList.add('active');
-  document.getElementById('headerType').textContent = type;
-  document.getElementById('profileType').textContent = type;
+  updateUIForLoggedInUser();
+  saveUserData();
   initApp();
 }
- 
+
 // ============ TABS ============
 function showTab(tab) {
   state.currentTab = tab;
@@ -442,7 +759,7 @@ function showTab(tab) {
   if (tab === 'plan') renderPlan();
   if (tab === 'profile') renderProfile();
 }
- 
+
 // ============ DISCOVER ============
 function renderDiscover() {
   const pool = getDiscoverPool();
@@ -486,7 +803,7 @@ function renderDiscover() {
     `;
   }
 }
- 
+
 let cardImageIndex = 0;
 function changeCardImage(idx) {
   const pool = getDiscoverPool();
@@ -495,7 +812,7 @@ function changeCardImage(idx) {
   document.getElementById('cardImage').src = pool[0].media[idx];
   document.querySelectorAll('.card-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
 }
- 
+
 function likeActivity() {
   const pool = getDiscoverPool();
   if (pool.length === 0) return;
@@ -506,18 +823,20 @@ function likeActivity() {
   state.swipedIds.push(item.id);
   state.stats.liked++;
   cardImageIndex = 0;
+  saveUserData();
   renderDiscover();
 }
- 
+
 function passActivity() {
   const pool = getDiscoverPool();
   if (pool.length === 0) return;
   state.swipedIds.push(pool[0].id);
   state.stats.passed++;
   cardImageIndex = 0;
+  saveUserData();
   renderDiscover();
 }
- 
+
 // ============ BROWSE ============
 function renderBrowse() {
   const filtersEl = document.getElementById('browseFilters');
@@ -545,7 +864,7 @@ function renderBrowse() {
     </div>
   `).join('');
 }
- 
+
 function toggleBrowseFilter(key) {
   if (state.browseFilters.includes(key)) {
     state.browseFilters = state.browseFilters.filter(k => k !== key);
@@ -554,20 +873,21 @@ function toggleBrowseFilter(key) {
   }
   renderBrowse();
 }
- 
+
 function saveItem(id) {
   const item = NYC_ACTIVITIES.find(i => i.id === id);
   if (item && !state.savedItems.find(i => i.id === id)) {
     state.savedItems.push(item);
+    saveUserData();
     alert('Saved to your favorites!');
   }
 }
- 
+
 function openBooking(title) {
   const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
   window.open('https://www.opentable.com/r/' + slug, '_blank');
 }
- 
+
 // ============ SAVED ============
 function renderSaved() {
   const list = document.getElementById('savedList');
@@ -589,12 +909,13 @@ function renderSaved() {
     </div>
   `).join('');
 }
- 
+
 function removeItem(id) {
   state.savedItems = state.savedItems.filter(i => i.id !== id);
+  saveUserData();
   renderSaved();
 }
- 
+
 // ============ DATES ============
 function renderDates() {
   const upcoming = state.dates.filter(d => d.status === 'upcoming');
@@ -620,27 +941,25 @@ function renderDates() {
       </div>
     `).join('');
 }
- 
+
 function removeDate(id) {
   state.dates = state.dates.filter(d => d.id !== id);
+  saveUserData();
   renderDates();
 }
- 
+
 // ============ PLAN ============
 function renderPlan() {
-  // Set default datetime
   if (!state.planDate) {
     const now = new Date();
     now.setHours(19, 0, 0, 0);
     document.getElementById('planDateTime').value = now.toISOString().slice(0, 16);
   }
   
-  // Part count buttons
   document.getElementById('partCountRow').innerHTML = [1,2,3,4].map(n => `
     <button class="part-count-btn ${state.numParts === n ? 'active' : ''}" onclick="setNumParts(${n})">${n}</button>
   `).join('');
   
-  // Parts preview
   document.getElementById('partsPreview').innerHTML = Array.from({length: state.numParts}).map((_, i) => `
     <div class="part-row">
       <span class="part-num">${i + 1}</span>
@@ -648,31 +967,26 @@ function renderPlan() {
     </div>
   `).join('');
   
-  // Show correct view
   document.getElementById('planSetup').classList.toggle('hidden', state.planStep !== 'setup');
   document.getElementById('planSelecting').classList.toggle('hidden', state.planStep !== 'selecting');
   document.getElementById('planComplete').classList.toggle('hidden', state.planStep !== 'complete');
   
-  if (state.planStep === 'selecting') {
-    renderPlanSelecting();
-  }
-  if (state.planStep === 'complete') {
-    renderPlanComplete();
-  }
+  if (state.planStep === 'selecting') renderPlanSelecting();
+  if (state.planStep === 'complete') renderPlanComplete();
 }
- 
+
 function setNumParts(n) {
   state.numParts = n;
   renderPlan();
 }
- 
+
 function cyclePartType(idx) {
   const current = state.parts[idx];
   const currentIdx = PART_TYPES.indexOf(current);
   state.parts[idx] = PART_TYPES[(currentIdx + 1) % PART_TYPES.length];
   renderPlan();
 }
- 
+
 function startPlanSelection() {
   state.planDate = document.getElementById('planDateTime').value;
   state.planStep = 'selecting';
@@ -680,7 +994,7 @@ function startPlanSelection() {
   state.selectedPlanItems = [null, null, null, null];
   renderPlan();
 }
- 
+
 function renderPlanSelecting() {
   document.getElementById('planStepTitle').textContent = `Part ${state.currentPartIndex + 1} of ${state.numParts}`;
   document.getElementById('planStepType').textContent = state.parts[state.currentPartIndex];
@@ -705,7 +1019,7 @@ function renderPlanSelecting() {
     </button>
   `).join('');
 }
- 
+
 function selectPlanActivity(id) {
   const activity = NYC_ACTIVITIES.find(a => a.id === id);
   state.selectedPlanItems[state.currentPartIndex] = activity;
@@ -718,7 +1032,7 @@ function selectPlanActivity(id) {
     renderPlan();
   }
 }
- 
+
 function planBack() {
   if (state.currentPartIndex > 0) {
     state.currentPartIndex--;
@@ -728,7 +1042,7 @@ function planBack() {
     renderPlan();
   }
 }
- 
+
 function renderPlanComplete() {
   const completed = state.selectedPlanItems.slice(0, state.numParts).filter(Boolean);
   document.getElementById('completedItems').innerHTML = completed.map((a, i) => `
@@ -742,7 +1056,7 @@ function renderPlanComplete() {
     </div>
   `).join('');
 }
- 
+
 function finishPlan() {
   const selected = state.selectedPlanItems.slice(0, state.numParts).filter(Boolean);
   const newDate = {
@@ -755,10 +1069,11 @@ function finishPlan() {
   state.dates.push(newDate);
   state.planStep = 'setup';
   state.selectedPlanItems = [null, null, null, null];
+  saveUserData();
   alert('Your date plan has been added to Upcoming Dates!');
   renderPlan();
 }
- 
+
 // ============ PROFILE ============
 function renderProfile() {
   document.getElementById('statLiked').textContent = state.stats.liked;
@@ -767,28 +1082,33 @@ function renderProfile() {
   document.getElementById('interestChips').innerHTML = ALL_INTERESTS.map(i => `
     <button class="filter-chip ${state.interests.includes(i.key) ? 'active' : ''}" onclick="toggleInterest('${i.key}')">${i.label}</button>
   `).join('');
+  
+  updateUIForLoggedInUser();
 }
- 
+
 function toggleInterest(key) {
   if (state.interests.includes(key)) {
     state.interests = state.interests.filter(k => k !== key);
   } else {
     state.interests.push(key);
   }
+  saveUserData();
   renderProfile();
 }
- 
+
 function resetProfile() {
   if (confirm('Reset all your data?')) {
     state.interests = [];
     state.savedItems = [];
     state.swipedIds = [];
     state.stats = { liked: 0, passed: 0 };
+    state.dates = [];
+    saveUserData();
     renderProfile();
     renderDiscover();
   }
 }
- 
+
 // ============ MODAL ============
 function openGallery(id) {
   const item = NYC_ACTIVITIES.find(i => i.id === id);
@@ -798,23 +1118,23 @@ function openGallery(id) {
   updateModal();
   document.getElementById('galleryModal').classList.add('active');
 }
- 
+
 function updateModal() {
   document.getElementById('modalImage').src = state.modalMedia[state.modalIndex];
   document.getElementById('modalNav').innerHTML = state.modalMedia.map((_, i) => `
     <button class="modal-dot ${i === state.modalIndex ? 'active' : ''}" onclick="setModalIndex(${i})"></button>
   `).join('');
 }
- 
+
 function setModalIndex(i) {
   state.modalIndex = i;
   updateModal();
 }
- 
+
 function closeModal() {
   document.getElementById('galleryModal').classList.remove('active');
 }
- 
+
 // ============ INIT ============
 function initApp() {
   renderDiscover();
@@ -823,14 +1143,23 @@ function initApp() {
   renderDates();
   renderPlan();
   renderProfile();
-  
-  // Set discover as active tab
   document.querySelector('.nav-center').classList.add('active');
 }
- 
-// Close modal on backdrop click
+
+// Check for existing session on page load
+document.addEventListener('DOMContentLoaded', function() {
+  if (!checkExistingSession()) {
+    // No existing session, show welcome screen
+    document.getElementById('welcome').style.display = 'flex';
+  }
+});
+
+// Close modals on backdrop click
 document.getElementById('galleryModal').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
+});
+document.getElementById('loginModal').addEventListener('click', function(e) {
+  if (e.target === this) closeLoginModal();
 });
 </script>
 </body>
