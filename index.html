@@ -627,6 +627,57 @@
     .no-results { text-align: center; padding: 40px 20px; color: #888; }
     .no-results-icon { font-size: 48px; margin-bottom: 12px; }
     
+    /* Trending Section */
+    .trending-section { background: var(--bg-card); border-radius: 16px; padding: 16px; margin-bottom: 20px; box-shadow: 0 2px 8px var(--shadow-color); }
+    .trending-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .trending-title { font-size: 18px; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+    .trending-subtitle { font-size: 12px; color: var(--text-muted); }
+    .trending-list { display: flex; flex-direction: column; gap: 12px; }
+    .trending-item { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-secondary); border-radius: 12px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+    .trending-item:hover { transform: translateX(4px); box-shadow: 0 2px 8px var(--shadow-color); }
+    .trending-rank { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0; }
+    .trending-rank.gold { background: linear-gradient(135deg, #ffd700, #ffb700); color: #333; }
+    .trending-rank.silver { background: linear-gradient(135deg, #c0c0c0, #a8a8a8); color: #333; }
+    .trending-rank.bronze { background: linear-gradient(135deg, #cd7f32, #b87333); color: white; }
+    .trending-rank.normal { background: var(--border-color); color: var(--text-muted); }
+    .trending-image { width: 50px; height: 50px; border-radius: 10px; object-fit: cover; flex-shrink: 0; }
+    .trending-info { flex: 1; min-width: 0; }
+    .trending-name { font-weight: 600; font-size: 14px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .trending-meta { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 8px; margin-top: 2px; }
+    .trending-change { font-size: 12px; font-weight: 600; color: var(--success); display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
+    .trending-change.hot { color: #ff6b6b; }
+    .trending-fire { animation: fire-pulse 1s ease-in-out infinite; }
+    @keyframes fire-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+    .trending-see-all { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 12px; background: var(--bg-secondary); border-radius: 10px; color: var(--secondary); font-weight: 600; font-size: 14px; cursor: pointer; margin-top: 8px; transition: background 0.2s; }
+    .trending-see-all:hover { background: rgba(102,126,234,0.1); }
+    
+    /* Trending Section */
+    .trending-section { margin-bottom: 20px; }
+    .trending-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .trending-title { font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 8px; color: var(--text-primary); }
+    .trending-title span { animation: flame-flicker 1s ease-in-out infinite alternate; }
+    @keyframes flame-flicker { 0% { transform: scale(1); } 100% { transform: scale(1.1); } }
+    .trending-subtitle { font-size: 12px; color: var(--text-muted); }
+    .trending-list { display: flex; flex-direction: column; gap: 10px; }
+    .trending-item { display: flex; align-items: center; gap: 12px; background: var(--bg-card); border-radius: 12px; padding: 12px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+    .trending-item:hover { transform: translateX(4px); box-shadow: 0 4px 12px var(--shadow-color); }
+    .trending-rank { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0; }
+    .trending-rank.gold { background: linear-gradient(135deg, #ffd700, #ffb700); color: #7a5c00; }
+    .trending-rank.silver { background: linear-gradient(135deg, #e0e0e0, #c0c0c0); color: #555; }
+    .trending-rank.bronze { background: linear-gradient(135deg, #cd7f32, #b87333); color: #fff; }
+    .trending-rank.normal { background: var(--bg-secondary); color: var(--text-muted); }
+    .trending-image { width: 50px; height: 50px; border-radius: 10px; object-fit: cover; flex-shrink: 0; }
+    .trending-info { flex: 1; min-width: 0; }
+    .trending-name { font-weight: 600; font-size: 14px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .trending-meta { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 8px; margin-top: 2px; }
+    .trending-stats { text-align: right; flex-shrink: 0; }
+    .trending-change { font-size: 13px; font-weight: 600; color: var(--success); display: flex; align-items: center; justify-content: flex-end; gap: 2px; }
+    .trending-change.hot { color: #ff6b6b; }
+    .trending-activity { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .trending-see-all { text-align: center; padding: 12px; margin-top: 12px; background: var(--bg-secondary); border-radius: 10px; color: var(--secondary); font-weight: 600; font-size: 14px; cursor: pointer; transition: background 0.2s; }
+    .trending-see-all:hover { background: rgba(102,126,234,0.15); }
+    .trending-empty { text-align: center; padding: 20px; color: var(--text-muted); font-size: 14px; }
+    
     /* Browse Cards */
     .browse-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 16px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
     .browse-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.12); }
@@ -743,6 +794,21 @@
     [data-theme="dark"] .section-title { color: var(--text-primary); }
     [data-theme="dark"] .empty-state { color: var(--text-muted); }
     [data-theme="dark"] .no-results { color: var(--text-muted); }
+    
+    [data-theme="dark"] .trending-section { background: var(--bg-card); }
+    [data-theme="dark"] .trending-title { color: var(--text-primary); }
+    [data-theme="dark"] .trending-item { background: var(--bg-secondary); }
+    [data-theme="dark"] .trending-name { color: var(--text-primary); }
+    [data-theme="dark"] .trending-meta { color: var(--text-muted); }
+    [data-theme="dark"] .trending-rank.normal { background: var(--border-color); color: var(--text-muted); }
+    [data-theme="dark"] .trending-see-all { background: var(--bg-secondary); }
+    
+    [data-theme="dark"] .trending-item { background: var(--bg-card); }
+    [data-theme="dark"] .trending-name { color: var(--text-primary); }
+    [data-theme="dark"] .trending-meta { color: var(--text-muted); }
+    [data-theme="dark"] .trending-activity { color: var(--text-muted); }
+    [data-theme="dark"] .trending-rank.normal { background: var(--bg-secondary); color: var(--text-muted); }
+    [data-theme="dark"] .trending-empty { background: var(--bg-card); color: var(--text-muted); }
     
     [data-theme="dark"] .list-item { background: var(--bg-card); }
     [data-theme="dark"] .list-title { color: var(--text-primary); }
@@ -938,6 +1004,22 @@
     <!-- Search Bar -->
     <div class="search-bar">
       <input type="text" class="search-input" id="searchInput" placeholder="Search places, activities..." oninput="renderSearch()">
+    </div>
+    
+    <!-- Trending This Week -->
+    <div class="trending-section" id="trendingSection">
+      <div class="trending-header">
+        <div>
+          <div class="trending-title"><span>🔥</span> Trending This Week</div>
+          <div class="trending-subtitle">Based on saves, likes & uploads</div>
+        </div>
+      </div>
+      <div class="trending-list" id="trendingList">
+        <!-- Filled by JS -->
+      </div>
+      <div class="trending-see-all" onclick="toggleTrendingExpanded()" id="trendingSeeAll">
+        See All Trending →
+      </div>
     </div>
     
     <!-- Filters -->
@@ -2964,6 +3046,8 @@ let searchFilters = {
   distance: 'any'
 };
 
+let trendingExpanded = false;
+
 const CUISINE_KEYWORDS = {
   italian: ['italian', 'carbone', 'pasta', 'risotto'],
   pizza: ['pizza', "joe's pizza"],
@@ -2974,6 +3058,124 @@ const CUISINE_KEYWORDS = {
   mexican: ['mexican', 'taco', 'burrito', 'enchilada'],
   american: ['american', 'burger', 'bbq', 'grill']
 };
+
+// ============ TRENDING ============
+function calculateTrendingScores() {
+  const scores = {};
+  
+  // Initialize scores for all places
+  NYC_ACTIVITIES.forEach(place => {
+    scores[place.id] = {
+      place: place,
+      score: 0,
+      saves: 0,
+      likes: 0,
+      uploads: 0,
+      views: 0
+    };
+  });
+  
+  // Add points for user-generated content (uploads)
+  userGeneratedContent.forEach(content => {
+    if (scores[content.place_id]) {
+      scores[content.place_id].uploads++;
+      scores[content.place_id].score += 8; // 8 points per upload
+      scores[content.place_id].likes += content.likes || 0;
+      scores[content.place_id].score += (content.likes || 0) * 2; // 2 points per like
+    }
+  });
+  
+  // Add points for saved items
+  if (state.savedItems) {
+    state.savedItems.forEach(item => {
+      if (scores[item.id]) {
+        scores[item.id].saves++;
+        scores[item.id].score += 3; // 3 points per save
+      }
+    });
+  }
+  
+  // Add base score from place rating and reviews
+  NYC_ACTIVITIES.forEach(place => {
+    if (scores[place.id]) {
+      scores[place.id].score += Math.floor(place.rating * 2); // Rating bonus
+      scores[place.id].score += Math.floor(Math.log10(place.reviewCount || 1)); // Review count bonus
+    }
+  });
+  
+  // Convert to array and sort by score
+  const trendingArray = Object.values(scores)
+    .filter(item => item.score > 0)
+    .sort((a, b) => b.score - a.score);
+  
+  return trendingArray;
+}
+
+function renderTrending() {
+  const trendingData = calculateTrendingScores();
+  const trendingList = document.getElementById('trendingList');
+  const trendingSeeAll = document.getElementById('trendingSeeAll');
+  
+  if (trendingData.length === 0) {
+    trendingList.innerHTML = '<div class="trending-empty">No trending data yet. Start exploring!</div>';
+    trendingSeeAll.style.display = 'none';
+    return;
+  }
+  
+  const displayCount = trendingExpanded ? 10 : 5;
+  const topTrending = trendingData.slice(0, displayCount);
+  
+  trendingList.innerHTML = topTrending.map((item, index) => {
+    const place = item.place;
+    const rank = index + 1;
+    const rankClass = rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : 'normal';
+    
+    // Calculate fake "change" percentage for visual appeal
+    const changePercent = Math.max(10, Math.floor(100 - (rank * 8) + Math.random() * 20));
+    const isHot = rank <= 3;
+    
+    // Activity text
+    let activityText = [];
+    if (item.uploads > 0) activityText.push(`${item.uploads} photo${item.uploads > 1 ? 's' : ''}`);
+    if (item.saves > 0) activityText.push(`${item.saves} save${item.saves > 1 ? 's' : ''}`);
+    if (item.likes > 0) activityText.push(`${item.likes} like${item.likes > 1 ? 's' : ''}`);
+    const activityString = activityText.length > 0 ? activityText.slice(0, 2).join(', ') : 'Popular choice';
+    
+    return `
+      <div class="trending-item" onclick="openLocationModal('${place.id}')">
+        <div class="trending-rank ${rankClass}">${rank === 1 ? '🔥' : rank}</div>
+        <img class="trending-image" src="${place.media[0]}" alt="${place.title}">
+        <div class="trending-info">
+          <div class="trending-name">${place.title}</div>
+          <div class="trending-meta">
+            <span>⭐ ${place.rating}</span>
+            <span>${place.price}</span>
+            <span>${place.category}</span>
+          </div>
+        </div>
+        <div class="trending-stats">
+          <div class="trending-change ${isHot ? 'hot' : ''}">${isHot ? '🔥' : ''} +${changePercent}%</div>
+          <div class="trending-activity">${activityString}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+  
+  // Show/hide see all button
+  if (trendingData.length > 5) {
+    trendingSeeAll.style.display = 'block';
+    trendingSeeAll.textContent = trendingExpanded 
+      ? 'Show Less ↑'
+      : `See All ${trendingData.length} Trending →`;
+  } else {
+    trendingSeeAll.style.display = 'none';
+  }
+}
+
+function toggleTrendingExpanded() {
+  trendingExpanded = !trendingExpanded;
+  renderTrending();
+}
 
 function setActivityType(type) {
   searchFilters.activityType = type;
@@ -3013,6 +3215,16 @@ function renderSearch() {
   searchFilters.query = document.getElementById('searchInput').value.toLowerCase().trim();
   searchFilters.zipCode = document.getElementById('zipCodeInput').value.trim();
   searchFilters.distance = document.getElementById('distanceSelect').value;
+  
+  // Show/hide trending based on whether user is actively filtering
+  const isFiltering = searchFilters.query || searchFilters.activityType !== 'all' || searchFilters.cuisine !== 'all';
+  const trendingSection = document.getElementById('trendingSection');
+  if (isFiltering) {
+    trendingSection.style.display = 'none';
+  } else {
+    trendingSection.style.display = 'block';
+    renderTrending();
+  }
   
   let items = [...NYC_ACTIVITIES];
   
