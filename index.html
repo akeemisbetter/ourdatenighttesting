@@ -581,8 +581,19 @@
     <button class="upload-file-btn" id="contentUploadBtn" onclick="document.getElementById('contentInput').click()">
       <input type="file" id="contentInput" accept="image/*,video/*" onchange="handleContentUpload(event)">
       <div class="verify-upload-icon">📷</div>
-      <div class="verify-upload-text" id="contentUploadText">Tap to upload photo or video</div>
+      <div class="verify-upload-text" id="contentUploadText">Tap to select photo or video</div>
     </button>
+    
+    <div style="display:flex;gap:8px;margin-bottom:16px;">
+      <button class="btn-full" style="background:#eee;color:#333;margin:0;flex:1;" onclick="document.getElementById('cameraInput').click()">
+        📸 Take Photo
+        <input type="file" id="cameraInput" accept="image/*" capture="environment" onchange="handleContentUpload(event)" style="display:none;">
+      </button>
+      <button class="btn-full" style="background:#eee;color:#333;margin:0;flex:1;" onclick="document.getElementById('libraryInput').click()">
+        🖼️ Photo Library
+        <input type="file" id="libraryInput" accept="image/*,video/*" onchange="handleContentUpload(event)" style="display:none;">
+      </button>
+    </div>
     
     <img class="upload-preview" id="uploadPreview" alt="Preview">
     <video class="upload-video-preview" id="uploadVideoPreview" controls></video>
@@ -1995,12 +2006,19 @@ function openUploadModal() {
   select.innerHTML = '<option value="">Choose a place...</option>' + 
     NYC_ACTIVITIES.map(a => `<option value="${a.id}">${a.title}</option>`).join('');
   
+  // Reset all file inputs
   document.getElementById('uploadPreview').style.display = 'none';
   document.getElementById('uploadVideoPreview').style.display = 'none';
   document.getElementById('contentUploadBtn').classList.remove('has-file');
-  document.getElementById('contentUploadText').textContent = 'Tap to upload photo or video';
+  document.getElementById('contentUploadText').textContent = 'Tap to select photo or video';
   document.getElementById('uploadCaption').value = '';
   document.getElementById('submitContentBtn').disabled = true;
+  
+  // Reset file inputs
+  document.getElementById('contentInput').value = '';
+  document.getElementById('cameraInput').value = '';
+  document.getElementById('libraryInput').value = '';
+  
   uploadedContentFile = null;
   uploadedContentType = null;
 }
@@ -2011,29 +2029,56 @@ function closeUploadModal() {
 
 function handleContentUpload(event) {
   const file = event.target.files[0];
-  if (!file) return;
+  if (!file) {
+    console.log('No file selected');
+    return;
+  }
   
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    uploadedContentFile = e.target.result;
+  console.log('File selected:', file.name, file.type, file.size);
+  
+  // Check file size (max 50MB)
+  if (file.size > 50 * 1024 * 1024) {
+    alert('File is too large. Maximum size is 50MB.');
+    return;
+  }
+  
+  // Show loading state
+  document.getElementById('contentUploadBtn').classList.add('has-file');
+  document.getElementById('contentUploadText').textContent = 'Loading...';
+  
+  // Determine file type
+  if (file.type.startsWith('video/')) {
+    uploadedContentType = 'video';
+  } else if (file.type.startsWith('image/')) {
+    uploadedContentType = 'image';
+  } else {
+    alert('Please select an image or video file.');
+    return;
+  }
+  
+  // Use URL.createObjectURL instead of FileReader (faster and more reliable)
+  try {
+    const objectUrl = URL.createObjectURL(file);
+    uploadedContentFile = file; // Store the actual file, not base64
     
-    if (file.type.startsWith('video/')) {
-      uploadedContentType = 'video';
-      document.getElementById('uploadVideoPreview').src = e.target.result;
+    if (uploadedContentType === 'video') {
+      document.getElementById('uploadVideoPreview').src = objectUrl;
       document.getElementById('uploadVideoPreview').style.display = 'block';
       document.getElementById('uploadPreview').style.display = 'none';
     } else {
-      uploadedContentType = 'image';
-      document.getElementById('uploadPreview').src = e.target.result;
+      document.getElementById('uploadPreview').src = objectUrl;
       document.getElementById('uploadPreview').style.display = 'block';
       document.getElementById('uploadVideoPreview').style.display = 'none';
     }
     
-    document.getElementById('contentUploadBtn').classList.add('has-file');
-    document.getElementById('contentUploadText').textContent = '✓ File selected';
+    document.getElementById('contentUploadText').textContent = '✓ ' + file.name;
     checkUploadFormComplete();
-  };
-  reader.readAsDataURL(file);
+    
+  } catch (err) {
+    console.error('Error loading file:', err);
+    alert('Error loading file. Please try again.');
+    document.getElementById('contentUploadText').textContent = 'Tap to select photo or video';
+  }
 }
 
 function checkUploadFormComplete() {
@@ -2057,19 +2102,20 @@ async function submitContent() {
   submitBtn.textContent = 'Uploading...';
   
   try {
-    // Convert base64 to blob for upload
-    const response = await fetch(uploadedContentFile);
-    const blob = await response.blob();
+    // uploadedContentFile is now a File object
+    const file = uploadedContentFile;
     
     // Generate unique filename
-    const ext = uploadedContentType === 'video' ? 'mp4' : 'jpg';
+    const ext = file.name.split('.').pop() || (uploadedContentType === 'video' ? 'mp4' : 'jpg');
     const fileName = `${currentUser.id}/${Date.now()}.${ext}`;
+    
+    console.log('Uploading file:', fileName, file.type, file.size);
     
     // Upload to Supabase Storage
     const { data: uploadData, error: uploadError } = await db.storage
       .from('user-uploads')
-      .upload(fileName, blob, {
-        contentType: blob.type,
+      .upload(fileName, file, {
+        contentType: file.type,
         upsert: false
       });
     
@@ -2081,12 +2127,15 @@ async function submitContent() {
       return;
     }
     
+    console.log('Upload successful:', uploadData);
+    
     // Get public URL
     const { data: urlData } = db.storage
       .from('user-uploads')
       .getPublicUrl(fileName);
     
     const publicUrl = urlData.publicUrl;
+    console.log('Public URL:', publicUrl);
     
     // Save to database
     const { error } = await db
@@ -2121,7 +2170,7 @@ async function submitContent() {
     
   } catch (err) {
     console.error('Submit error:', err);
-    alert('Error uploading content. Please try again.');
+    alert('Error uploading content: ' + err.message);
   }
   
   submitBtn.disabled = false;
