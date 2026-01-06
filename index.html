@@ -1018,6 +1018,86 @@
 
 <!-- Avatar Selector Modal -->
 <div class="payment-modal" id="avatarModal">
+  <div class="payment-box" style="max-height:85vh;overflow-y:auto;">
+    <h2>Choose Your Avatar</h2>
+    <p>Select an animated avatar or upload your own photo</p>
+    
+    <h4 style="font-size:13px;color:#888;margin:16px 0 8px;">📷 Custom Photo</h4>
+    <div class="avatar-selector" style="grid-template-columns: repeat(4, 1fr);">
+      <div class="avatar-option avatar-upload-btn" onclick="document.getElementById('avatarUploadInput').click()">
+        ➕
+        <input type="file" id="avatarUploadInput" accept="image/*" style="display:none;" onchange="handleAvatarUpload(event)">
+      </div>
+    </div>
+    
+    <h4 style="font-size:13px;color:#888;margin:16px 0 8px;">😊 Bouncing</h4>
+    <div class="avatar-selector">
+      <div class="avatar-option" onclick="selectAvatar('😊', 'bounce')"><span class="avatar-animated avatar-bounce">😊</span></div>
+      <div class="avatar-option" onclick="selectAvatar('😄', 'bounce')"><span class="avatar-animated avatar-bounce">😄</span></div>
+      <div class="avatar-option" onclick="selectAvatar('🥳', 'bounce')"><span class="avatar-animated avatar-bounce">🥳</span></div>
+      <div class="avatar-option" onclick="selectAvatar('😎', 'bounce')"><span class="avatar-animated avatar-bounce">😎</span></div>
+    </div>
+    
+    <h4 style="font-size:13px;color:#888;margin:16px 0 8px;">💕 Heartbeat</h4>
+    <div class="avatar-selector">
+      <div class="avatar-option" onclick="selectAvatar('🥰', 'heartbeat')"><span class="avatar-animated avatar-heartbeat">🥰</span></div>
+      <div class="avatar-option" onclick="selectAvatar('😍', 'heartbeat')"><span class="avatar-animated avatar-heartbeat">😍</span></div>
+      <div class="avatar-option" onclick="selectAvatar('💖', 'heartbeat')"><span class="avatar-animated avatar-heartbeat">💖</span></div>
+      <div class="avatar-option" onclick="selectAvatar('❤️', 'heartbeat')"><span class="avatar-animated avatar-heartbeat">❤️</span></div>
+    </div>
+    
+    <h4 style="font-size:13px;color:#888;margin:16px 0 8px;">👋 Waving</h4>
+    <div class="avatar-selector">
+      <div class="avatar-option" onclick="selectAvatar('👋', 'wave')"><span class="avatar-animated avatar-wave">👋</span></div>
+      <div class="avatar-option" onclick="selectAvatar('🤗', 'wave')"><span class="avatar-animated avatar-wave">🤗</span></div>
+      <div class="avatar-option" onclick="selectAvatar('✌️', 'wave')"><span class="avatar-animated avatar-wave">✌️</span></div>
+      <div class="avatar-option" onclick="selectAvatar('🙋', 'wave')"><span class="avatar-animated avatar-wave">🙋</span></div>
+    </div>
+    
+    <h4 style="font-size:13px;color:#888;margin:16px 0 8px;">🌟 Pulsing</h4>
+    <div class="avatar-selector">
+      <div class="avatar-option" onclick="selectAvatar('⭐', 'pulse')"><span class="avatar-animated avatar-pulse">⭐</span></div>
+      <div class="avatar-option" onclick="selectAvatar('🌟', 'pulse')"><span class="avatar-animated avatar-pulse">🌟</span></div>
+      <div class="avatar-option" onclick="selectAvatar('✨', 'pulse')"><span class="avatar-animated avatar-pulse">✨</span></div>
+      <div class="avatar-option" onclick="selectAvatar('💫', 'pulse')"><span class="avatar-animated avatar-pulse">💫</span></div>
+    </div>
+    
+    <h4 style="font-size:13px;color:#888;margin:16px 0 8px;">🎈 Floating</h4>
+    <div class="avatar-selector">
+      <div class="avatar-option" onclick="selectAvatar('🦋', 'float')"><span class="avatar-animated avatar-float">🦋</span></div>
+      <div class="avatar-option" onclick="selectAvatar('🎈', 'float')"><span class="avatar-animated avatar-float">🎈</span></div>
+      <div class="avatar-option" onclick="selectAvatar('☁️', 'float')"><span class="avatar-animated avatar-float">☁️</span></div>
+      <div class="avatar-option" onclick="selectAvatar('🌙', 'float')"><span class="avatar-animated avatar-float">🌙</span></div>
+    </div>
+    
+    <h4 style="font-size:13px;color:#888;margin:16px 0 8px;">🔄 Spinning</h4>
+    <div class="avatar-selector">
+      <div class="avatar-option" onclick="selectAvatar('🌀', 'spin')"><span class="avatar-animated avatar-spin">🌀</span></div>
+      <div class="avatar-option" onclick="selectAvatar('☀️', 'spin')"><span class="avatar-animated avatar-spin">☀️</span></div>
+      <div class="avatar-option" onclick="selectAvatar('🌈', 'spin')"><span class="avatar-animated avatar-spin">🌈</span></div>
+      <div class="avatar-option" onclick="selectAvatar('💿', 'spin')"><span class="avatar-animated avatar-spin">💿</span></div>
+    </div>
+    
+    <h4 style="font-size:13px;color:#888;margin:16px 0 8px;">🐾 Wiggling</h4>
+    <div class="avatar-selector">
+      <div class="avatar-option" onclick="selectAvatar('🐱', 'wiggle')"><span class="avatar-animated avatar-wiggle">🐱</span></div>
+      <div class="avatar-option" onclick="selectAvatar('🐶', 'wiggle')"><span class="avatar-animated avatar-wiggle">🐶</span></div>
+      <div class="avatar-option" onclick="selectAvatar('🦊', 'wiggle')"><span class="avatar-animated avatar-wiggle">🦊</span></div>
+      <div class="avatar-option" onclick="selectAvatar('🐼', 'wiggle')"><span class="avatar-animated avatar-wiggle">🐼</span></div>
+    </div>
+    
+    <h4 style="font-size:13px;color:#888;margin:16px 0 8px;">🍭 Jelly</h4>
+    <div class="avatar-selector">
+      <div class="avatar-option" onclick="selectAvatar('🍭', 'jelly')"><span class="avatar-animated avatar-jelly">🍭</span></div>
+      <div class="avatar-option" onclick="selectAvatar('🧁', 'jelly')"><span class="avatar-animated avatar-jelly">🧁</span></div>
+      <div class="avatar-option" onclick="selectAvatar('🍩', 'jelly')"><span class="avatar-animated avatar-jelly">🍩</span></div>
+      <div class="avatar-option" onclick="selectAvatar('🍦', 'jelly')"><span class="avatar-animated avatar-jelly">🍦</span></div>
+    </div>
+    
+    <button class="btn-full secondary" style="margin-top:16px;" onclick="saveAvatar()">Save Avatar</button>
+    <button class="btn-full" style="background:#eee;color:#666;margin-top:12px;" onclick="closeAvatarModal()">Cancel</button>
+  </div>
+</div>
 
 <!-- Admin Dashboard Modal -->
 <div class="admin-dashboard-modal" id="adminDashboardModal">
@@ -1124,86 +1204,6 @@
         <p style="text-align:center;color:#888;">Loading...</p>
       </div>
     </div>
-  </div>
-</div>
-  <div class="payment-box" style="max-height:85vh;overflow-y:auto;">
-    <h2>Choose Your Avatar</h2>
-    <p>Select an animated avatar or upload your own photo</p>
-    
-    <h4 style="font-size:13px;color:#888;margin:16px 0 8px;">📷 Custom Photo</h4>
-    <div class="avatar-selector" style="grid-template-columns: repeat(4, 1fr);">
-      <div class="avatar-option avatar-upload-btn" onclick="document.getElementById('avatarUploadInput').click()">
-        ➕
-        <input type="file" id="avatarUploadInput" accept="image/*" style="display:none;" onchange="handleAvatarUpload(event)">
-      </div>
-    </div>
-    
-    <h4 style="font-size:13px;color:#888;margin:16px 0 8px;">😊 Bouncing</h4>
-    <div class="avatar-selector">
-      <div class="avatar-option" onclick="selectAvatar('😊', 'bounce')"><span class="avatar-animated avatar-bounce">😊</span></div>
-      <div class="avatar-option" onclick="selectAvatar('😄', 'bounce')"><span class="avatar-animated avatar-bounce">😄</span></div>
-      <div class="avatar-option" onclick="selectAvatar('🥳', 'bounce')"><span class="avatar-animated avatar-bounce">🥳</span></div>
-      <div class="avatar-option" onclick="selectAvatar('😎', 'bounce')"><span class="avatar-animated avatar-bounce">😎</span></div>
-    </div>
-    
-    <h4 style="font-size:13px;color:#888;margin:16px 0 8px;">💕 Heartbeat</h4>
-    <div class="avatar-selector">
-      <div class="avatar-option" onclick="selectAvatar('🥰', 'heartbeat')"><span class="avatar-animated avatar-heartbeat">🥰</span></div>
-      <div class="avatar-option" onclick="selectAvatar('😍', 'heartbeat')"><span class="avatar-animated avatar-heartbeat">😍</span></div>
-      <div class="avatar-option" onclick="selectAvatar('💖', 'heartbeat')"><span class="avatar-animated avatar-heartbeat">💖</span></div>
-      <div class="avatar-option" onclick="selectAvatar('❤️', 'heartbeat')"><span class="avatar-animated avatar-heartbeat">❤️</span></div>
-    </div>
-    
-    <h4 style="font-size:13px;color:#888;margin:16px 0 8px;">👋 Waving</h4>
-    <div class="avatar-selector">
-      <div class="avatar-option" onclick="selectAvatar('👋', 'wave')"><span class="avatar-animated avatar-wave">👋</span></div>
-      <div class="avatar-option" onclick="selectAvatar('🤗', 'wave')"><span class="avatar-animated avatar-wave">🤗</span></div>
-      <div class="avatar-option" onclick="selectAvatar('✌️', 'wave')"><span class="avatar-animated avatar-wave">✌️</span></div>
-      <div class="avatar-option" onclick="selectAvatar('🙋', 'wave')"><span class="avatar-animated avatar-wave">🙋</span></div>
-    </div>
-    
-    <h4 style="font-size:13px;color:#888;margin:16px 0 8px;">🌟 Pulsing</h4>
-    <div class="avatar-selector">
-      <div class="avatar-option" onclick="selectAvatar('⭐', 'pulse')"><span class="avatar-animated avatar-pulse">⭐</span></div>
-      <div class="avatar-option" onclick="selectAvatar('🌟', 'pulse')"><span class="avatar-animated avatar-pulse">🌟</span></div>
-      <div class="avatar-option" onclick="selectAvatar('✨', 'pulse')"><span class="avatar-animated avatar-pulse">✨</span></div>
-      <div class="avatar-option" onclick="selectAvatar('💫', 'pulse')"><span class="avatar-animated avatar-pulse">💫</span></div>
-    </div>
-    
-    <h4 style="font-size:13px;color:#888;margin:16px 0 8px;">🎈 Floating</h4>
-    <div class="avatar-selector">
-      <div class="avatar-option" onclick="selectAvatar('🦋', 'float')"><span class="avatar-animated avatar-float">🦋</span></div>
-      <div class="avatar-option" onclick="selectAvatar('🎈', 'float')"><span class="avatar-animated avatar-float">🎈</span></div>
-      <div class="avatar-option" onclick="selectAvatar('☁️', 'float')"><span class="avatar-animated avatar-float">☁️</span></div>
-      <div class="avatar-option" onclick="selectAvatar('🌙', 'float')"><span class="avatar-animated avatar-float">🌙</span></div>
-    </div>
-    
-    <h4 style="font-size:13px;color:#888;margin:16px 0 8px;">🔄 Spinning</h4>
-    <div class="avatar-selector">
-      <div class="avatar-option" onclick="selectAvatar('🌀', 'spin')"><span class="avatar-animated avatar-spin">🌀</span></div>
-      <div class="avatar-option" onclick="selectAvatar('☀️', 'spin')"><span class="avatar-animated avatar-spin">☀️</span></div>
-      <div class="avatar-option" onclick="selectAvatar('🌈', 'spin')"><span class="avatar-animated avatar-spin">🌈</span></div>
-      <div class="avatar-option" onclick="selectAvatar('💿', 'spin')"><span class="avatar-animated avatar-spin">💿</span></div>
-    </div>
-    
-    <h4 style="font-size:13px;color:#888;margin:16px 0 8px;">🐾 Wiggling</h4>
-    <div class="avatar-selector">
-      <div class="avatar-option" onclick="selectAvatar('🐱', 'wiggle')"><span class="avatar-animated avatar-wiggle">🐱</span></div>
-      <div class="avatar-option" onclick="selectAvatar('🐶', 'wiggle')"><span class="avatar-animated avatar-wiggle">🐶</span></div>
-      <div class="avatar-option" onclick="selectAvatar('🦊', 'wiggle')"><span class="avatar-animated avatar-wiggle">🦊</span></div>
-      <div class="avatar-option" onclick="selectAvatar('🐼', 'wiggle')"><span class="avatar-animated avatar-wiggle">🐼</span></div>
-    </div>
-    
-    <h4 style="font-size:13px;color:#888;margin:16px 0 8px;">🍭 Jelly</h4>
-    <div class="avatar-selector">
-      <div class="avatar-option" onclick="selectAvatar('🍭', 'jelly')"><span class="avatar-animated avatar-jelly">🍭</span></div>
-      <div class="avatar-option" onclick="selectAvatar('🧁', 'jelly')"><span class="avatar-animated avatar-jelly">🧁</span></div>
-      <div class="avatar-option" onclick="selectAvatar('🍩', 'jelly')"><span class="avatar-animated avatar-jelly">🍩</span></div>
-      <div class="avatar-option" onclick="selectAvatar('🍦', 'jelly')"><span class="avatar-animated avatar-jelly">🍦</span></div>
-    </div>
-    
-    <button class="btn-full secondary" style="margin-top:16px;" onclick="saveAvatar()">Save Avatar</button>
-    <button class="btn-full" style="background:#eee;color:#666;margin-top:12px;" onclick="closeAvatarModal()">Cancel</button>
   </div>
 </div>
 
