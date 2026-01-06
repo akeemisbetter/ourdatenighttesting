@@ -569,6 +569,10 @@
     .user-profile-stat { text-align: center; }
     .user-profile-stat-num { font-size: 20px; font-weight: 700; }
     .user-profile-stat-label { font-size: 12px; opacity: 0.8; }
+    .user-profile-badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.2); }
+    .user-profile-badge { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; transition: transform 0.2s; border: 2px solid rgba(255,215,0,0.5); }
+    .user-profile-badge:hover { transform: scale(1.15); }
+    .user-profile-badge.gold { background: linear-gradient(135deg, #ffd700 0%, #ffb700 100%); border-color: #ffa500; }
     .user-profile-body { padding: 20px; }
     .user-profile-section-title { font-weight: 700; margin-bottom: 12px; }
     .user-profile-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
@@ -1377,6 +1381,10 @@
           <div class="user-profile-stat-num" id="userProfileLikes">0</div>
           <div class="user-profile-stat-label">Likes</div>
         </div>
+      </div>
+      <!-- Earned Badges Row -->
+      <div class="user-profile-badges" id="userProfileBadges" style="display:none;">
+        <!-- Filled by JS -->
       </div>
       <button class="btn-full" id="shareProfileBtn" style="display:none;margin-top:16px;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.5);" onclick="shareProfile()">
         📤 Share Profile
@@ -4028,6 +4036,9 @@ async function openUserProfileModal(userId, userName) {
     avatarEl.style.fontSize = '36px';
   }
   
+  // Display badges
+  renderProfileBadges(userId, userContent);
+  
   const grid = document.getElementById('userProfileGrid');
   
   if (userContent.length === 0) {
@@ -4045,6 +4056,65 @@ async function openUserProfileModal(userId, userName) {
   }
   
   document.getElementById('userProfileModal').classList.add('active');
+}
+
+function renderProfileBadges(userId, userContent) {
+  const badgesContainer = document.getElementById('userProfileBadges');
+  let earnedBadges = [];
+  
+  // For own profile, use local data
+  if (isOwnProfile) {
+    loadChallengesData();
+    earnedBadges = userChallengesData.earnedBadges || [];
+  } else {
+    // For other users, calculate badges based on visible data
+    const postCount = userContent.length;
+    const totalLikes = userContent.reduce((sum, c) => sum + (c.likes || 0), 0);
+    
+    // Award visible badges based on content
+    if (postCount >= 1) earnedBadges.push('first_date');
+    if (postCount >= 5) earnedBadges.push('date_night_5');
+    if (postCount >= 10) earnedBadges.push('date_night_10');
+    if (postCount >= 5) earnedBadges.push('photographer');
+    if (userContent.some(c => c.user_verified)) earnedBadges.push('verified');
+    
+    // Check for foodie badge (restaurant posts)
+    const restaurantPosts = userContent.filter(c => 
+      c.place_category?.toLowerCase().includes('dining') || 
+      c.place_category?.toLowerCase().includes('restaurant')
+    ).length;
+    if (restaurantPosts >= 5) earnedBadges.push('foodie');
+    
+    // Check for cultured badge (arts posts)
+    const artsPosts = userContent.filter(c => 
+      c.place_category?.toLowerCase().includes('art') || 
+      c.place_category?.toLowerCase().includes('museum')
+    ).length;
+    if (artsPosts >= 3) earnedBadges.push('culture');
+    
+    // Check for adventurer (variety)
+    const categories = [...new Set(userContent.map(c => c.place_category))];
+    if (categories.length >= 3) earnedBadges.push('adventurer');
+  }
+  
+  // Remove duplicates
+  earnedBadges = [...new Set(earnedBadges)];
+  
+  if (earnedBadges.length === 0) {
+    badgesContainer.style.display = 'none';
+    return;
+  }
+  
+  badgesContainer.style.display = 'flex';
+  badgesContainer.innerHTML = earnedBadges.slice(0, 8).map(badgeId => {
+    const badge = BADGES.find(b => b.id === badgeId);
+    if (!badge) return '';
+    return `
+      <div class="user-profile-badge gold" onclick="openBadgeModal('${badge.id}')" title="${badge.name}">
+        ${badge.icon}
+      </div>
+    `;
+  }).join('');
 }
 
 function closeUserProfileModal() {
