@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Our Date Night</title>
+  <!-- Supabase JS Library -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; min-height: 100vh; }
@@ -15,8 +17,15 @@
       --success: #4ecdc4;
     }
     
-    /* Welcome Screen (NEW) */
+    /* Loading Overlay */
+    .loading-overlay { position: fixed; inset: 0; background: white; display: flex; align-items: center; justify-content: center; z-index: 9999; flex-direction: column; gap: 16px; }
+    .loading-overlay.hidden { display: none; }
+    .loading-spinner { width: 48px; height: 48px; border: 4px solid #eee; border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    
+    /* Welcome Screen */
     .welcome { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; background: linear-gradient(135deg, #667eea 0%, #ff6b6b 100%); }
+    .welcome.hidden { display: none; }
     .welcome-content { text-align: center; max-width: 400px; }
     .welcome-logo { font-size: 64px; margin-bottom: 16px; }
     .welcome h1 { font-size: 36px; font-weight: 800; color: white; margin-bottom: 8px; }
@@ -37,11 +46,14 @@
     .login-input:focus { outline: none; border-color: var(--secondary); }
     .login-submit { width: 100%; padding: 14px; border-radius: 12px; border: none; background: var(--secondary); color: white; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 8px; }
     .login-submit:hover { background: #5a6fd6; }
+    .login-submit:disabled { background: #ccc; cursor: not-allowed; }
     .login-switch { text-align: center; margin-top: 16px; font-size: 14px; color: #888; }
     .login-switch a { color: var(--secondary); cursor: pointer; font-weight: 600; }
     .login-close { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.9); border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 20px; cursor: pointer; }
     .login-error { color: var(--primary); font-size: 13px; margin-bottom: 12px; display: none; }
     .login-error.show { display: block; }
+    .login-success { color: var(--success); font-size: 13px; margin-bottom: 12px; display: none; }
+    .login-success.show { display: block; }
     
     /* Onboarding */
     .onboarding { min-height: 100vh; display: none; align-items: center; justify-content: center; padding: 24px; }
@@ -254,8 +266,14 @@
 </head>
 <body>
 
-<!-- Welcome Screen (NEW) -->
-<div class="welcome" id="welcome">
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+  <p>Loading...</p>
+</div>
+
+<!-- Welcome Screen -->
+<div class="welcome hidden" id="welcome">
   <div class="welcome-content">
     <div class="welcome-logo">💕</div>
     <h1>Our Date Night</h1>
@@ -265,13 +283,14 @@
   </div>
 </div>
 
-<!-- Login Modal (NEW) -->
+<!-- Login Modal -->
 <div class="login-modal" id="loginModal">
   <button class="login-close" onclick="closeLoginModal()">✕</button>
   <div class="login-box">
     <h2 id="loginTitle">Welcome Back</h2>
     <p id="loginSubtitle">Log in to save your date plans</p>
     <div class="login-error" id="loginError">Invalid email or password</div>
+    <div class="login-success" id="loginSuccess">Check your email for confirmation link!</div>
     <input type="email" class="login-input" id="loginEmail" placeholder="Email address">
     <input type="password" class="login-input" id="loginPassword" placeholder="Password">
     <input type="text" class="login-input hidden" id="loginName" placeholder="Your name">
@@ -562,6 +581,12 @@
 </div>
 
 <script>
+// ============ SUPABASE SETUP ============
+const SUPABASE_URL = 'https://yvobrmkvtpvrldpewrma.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2b2JybWt2dHB2cmxkcGV3cm1hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2NzUxMTksImV4cCI6MjA4MzI1MTExOX0.9TFhi_qL2VDx4691bR225KCYuOZqWRd5t5PWI3w2J9M';
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 // ============ DATA ============
 const NYC_ACTIVITIES = [
   { id: 'dining-0', title: "Katz's Delicatessen", category: 'Dining', description: "Iconic NYC deli famous for pastrami sandwiches since 1888.", price: '$$', rating: 4.6, reviewCount: 8234, distance: 'NYC', address: 'Lower East Side, NY', tags: ['restaurants'], media: ['https://images.unsplash.com/photo-1553909489-cd47e0907980?w=800', 'https://images.unsplash.com/photo-1619096252214-ef06c45683e3?w=800', 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800'] },
@@ -597,14 +622,13 @@ const PART_TYPES = ['Coffee', 'Lunch', 'Dinner', 'Movie', 'Activity', 'Drinks'];
 // ============ STATE ============
 let isLoggedIn = false;
 let isSignUpMode = false;
+let isGuestMode = false;
 let currentUser = null;
+let userProfile = null;
 let cameraStream = null;
 
-// User-generated content storage (simulated database)
-let userGeneratedContent = JSON.parse(localStorage.getItem('dateNightUserContent') || '[]');
-
+// Local state for UI
 let state = {
-  profileType: null,
   interests: ['restaurants', 'nightlife', 'arts'],
   savedItems: [],
   swipedIds: [],
@@ -620,104 +644,250 @@ let state = {
   selectedPlanItems: [null, null, null, null],
   modalMedia: [],
   modalIndex: 0,
-  // Verification state
-  verificationStatus: 'none', // 'none', 'pending', 'verified'
-  verificationData: {
-    idImage: null,
-    selfieImage: null,
-    submittedAt: null
-  }
+  verificationStatus: 'none',
+  verificationData: { idImage: null, selfieImage: null }
 };
 
-// ============ LOCAL STORAGE ============
-function saveUserData() {
-  if (!isLoggedIn || !currentUser) return;
+let userGeneratedContent = [];
+
+// ============ HELPERS ============
+function formatDateTime(d) {
+  return new Date(d).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+}
+
+function getTagForPart(part) {
+  if (['Coffee', 'Lunch', 'Dinner'].includes(part)) return 'restaurants';
+  if (part === 'Movie') return 'movies';
+  if (part === 'Activity') return 'outdoor';
+  if (part === 'Drinks') return 'nightlife';
+  return null;
+}
+
+function hideLoading() {
+  document.getElementById('loadingOverlay').classList.add('hidden');
+}
+
+function showLoading() {
+  document.getElementById('loadingOverlay').classList.remove('hidden');
+}
+
+// ============ SUPABASE DATA FUNCTIONS ============
+async function loadUserProfile() {
+  if (!currentUser) return null;
   
-  try {
-    const userData = {
-      email: currentUser.email,
-      name: currentUser.name,
-      password: currentUser.password,
-      state: state
-    };
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', currentUser.id)
+    .single();
+  
+  if (error && error.code === 'PGRST116') {
+    // Profile doesn't exist, create it
+    const { data: newProfile, error: createError } = await supabase
+      .from('profiles')
+      .insert({
+        id: currentUser.id,
+        email: currentUser.email,
+        name: currentUser.user_metadata?.name || currentUser.email.split('@')[0]
+      })
+      .select()
+      .single();
     
-    // Save to users list
-    let users = JSON.parse(localStorage.getItem('dateNightUsers') || '{}');
-    users[currentUser.email] = userData;
-    localStorage.setItem('dateNightUsers', JSON.stringify(users));
-    
-    // Save current session
-    localStorage.setItem('dateNightCurrentUser', currentUser.email);
-    
-    console.log('✅ Data saved for:', currentUser.email);
-    return true;
-  } catch (e) {
-    console.error('❌ Failed to save data:', e);
-    alert('Warning: Could not save data. You may be in private browsing mode.');
-    return false;
+    if (createError) console.error('Error creating profile:', createError);
+    return newProfile;
   }
+  
+  return data;
 }
 
-function loadUserData(email) {
-  try {
-    const users = JSON.parse(localStorage.getItem('dateNightUsers') || '{}');
-    console.log('📂 Stored users:', Object.keys(users));
-    return users[email] || null;
-  } catch (e) {
-    console.error('❌ Failed to load data:', e);
-    return null;
-  }
+async function updateUserProfile(updates) {
+  if (!currentUser) return;
+  
+  const { error } = await supabase
+    .from('profiles')
+    .update(updates)
+    .eq('id', currentUser.id);
+  
+  if (error) console.error('Error updating profile:', error);
 }
 
-function checkExistingSession() {
-  try {
-    const savedEmail = localStorage.getItem('dateNightCurrentUser');
-    console.log('🔍 Checking for saved session:', savedEmail);
+async function loadSavedItems() {
+  if (!currentUser) return [];
+  
+  const { data, error } = await supabase
+    .from('saved_items')
+    .select('activity_id')
+    .eq('user_id', currentUser.id);
+  
+  if (error) {
+    console.error('Error loading saved items:', error);
+    return [];
+  }
+  
+  return data.map(item => {
+    const activity = NYC_ACTIVITIES.find(a => a.id === item.activity_id);
+    return activity;
+  }).filter(Boolean);
+}
+
+async function loadSwipedItems() {
+  if (!currentUser) return [];
+  
+  const { data, error } = await supabase
+    .from('swiped_items')
+    .select('activity_id')
+    .eq('user_id', currentUser.id);
+  
+  if (error) {
+    console.error('Error loading swiped items:', error);
+    return [];
+  }
+  
+  return data.map(item => item.activity_id);
+}
+
+async function loadPlannedDates() {
+  if (!currentUser) return [];
+  
+  const { data, error } = await supabase
+    .from('planned_dates')
+    .select('*')
+    .eq('user_id', currentUser.id)
+    .order('datetime', { ascending: true });
+  
+  if (error) {
+    console.error('Error loading dates:', error);
+    return [];
+  }
+  
+  return data;
+}
+
+async function loadUserContent() {
+  const { data, error } = await supabase
+    .from('user_content')
+    .select('*')
+    .order('created_at', { ascending: false });
+  
+  if (error) {
+    console.error('Error loading user content:', error);
+    return [];
+  }
+  
+  return data;
+}
+
+async function saveSwipedItem(activityId, action) {
+  if (!currentUser) return;
+  
+  const { error } = await supabase
+    .from('swiped_items')
+    .insert({
+      user_id: currentUser.id,
+      activity_id: activityId,
+      action: action
+    });
+  
+  if (error) console.error('Error saving swipe:', error);
+}
+
+async function saveSavedItem(activityId) {
+  if (!currentUser) return;
+  
+  const { error } = await supabase
+    .from('saved_items')
+    .insert({
+      user_id: currentUser.id,
+      activity_id: activityId
+    });
+  
+  if (error && error.code !== '23505') console.error('Error saving item:', error);
+}
+
+async function removeSavedItem(activityId) {
+  if (!currentUser) return;
+  
+  const { error } = await supabase
+    .from('saved_items')
+    .delete()
+    .eq('user_id', currentUser.id)
+    .eq('activity_id', activityId);
+  
+  if (error) console.error('Error removing saved item:', error);
+}
+
+async function savePlannedDate(dateData) {
+  if (!currentUser) return;
+  
+  const { error } = await supabase
+    .from('planned_dates')
+    .insert({
+      user_id: currentUser.id,
+      title: dateData.title,
+      datetime: dateData.datetime,
+      status: dateData.status,
+      activities: dateData.activities
+    });
+  
+  if (error) console.error('Error saving date:', error);
+}
+
+async function removePlannedDate(dateId) {
+  if (!currentUser) return;
+  
+  const { error } = await supabase
+    .from('planned_dates')
+    .delete()
+    .eq('id', dateId)
+    .eq('user_id', currentUser.id);
+  
+  if (error) console.error('Error removing date:', error);
+}
+
+// ============ AUTH FUNCTIONS ============
+async function checkSession() {
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  if (session) {
+    currentUser = session.user;
+    isLoggedIn = true;
+    isGuestMode = false;
     
-    if (savedEmail) {
-      const userData = loadUserData(savedEmail);
-      if (userData) {
-        console.log('✅ Found saved user:', userData.name);
-        isLoggedIn = true;
-        currentUser = {
-          email: userData.email,
-          name: userData.name,
-          password: userData.password
-        };
-        state = userData.state;
-        
-        // Skip to app if profile type already selected
-        if (state.profileType) {
-          document.getElementById('welcome').style.display = 'none';
-          document.getElementById('app').classList.add('active');
-          updateUIForLoggedInUser();
-          initApp();
-        } else {
-          document.getElementById('welcome').style.display = 'none';
-          document.getElementById('onboarding').classList.add('active');
-          document.getElementById('userGreeting').textContent = `Welcome back, ${currentUser.name}!`;
-        }
-        return true;
+    // Load user data
+    userProfile = await loadUserProfile();
+    state.savedItems = await loadSavedItems();
+    state.swipedIds = await loadSwipedItems();
+    state.dates = await loadPlannedDates();
+    userGeneratedContent = await loadUserContent();
+    
+    if (userProfile) {
+      state.interests = userProfile.interests || ['restaurants', 'nightlife', 'arts'];
+      state.stats.liked = userProfile.stats_liked || 0;
+      state.stats.passed = userProfile.stats_passed || 0;
+      state.verificationStatus = userProfile.verification_status || 'none';
+      
+      if (userProfile.profile_type) {
+        // User has completed onboarding, go to app
+        document.getElementById('app').classList.add('active');
+        updateUIForLoggedInUser();
+        initApp();
+      } else {
+        // Show onboarding
+        document.getElementById('onboarding').classList.add('active');
+        document.getElementById('userGreeting').textContent = `Welcome, ${userProfile.name}!`;
       }
     }
-  } catch (e) {
-    console.error('❌ Session check failed:', e);
+  } else {
+    // Load user content for guests too
+    userGeneratedContent = await loadUserContent();
+    
+    // No session, show welcome
+    document.getElementById('welcome').classList.remove('hidden');
   }
-  return false;
+  
+  hideLoading();
 }
 
-// Test if localStorage works
-function testLocalStorage() {
-  try {
-    localStorage.setItem('test', 'test');
-    localStorage.removeItem('test');
-    return true;
-  } catch (e) {
-    return false;
-  }
-}
-
-// ============ WELCOME & LOGIN ============
 function showLoginModal() {
   document.getElementById('loginModal').classList.add('active');
   isSignUpMode = false;
@@ -727,6 +897,7 @@ function showLoginModal() {
 function closeLoginModal() {
   document.getElementById('loginModal').classList.remove('active');
   document.getElementById('loginError').classList.remove('show');
+  document.getElementById('loginSuccess').classList.remove('show');
   document.getElementById('loginEmail').value = '';
   document.getElementById('loginPassword').value = '';
   document.getElementById('loginName').value = '';
@@ -745,6 +916,9 @@ function updateLoginModal() {
   const switchText = document.getElementById('switchText');
   const switchLink = document.getElementById('switchLink');
   
+  document.getElementById('loginError').classList.remove('show');
+  document.getElementById('loginSuccess').classList.remove('show');
+  
   if (isSignUpMode) {
     title.textContent = 'Create Account';
     subtitle.textContent = 'Sign up to save your date plans';
@@ -760,17 +934,19 @@ function updateLoginModal() {
     switchText.textContent = "Don't have an account?";
     switchLink.textContent = 'Sign Up';
   }
-  
-  document.getElementById('loginError').classList.remove('show');
 }
 
-function handleLogin() {
+async function handleLogin() {
   const email = document.getElementById('loginEmail').value.trim();
   const password = document.getElementById('loginPassword').value;
   const name = document.getElementById('loginName').value.trim();
   const errorEl = document.getElementById('loginError');
+  const successEl = document.getElementById('loginSuccess');
+  const submitBtn = document.getElementById('loginSubmit');
   
-  // Validate
+  errorEl.classList.remove('show');
+  successEl.classList.remove('show');
+  
   if (!email || !password) {
     errorEl.textContent = 'Please fill in all fields';
     errorEl.classList.add('show');
@@ -783,91 +959,116 @@ function handleLogin() {
     return;
   }
   
-  if (isSignUpMode) {
-    // Sign Up
-    if (!name) {
-      errorEl.textContent = 'Please enter your name';
-      errorEl.classList.add('show');
-      return;
-    }
-    
-    const existingUser = loadUserData(email);
-    if (existingUser) {
-      errorEl.textContent = 'An account with this email already exists';
-      errorEl.classList.add('show');
-      return;
-    }
-    
-    // Create new user
-    isLoggedIn = true;
-    currentUser = { email, name, password };
-    state = {
-      profileType: null,
-      interests: ['restaurants', 'nightlife', 'arts'],
-      savedItems: [],
-      swipedIds: [],
-      dates: [],
-      stats: { liked: 0, passed: 0 },
-      browseFilters: [],
-      currentTab: 'discover',
-      planDate: '',
-      numParts: 2,
-      parts: ['Dinner', 'Activity', null, null],
-      planStep: 'setup',
-      currentPartIndex: 0,
-      selectedPlanItems: [null, null, null, null],
-      modalMedia: [],
-      modalIndex: 0,
-      verificationStatus: 'none',
-      verificationData: {
-        idImage: null,
-        selfieImage: null,
-        submittedAt: null
+  submitBtn.disabled = true;
+  submitBtn.textContent = isSignUpMode ? 'Signing up...' : 'Logging in...';
+  
+  try {
+    if (isSignUpMode) {
+      // Sign Up
+      if (!name) {
+        errorEl.textContent = 'Please enter your name';
+        errorEl.classList.add('show');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Sign Up';
+        return;
       }
-    };
-    
-    if (saveUserData()) {
-      console.log('✅ Account created successfully for:', email);
+      
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { name }
+        }
+      });
+      
+      if (error) {
+        errorEl.textContent = error.message;
+        errorEl.classList.add('show');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Sign Up';
+        return;
+      }
+      
+      if (data.user && !data.session) {
+        // Email confirmation required
+        successEl.textContent = 'Check your email for the confirmation link!';
+        successEl.classList.add('show');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Sign Up';
+      } else if (data.session) {
+        // Auto-confirmed, proceed
+        currentUser = data.user;
+        isLoggedIn = true;
+        isGuestMode = false;
+        closeLoginModal();
+        
+        userProfile = await loadUserProfile();
+        userGeneratedContent = await loadUserContent();
+        
+        document.getElementById('welcome').classList.add('hidden');
+        document.getElementById('onboarding').classList.add('active');
+        document.getElementById('userGreeting').textContent = `Welcome, ${name}!`;
+      }
+      
+    } else {
+      // Log In
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+      
+      if (error) {
+        errorEl.textContent = error.message;
+        errorEl.classList.add('show');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Log In';
+        return;
+      }
+      
+      currentUser = data.user;
+      isLoggedIn = true;
+      isGuestMode = false;
+      closeLoginModal();
+      
+      // Load user data
+      userProfile = await loadUserProfile();
+      state.savedItems = await loadSavedItems();
+      state.swipedIds = await loadSwipedItems();
+      state.dates = await loadPlannedDates();
+      userGeneratedContent = await loadUserContent();
+      
+      if (userProfile) {
+        state.interests = userProfile.interests || ['restaurants', 'nightlife', 'arts'];
+        state.stats.liked = userProfile.stats_liked || 0;
+        state.stats.passed = userProfile.stats_passed || 0;
+        state.verificationStatus = userProfile.verification_status || 'none';
+        
+        document.getElementById('welcome').classList.add('hidden');
+        
+        if (userProfile.profile_type) {
+          document.getElementById('app').classList.add('active');
+          updateUIForLoggedInUser();
+          initApp();
+        } else {
+          document.getElementById('onboarding').classList.add('active');
+          document.getElementById('userGreeting').textContent = `Welcome back, ${userProfile.name}!`;
+        }
+      }
     }
-    
-  } else {
-    // Log In
-    const userData = loadUserData(email);
-    if (!userData || userData.password !== password) {
-      errorEl.textContent = 'Invalid email or password';
-      errorEl.classList.add('show');
-      return;
-    }
-    
-    isLoggedIn = true;
-    currentUser = {
-      email: userData.email,
-      name: userData.name,
-      password: userData.password
-    };
-    state = userData.state;
-  }
-  
-  closeLoginModal();
-  
-  // Go to next screen
-  document.getElementById('welcome').style.display = 'none';
-  
-  if (state.profileType) {
-    document.getElementById('app').classList.add('active');
-    updateUIForLoggedInUser();
-    initApp();
-  } else {
-    document.getElementById('onboarding').classList.add('active');
-    document.getElementById('userGreeting').textContent = `Welcome, ${currentUser.name}!`;
+  } catch (err) {
+    errorEl.textContent = 'An error occurred. Please try again.';
+    errorEl.classList.add('show');
+    submitBtn.disabled = false;
+    submitBtn.textContent = isSignUpMode ? 'Sign Up' : 'Log In';
   }
 }
 
-function continueAsGuest() {
+async function continueAsGuest() {
   isLoggedIn = false;
+  isGuestMode = true;
   currentUser = null;
+  
   state = {
-    profileType: null,
     interests: ['restaurants', 'nightlife', 'arts'],
     savedItems: [],
     swipedIds: [],
@@ -884,117 +1085,90 @@ function continueAsGuest() {
     modalMedia: [],
     modalIndex: 0,
     verificationStatus: 'none',
-    verificationData: {
-      idImage: null,
-      selfieImage: null,
-      submittedAt: null
-    }
+    verificationData: { idImage: null, selfieImage: null }
   };
   
-  document.getElementById('welcome').style.display = 'none';
+  userGeneratedContent = await loadUserContent();
+  
+  document.getElementById('welcome').classList.add('hidden');
   document.getElementById('onboarding').classList.add('active');
   document.getElementById('userGreeting').textContent = 'Guest Mode - your data won\'t be saved';
 }
 
-function updateUIForLoggedInUser() {
-  document.getElementById('headerType').textContent = state.profileType || 'User';
-  document.getElementById('profileType').textContent = state.profileType || '-';
+async function selectProfile(type) {
+  if (isLoggedIn && userProfile) {
+    await updateUserProfile({ profile_type: type });
+    userProfile.profile_type = type;
+  }
   
-  if (isLoggedIn && currentUser) {
+  document.getElementById('onboarding').classList.remove('active');
+  document.getElementById('app').classList.add('active');
+  updateUIForLoggedInUser();
+  initApp();
+}
+
+function updateUIForLoggedInUser() {
+  const profileType = userProfile?.profile_type || 'Guest';
+  document.getElementById('headerType').textContent = profileType;
+  document.getElementById('profileType').textContent = profileType;
+  
+  if (isLoggedIn && userProfile) {
     document.getElementById('loggedInBadge').classList.remove('hidden');
-    document.getElementById('profileName').textContent = currentUser.name;
-    document.getElementById('profileEmail').textContent = currentUser.email;
-    document.getElementById('accountStatus').textContent = '✓ Your data is being saved';
+    document.getElementById('profileName').textContent = userProfile.name || 'User';
+    document.getElementById('profileEmail').textContent = userProfile.email;
+    document.getElementById('accountStatus').textContent = '✓ Your data is synced across all devices';
     document.getElementById('logoutBtn').style.display = 'block';
+    document.getElementById('verificationSection').style.display = 'block';
   } else {
     document.getElementById('loggedInBadge').classList.add('hidden');
     document.getElementById('profileName').textContent = 'Guest';
     document.getElementById('profileEmail').textContent = '-';
     document.getElementById('accountStatus').textContent = '⚠️ Guest mode - data won\'t be saved';
     document.getElementById('logoutBtn').style.display = 'none';
+    document.getElementById('verificationSection').style.display = 'none';
   }
+  
+  updateProfileVerificationUI();
 }
 
-function logout() {
+async function logout() {
   if (confirm('Are you sure you want to log out?')) {
-    localStorage.removeItem('dateNightCurrentUser');
+    await supabase.auth.signOut();
     isLoggedIn = false;
     currentUser = null;
+    userProfile = null;
     location.reload();
   }
 }
 
-// ============ HELPERS ============
-function formatDateTime(d) {
-  return new Date(d).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
-}
-
-function getTagForPart(part) {
-  if (['Coffee', 'Lunch', 'Dinner'].includes(part)) return 'restaurants';
-  if (part === 'Movie') return 'movies';
-  if (part === 'Activity') return 'outdoor';
-  if (part === 'Drinks') return 'nightlife';
-  return null;
-}
-
-// ============ ONBOARDING ============
-function selectProfile(type) {
-  state.profileType = type;
-  document.getElementById('onboarding').classList.remove('active');
-  document.getElementById('app').classList.add('active');
-  updateUIForLoggedInUser();
-  saveUserData();
-  initApp();
-}
-
-// ============ TABS ============
-function showTab(tab) {
-  state.currentTab = tab;
-  document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-  document.getElementById('tab-' + tab).classList.remove('hidden');
-  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-  event.currentTarget.classList.add('active');
-  
-  if (tab === 'discover') renderDiscover();
-  if (tab === 'browse') renderBrowse();
-  if (tab === 'saved') renderSaved();
-  if (tab === 'dates') renderDates();
-  if (tab === 'plan') renderPlan();
-  if (tab === 'profile') renderProfile();
-}
-
 // ============ DISCOVER ============
 function getDiscoverPool() {
-  // Combine user-generated content with regular activities
   const userContent = userGeneratedContent
-    .filter(c => !state.swipedIds.includes(c.id))
+    .filter(c => !state.swipedIds.includes('user-' + c.id))
     .map(c => ({
-      id: c.id,
-      title: c.placeName,
-      category: c.placeCategory,
-      description: c.caption || `Shared by ${c.userName}`,
-      price: NYC_ACTIVITIES.find(a => a.id === c.placeId)?.price || '$$',
-      rating: NYC_ACTIVITIES.find(a => a.id === c.placeId)?.rating || 4.5,
-      reviewCount: NYC_ACTIVITIES.find(a => a.id === c.placeId)?.reviewCount || 0,
+      id: 'user-' + c.id,
+      title: c.place_name,
+      category: c.place_category,
+      description: c.caption || `Shared by ${c.user_name}`,
+      price: NYC_ACTIVITIES.find(a => a.id === c.place_id)?.price || '$$',
+      rating: NYC_ACTIVITIES.find(a => a.id === c.place_id)?.rating || 4.5,
+      reviewCount: NYC_ACTIVITIES.find(a => a.id === c.place_id)?.reviewCount || 0,
       distance: 'NYC',
-      address: c.placeAddress,
-      tags: NYC_ACTIVITIES.find(a => a.id === c.placeId)?.tags || [],
-      media: [c.mediaUrl],
-      mediaType: c.mediaType,
+      address: c.place_address,
+      tags: NYC_ACTIVITIES.find(a => a.id === c.place_id)?.tags || [],
+      media: [c.media_url],
+      mediaType: c.media_type,
       isUserContent: true,
-      userName: c.userName,
-      userVerified: c.userVerified,
-      createdAt: c.createdAt
+      userName: c.user_name,
+      userVerified: c.user_verified,
+      createdAt: c.created_at
     }));
   
   const regularActivities = NYC_ACTIVITIES
     .filter(item => state.interests.length === 0 || item.tags.some(t => state.interests.includes(t)))
     .filter(item => !state.swipedIds.includes(item.id));
   
-  // Interleave user content with regular activities (user content first, then regular)
-  const combined = [...userContent, ...regularActivities];
-  
-  return combined;
+  return [...userContent, ...regularActivities];
 }
 
 function renderDiscover() {
@@ -1074,28 +1248,60 @@ function changeCardImage(idx) {
   document.querySelectorAll('.card-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
 }
 
-function likeActivity() {
+async function likeActivity() {
   const pool = getDiscoverPool();
   if (pool.length === 0) return;
   const item = pool[0];
-  if (!state.savedItems.find(i => i.id === item.id)) {
-    state.savedItems.push(item);
-  }
+  
   state.swipedIds.push(item.id);
   state.stats.liked++;
+  
+  if (!item.isUserContent && !state.savedItems.find(i => i.id === item.id)) {
+    state.savedItems.push(item);
+    if (isLoggedIn) {
+      await saveSavedItem(item.id);
+    }
+  }
+  
+  if (isLoggedIn) {
+    await saveSwipedItem(item.id, 'like');
+    await updateUserProfile({ stats_liked: state.stats.liked });
+  }
+  
   cardImageIndex = 0;
-  saveUserData();
   renderDiscover();
 }
 
-function passActivity() {
+async function passActivity() {
   const pool = getDiscoverPool();
   if (pool.length === 0) return;
+  
   state.swipedIds.push(pool[0].id);
   state.stats.passed++;
+  
+  if (isLoggedIn) {
+    await saveSwipedItem(pool[0].id, 'pass');
+    await updateUserProfile({ stats_passed: state.stats.passed });
+  }
+  
   cardImageIndex = 0;
-  saveUserData();
   renderDiscover();
+}
+
+// ============ TABS ============
+function showTab(tab) {
+  state.currentTab = tab;
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+  document.getElementById('tab-' + tab).classList.remove('hidden');
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  
+  if (tab === 'discover') renderDiscover();
+  if (tab === 'browse') renderBrowse();
+  if (tab === 'saved') renderSaved();
+  if (tab === 'dates') renderDates();
+  if (tab === 'plan') renderPlan();
+  if (tab === 'profile') renderProfile();
 }
 
 // ============ BROWSE ============
@@ -1135,11 +1341,13 @@ function toggleBrowseFilter(key) {
   renderBrowse();
 }
 
-function saveItem(id) {
+async function saveItem(id) {
   const item = NYC_ACTIVITIES.find(i => i.id === id);
   if (item && !state.savedItems.find(i => i.id === id)) {
     state.savedItems.push(item);
-    saveUserData();
+    if (isLoggedIn) {
+      await saveSavedItem(id);
+    }
     alert('Saved to your favorites!');
   }
 }
@@ -1171,9 +1379,11 @@ function renderSaved() {
   `).join('');
 }
 
-function removeItem(id) {
+async function removeItem(id) {
   state.savedItems = state.savedItems.filter(i => i.id !== id);
-  saveUserData();
+  if (isLoggedIn) {
+    await removeSavedItem(id);
+  }
   renderSaved();
 }
 
@@ -1188,7 +1398,7 @@ function renderDates() {
       <div class="date-card">
         <div class="date-title">${d.title}</div>
         <div class="date-time">${formatDateTime(d.datetime)}</div>
-        <div class="date-activities">${d.activities.join(' • ')}</div>
+        <div class="date-activities">${(d.activities || []).join(' • ')}</div>
         <button class="btn-small btn-gray" style="margin-top:8px;" onclick="removeDate(${d.id})">Remove</button>
       </div>
     `).join('');
@@ -1203,9 +1413,11 @@ function renderDates() {
     `).join('');
 }
 
-function removeDate(id) {
+async function removeDate(id) {
   state.dates = state.dates.filter(d => d.id !== id);
-  saveUserData();
+  if (isLoggedIn) {
+    await removePlannedDate(id);
+  }
   renderDates();
 }
 
@@ -1318,7 +1530,7 @@ function renderPlanComplete() {
   `).join('');
 }
 
-function finishPlan() {
+async function finishPlan() {
   const selected = state.selectedPlanItems.slice(0, state.numParts).filter(Boolean);
   const newDate = {
     id: Date.now(),
@@ -1327,10 +1539,15 @@ function finishPlan() {
     status: 'upcoming',
     activities: selected.map(s => s.title),
   };
+  
   state.dates.push(newDate);
+  
+  if (isLoggedIn) {
+    await savePlannedDate(newDate);
+  }
+  
   state.planStep = 'setup';
   state.selectedPlanItems = [null, null, null, null];
-  saveUserData();
   alert('Your date plan has been added to Upcoming Dates!');
   renderPlan();
 }
@@ -1345,66 +1562,67 @@ function renderProfile() {
   `).join('');
   
   updateUIForLoggedInUser();
-  updateProfileVerificationUI();
 }
 
-function toggleInterest(key) {
+async function toggleInterest(key) {
   if (state.interests.includes(key)) {
     state.interests = state.interests.filter(k => k !== key);
   } else {
     state.interests.push(key);
   }
-  saveUserData();
+  
+  if (isLoggedIn) {
+    await updateUserProfile({ interests: state.interests });
+  }
+  
   renderProfile();
 }
 
-function resetProfile() {
+async function resetProfile() {
   if (confirm('Reset all your data?')) {
     state.interests = [];
     state.savedItems = [];
     state.swipedIds = [];
     state.stats = { liked: 0, passed: 0 };
     state.dates = [];
-    saveUserData();
+    
+    // Note: For full reset with Supabase, you'd need to delete from all tables
+    
     renderProfile();
     renderDiscover();
   }
 }
 
-// ============ MODAL ============
-function openGallery(id) {
-  // Check if it's user content
-  const userContent = userGeneratedContent.find(c => c.id === id);
-  if (userContent) {
-    state.modalMedia = [userContent.mediaUrl];
-    state.modalIndex = 0;
-    updateModal();
-    document.getElementById('galleryModal').classList.add('active');
+function updateProfileVerificationUI() {
+  const section = document.getElementById('verificationSection');
+  const notVerified = document.getElementById('notVerifiedBox');
+  const pending = document.getElementById('pendingVerifyBox');
+  const verified = document.getElementById('verifiedBox');
+  const badge = document.getElementById('profileVerifiedBadge');
+  
+  if (!isLoggedIn) {
+    section.style.display = 'none';
     return;
   }
   
-  const item = NYC_ACTIVITIES.find(i => i.id === id);
-  if (!item) return;
-  state.modalMedia = item.media;
-  state.modalIndex = 0;
-  updateModal();
-  document.getElementById('galleryModal').classList.add('active');
-}
-
-function updateModal() {
-  document.getElementById('modalImage').src = state.modalMedia[state.modalIndex];
-  document.getElementById('modalNav').innerHTML = state.modalMedia.map((_, i) => `
-    <button class="modal-dot ${i === state.modalIndex ? 'active' : ''}" onclick="setModalIndex(${i})"></button>
-  `).join('');
-}
-
-function setModalIndex(i) {
-  state.modalIndex = i;
-  updateModal();
-}
-
-function closeModal() {
-  document.getElementById('galleryModal').classList.remove('active');
+  section.style.display = 'block';
+  
+  if (state.verificationStatus === 'verified') {
+    notVerified.style.display = 'none';
+    pending.style.display = 'none';
+    verified.style.display = 'block';
+    badge.classList.remove('hidden');
+  } else if (state.verificationStatus === 'pending') {
+    notVerified.style.display = 'none';
+    pending.style.display = 'block';
+    verified.style.display = 'none';
+    badge.classList.add('hidden');
+  } else {
+    notVerified.style.display = 'block';
+    pending.style.display = 'none';
+    verified.style.display = 'none';
+    badge.classList.add('hidden');
+  }
 }
 
 // ============ VERIFICATION ============
@@ -1417,7 +1635,6 @@ function openVerifyModal() {
   document.getElementById('verifyModal').classList.add('active');
   updateVerifyModalUI();
   
-  // Start camera if not already verified
   if (state.verificationStatus !== 'verified' && state.verificationStatus !== 'pending') {
     startCamera();
   }
@@ -1519,68 +1736,41 @@ function handleIdUpload(event) {
 
 function checkVerifyFormComplete() {
   const btn = document.getElementById('submitVerifyBtn');
-  if (state.verificationData.idImage && state.verificationData.selfieImage) {
-    btn.disabled = false;
-  } else {
-    btn.disabled = true;
-  }
+  btn.disabled = !(state.verificationData.idImage && state.verificationData.selfieImage);
 }
 
-function submitVerification() {
+async function submitVerification() {
   if (!state.verificationData.idImage || !state.verificationData.selfieImage) {
     alert('Please complete both steps.');
     return;
   }
   
-  state.verificationData.submittedAt = new Date().toISOString();
   state.verificationStatus = 'pending';
-  saveUserData();
+  
+  if (isLoggedIn) {
+    await updateUserProfile({
+      verification_status: 'pending',
+      verification_id_image: state.verificationData.idImage,
+      verification_selfie: state.verificationData.selfieImage,
+      verification_submitted_at: new Date().toISOString()
+    });
+  }
   
   updateVerifyModalUI();
   updateProfileVerificationUI();
   
-  // Simulate auto-approval after 3 seconds (for demo purposes)
-  setTimeout(() => {
+  // Auto-approve after 3 seconds for demo
+  setTimeout(async () => {
     if (state.verificationStatus === 'pending') {
       state.verificationStatus = 'verified';
-      saveUserData();
+      if (isLoggedIn) {
+        await updateUserProfile({ verification_status: 'verified' });
+      }
       updateVerifyModalUI();
       updateProfileVerificationUI();
       alert('🎉 Congratulations! Your account has been verified. You can now upload your own content!');
     }
   }, 3000);
-}
-
-function updateProfileVerificationUI() {
-  const section = document.getElementById('verificationSection');
-  const notVerified = document.getElementById('notVerifiedBox');
-  const pending = document.getElementById('pendingVerifyBox');
-  const verified = document.getElementById('verifiedBox');
-  const badge = document.getElementById('profileVerifiedBadge');
-  
-  if (!isLoggedIn) {
-    section.style.display = 'none';
-    return;
-  }
-  
-  section.style.display = 'block';
-  
-  if (state.verificationStatus === 'verified') {
-    notVerified.style.display = 'none';
-    pending.style.display = 'none';
-    verified.style.display = 'block';
-    badge.classList.remove('hidden');
-  } else if (state.verificationStatus === 'pending') {
-    notVerified.style.display = 'none';
-    pending.style.display = 'block';
-    verified.style.display = 'none';
-    badge.classList.add('hidden');
-  } else {
-    notVerified.style.display = 'block';
-    pending.style.display = 'none';
-    verified.style.display = 'none';
-    badge.classList.add('hidden');
-  }
 }
 
 // ============ UPLOAD CONTENT ============
@@ -1595,12 +1785,10 @@ function openUploadModal() {
   
   document.getElementById('uploadModal').classList.add('active');
   
-  // Populate places dropdown
   const select = document.getElementById('uploadPlace');
   select.innerHTML = '<option value="">Choose a place...</option>' + 
     NYC_ACTIVITIES.map(a => `<option value="${a.id}">${a.title}</option>`).join('');
   
-  // Reset form
   document.getElementById('uploadPreview').style.display = 'none';
   document.getElementById('uploadVideoPreview').style.display = 'none';
   document.getElementById('contentUploadBtn').classList.remove('has-file');
@@ -1645,23 +1833,10 @@ function handleContentUpload(event) {
 function checkUploadFormComplete() {
   const btn = document.getElementById('submitContentBtn');
   const place = document.getElementById('uploadPlace').value;
-  
-  if (uploadedContentFile && place) {
-    btn.disabled = false;
-  } else {
-    btn.disabled = true;
-  }
+  btn.disabled = !(uploadedContentFile && place);
 }
 
-// Add event listener for place selection
-document.addEventListener('DOMContentLoaded', function() {
-  const placeSelect = document.getElementById('uploadPlace');
-  if (placeSelect) {
-    placeSelect.addEventListener('change', checkUploadFormComplete);
-  }
-});
-
-function submitContent() {
+async function submitContent() {
   const placeId = document.getElementById('uploadPlace').value;
   const caption = document.getElementById('uploadCaption').value;
   
@@ -1672,29 +1847,70 @@ function submitContent() {
   
   const place = NYC_ACTIVITIES.find(a => a.id === placeId);
   
-  const newContent = {
-    id: 'user-' + Date.now(),
-    type: 'user-content',
-    mediaType: uploadedContentType,
-    mediaUrl: uploadedContentFile,
-    placeId: placeId,
-    placeName: place.title,
-    placeCategory: place.category,
-    placeAddress: place.address,
-    caption: caption,
-    userId: currentUser.email,
-    userName: currentUser.name,
-    userVerified: true,
-    createdAt: new Date().toISOString(),
-    likes: 0
-  };
+  const { error } = await supabase
+    .from('user_content')
+    .insert({
+      user_id: currentUser.id,
+      user_name: userProfile.name,
+      user_verified: true,
+      place_id: placeId,
+      place_name: place.title,
+      place_category: place.category,
+      place_address: place.address,
+      media_url: uploadedContentFile,
+      media_type: uploadedContentType,
+      caption: caption
+    });
   
-  userGeneratedContent.unshift(newContent);
-  localStorage.setItem('dateNightUserContent', JSON.stringify(userGeneratedContent));
+  if (error) {
+    console.error('Error uploading content:', error);
+    alert('Error uploading content. Please try again.');
+    return;
+  }
+  
+  // Reload user content
+  userGeneratedContent = await loadUserContent();
   
   closeUploadModal();
   alert('🎉 Your content has been posted!');
   renderDiscover();
+}
+
+// ============ MODAL ============
+function openGallery(id) {
+  let media = [];
+  
+  if (id.startsWith('user-')) {
+    const contentId = parseInt(id.replace('user-', ''));
+    const content = userGeneratedContent.find(c => c.id === contentId);
+    if (content) media = [content.media_url];
+  } else {
+    const item = NYC_ACTIVITIES.find(i => i.id === id);
+    if (item) media = item.media;
+  }
+  
+  if (media.length === 0) return;
+  
+  state.modalMedia = media;
+  state.modalIndex = 0;
+  updateModal();
+  document.getElementById('galleryModal').classList.add('active');
+}
+
+function updateModal() {
+  document.getElementById('modalImage').src = state.modalMedia[state.modalIndex];
+  document.getElementById('modalNav').innerHTML = state.modalMedia.map((_, i) => `
+    <button class="modal-dot ${i === state.modalIndex ? 'active' : ''}" onclick="setModalIndex(${i})"></button>
+  `).join('');
+}
+
+function setModalIndex(i) {
+  state.modalIndex = i;
+  updateModal();
+}
+
+function closeModal() {
+  document.getElementById('galleryModal').classList.remove('active');
 }
 
 // ============ INIT ============
@@ -1708,17 +1924,12 @@ function initApp() {
   document.querySelector('.nav-center').classList.add('active');
 }
 
-// Check for existing session on page load
+// Start app
 document.addEventListener('DOMContentLoaded', function() {
-  // Test if localStorage works
-  if (!testLocalStorage()) {
-    alert('⚠️ Your browser cannot save data. You may be in Private/Incognito mode. Your data will be lost when you close this page.');
-  }
+  checkSession();
   
-  if (!checkExistingSession()) {
-    // No existing session, show welcome screen
-    document.getElementById('welcome').style.display = 'flex';
-  }
+  // Add event listener for place selection
+  document.getElementById('uploadPlace').addEventListener('change', checkUploadFormComplete);
 });
 
 // Close modals on backdrop click
@@ -1727,6 +1938,12 @@ document.getElementById('galleryModal').addEventListener('click', function(e) {
 });
 document.getElementById('loginModal').addEventListener('click', function(e) {
   if (e.target === this) closeLoginModal();
+});
+document.getElementById('verifyModal').addEventListener('click', function(e) {
+  if (e.target === this) closeVerifyModal();
+});
+document.getElementById('uploadModal').addEventListener('click', function(e) {
+  if (e.target === this) closeUploadModal();
 });
 </script>
 </body>
