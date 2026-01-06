@@ -200,6 +200,56 @@
     .modal-nav { position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; }
     .modal-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.5); border: none; cursor: pointer; }
     .modal-dot.active { background: white; }
+    
+    /* Verification Modal */
+    .verify-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 300; padding: 24px; overflow-y: auto; }
+    .verify-modal.active { display: flex; }
+    .verify-box { background: white; border-radius: 24px; padding: 32px; width: 100%; max-width: 400px; max-height: 90vh; overflow-y: auto; }
+    .verify-box h2 { font-size: 24px; margin-bottom: 8px; color: #333; }
+    .verify-box p { color: #888; margin-bottom: 24px; font-size: 14px; }
+    .verify-step { margin-bottom: 24px; }
+    .verify-step-title { font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .verify-step-num { background: var(--secondary); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+    .verify-upload-box { border: 2px dashed #ddd; border-radius: 12px; padding: 24px; text-align: center; cursor: pointer; transition: all 0.2s; }
+    .verify-upload-box:hover { border-color: var(--secondary); background: #f8f9ff; }
+    .verify-upload-box.has-file { border-color: var(--success); background: #f0fff8; }
+    .verify-upload-box input { display: none; }
+    .verify-upload-icon { font-size: 32px; margin-bottom: 8px; }
+    .verify-upload-text { color: #888; font-size: 14px; }
+    .verify-upload-text.success { color: var(--success); }
+    .verify-camera-box { border: 2px solid #ddd; border-radius: 12px; overflow: hidden; position: relative; }
+    .verify-video { width: 100%; height: 200px; object-fit: cover; background: #000; }
+    .verify-canvas { display: none; }
+    .verify-selfie-preview { width: 100%; height: 200px; object-fit: cover; display: none; }
+    .verify-camera-btn { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 25px; font-weight: 600; cursor: pointer; }
+    .verify-camera-btn:hover { background: #e85a5a; }
+    .verify-retake { background: #666; margin-right: 8px; }
+    .verify-status { padding: 16px; border-radius: 12px; text-align: center; margin-bottom: 16px; }
+    .verify-status.pending { background: #fff3cd; color: #856404; }
+    .verify-status.verified { background: #d4edda; color: #155724; }
+    .verified-badge { background: var(--success); color: white; font-size: 10px; padding: 2px 8px; border-radius: 10px; margin-left: 8px; }
+    
+    /* Upload Content Modal */
+    .upload-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 300; padding: 24px; }
+    .upload-modal.active { display: flex; }
+    .upload-box { background: white; border-radius: 24px; padding: 32px; width: 100%; max-width: 400px; }
+    .upload-box h2 { font-size: 24px; margin-bottom: 8px; color: #333; }
+    .upload-box p { color: #888; margin-bottom: 24px; font-size: 14px; }
+    .upload-preview { width: 100%; height: 200px; border-radius: 12px; object-fit: cover; margin-bottom: 16px; display: none; background: #000; }
+    .upload-video-preview { width: 100%; height: 200px; border-radius: 12px; object-fit: cover; margin-bottom: 16px; display: none; }
+    .upload-input-group { margin-bottom: 16px; }
+    .upload-input-group label { font-weight: 600; margin-bottom: 8px; display: block; }
+    .upload-input-group input, .upload-input-group select, .upload-input-group textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 14px; }
+    .upload-input-group textarea { resize: none; height: 80px; }
+    .upload-file-btn { width: 100%; padding: 40px 24px; border: 2px dashed #ddd; border-radius: 12px; background: white; cursor: pointer; text-align: center; margin-bottom: 16px; transition: all 0.2s; }
+    .upload-file-btn:hover { border-color: var(--secondary); }
+    .upload-file-btn.has-file { border-color: var(--success); background: #f0fff8; }
+    .user-content-badge { position: absolute; top: 12px; left: 12px; background: var(--secondary); color: white; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 4px; }
+    .user-content-badge .verified-check { color: #4caf50; }
+    .card-user-info { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid #eee; }
+    .card-user-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+    .card-user-name { font-weight: 600; font-size: 14px; }
+    .card-user-verified { color: var(--success); font-size: 12px; }
   </style>
 </head>
 <body>
@@ -362,12 +412,28 @@
   <div class="content tab-content hidden" id="tab-profile">
     <h2 class="section-title">Your Profile 👤</h2>
     <div class="profile-card">
-      <p><strong>Name:</strong> <span id="profileName">Guest</span></p>
+      <p><strong>Name:</strong> <span id="profileName">Guest</span><span class="verified-badge hidden" id="profileVerifiedBadge">✓ Verified</span></p>
       <p><strong>Email:</strong> <span id="profileEmail">-</span></p>
       <p><strong>Type:</strong> <span id="profileType">Guest</span></p>
       <p><strong>Location:</strong> New York, NY</p>
       <p style="margin-top:8px;"><strong>Stats:</strong> ❤️ <span id="statLiked">0</span> liked • ✖ <span id="statPassed">0</span> passed</p>
       <p id="accountStatus" style="margin-top:8px;color:var(--success);font-size:13px;"></p>
+    </div>
+    
+    <!-- Verification Section -->
+    <div id="verificationSection" class="profile-card" style="display:none;">
+      <h3 style="font-weight:700;margin-bottom:12px;">🛡️ Verification Status</h3>
+      <div id="notVerifiedBox">
+        <p style="color:#888;font-size:14px;margin-bottom:12px;">Get verified to share your own photos and videos from your dates!</p>
+        <button class="btn-full secondary" onclick="openVerifyModal()">Get Verified</button>
+      </div>
+      <div id="pendingVerifyBox" style="display:none;">
+        <p style="color:#856404;font-size:14px;">⏳ Verification pending review...</p>
+      </div>
+      <div id="verifiedBox" style="display:none;">
+        <p style="color:#155724;font-size:14px;margin-bottom:12px;">✅ You are verified!</p>
+        <button class="btn-full secondary" onclick="openUploadModal()">📸 Upload Content</button>
+      </div>
     </div>
     
     <h3 style="font-weight:700;margin-bottom:12px;">Interests</h3>
@@ -411,6 +477,90 @@
   </div>
 </div>
 
+<!-- Verification Modal -->
+<div class="verify-modal" id="verifyModal">
+  <div class="verify-box">
+    <h2>🛡️ Get Verified</h2>
+    <p>Verify your identity to upload your own date experiences and help others discover great places!</p>
+    
+    <div id="verifyPendingStatus" class="verify-status pending" style="display:none;">
+      ⏳ Your verification is being reviewed. This usually takes 24-48 hours.
+    </div>
+    
+    <div id="verifyApprovedStatus" class="verify-status verified" style="display:none;">
+      ✅ You are verified! You can now upload your own content.
+    </div>
+    
+    <div id="verifyForm">
+      <div class="verify-step">
+        <div class="verify-step-title">
+          <span class="verify-step-num">1</span>
+          Upload Government ID
+        </div>
+        <div class="verify-upload-box" id="idUploadBox" onclick="document.getElementById('idInput').click()">
+          <input type="file" id="idInput" accept="image/*" onchange="handleIdUpload(event)">
+          <div class="verify-upload-icon">🪪</div>
+          <div class="verify-upload-text" id="idUploadText">Tap to upload State ID or Passport</div>
+        </div>
+      </div>
+      
+      <div class="verify-step">
+        <div class="verify-step-title">
+          <span class="verify-step-num">2</span>
+          Take a Selfie
+        </div>
+        <div class="verify-camera-box">
+          <video class="verify-video" id="verifyVideo" autoplay playsinline></video>
+          <canvas class="verify-canvas" id="verifyCanvas"></canvas>
+          <img class="verify-selfie-preview" id="selfiePreview" alt="Selfie">
+          <div id="cameraButtons">
+            <button class="verify-camera-btn" id="captureBtn" onclick="captureSelfie()">📸 Take Photo</button>
+          </div>
+          <div id="retakeButtons" style="display:none; text-align:center; padding:12px;">
+            <button class="verify-camera-btn verify-retake" onclick="retakeSelfie()">↩️ Retake</button>
+          </div>
+        </div>
+      </div>
+      
+      <button class="btn-full secondary" id="submitVerifyBtn" onclick="submitVerification()" disabled>Submit for Verification</button>
+    </div>
+    
+    <button class="btn-full" style="background:#eee;color:#666;margin-top:12px;" onclick="closeVerifyModal()">Close</button>
+  </div>
+</div>
+
+<!-- Upload Content Modal -->
+<div class="upload-modal" id="uploadModal">
+  <div class="upload-box">
+    <h2>📸 Share Your Experience</h2>
+    <p>Upload photos or videos from your date to help others discover great places!</p>
+    
+    <button class="upload-file-btn" id="contentUploadBtn" onclick="document.getElementById('contentInput').click()">
+      <input type="file" id="contentInput" accept="image/*,video/*" onchange="handleContentUpload(event)">
+      <div class="verify-upload-icon">📷</div>
+      <div class="verify-upload-text" id="contentUploadText">Tap to upload photo or video</div>
+    </button>
+    
+    <img class="upload-preview" id="uploadPreview" alt="Preview">
+    <video class="upload-video-preview" id="uploadVideoPreview" controls></video>
+    
+    <div class="upload-input-group">
+      <label>Select Place</label>
+      <select id="uploadPlace">
+        <option value="">Choose a place...</option>
+      </select>
+    </div>
+    
+    <div class="upload-input-group">
+      <label>Caption</label>
+      <textarea id="uploadCaption" placeholder="Share your experience..."></textarea>
+    </div>
+    
+    <button class="btn-full secondary" id="submitContentBtn" onclick="submitContent()" disabled>Post</button>
+    <button class="btn-full" style="background:#eee;color:#666;margin-top:12px;" onclick="closeUploadModal()">Cancel</button>
+  </div>
+</div>
+
 <script>
 // ============ DATA ============
 const NYC_ACTIVITIES = [
@@ -448,6 +598,10 @@ const PART_TYPES = ['Coffee', 'Lunch', 'Dinner', 'Movie', 'Activity', 'Drinks'];
 let isLoggedIn = false;
 let isSignUpMode = false;
 let currentUser = null;
+let cameraStream = null;
+
+// User-generated content storage (simulated database)
+let userGeneratedContent = JSON.parse(localStorage.getItem('dateNightUserContent') || '[]');
 
 let state = {
   profileType: null,
@@ -466,61 +620,101 @@ let state = {
   selectedPlanItems: [null, null, null, null],
   modalMedia: [],
   modalIndex: 0,
+  // Verification state
+  verificationStatus: 'none', // 'none', 'pending', 'verified'
+  verificationData: {
+    idImage: null,
+    selfieImage: null,
+    submittedAt: null
+  }
 };
 
 // ============ LOCAL STORAGE ============
 function saveUserData() {
   if (!isLoggedIn || !currentUser) return;
   
-  const userData = {
-    email: currentUser.email,
-    name: currentUser.name,
-    password: currentUser.password,
-    state: state
-  };
-  
-  // Save to users list
-  let users = JSON.parse(localStorage.getItem('dateNightUsers') || '{}');
-  users[currentUser.email] = userData;
-  localStorage.setItem('dateNightUsers', JSON.stringify(users));
-  
-  // Save current session
-  localStorage.setItem('dateNightCurrentUser', currentUser.email);
+  try {
+    const userData = {
+      email: currentUser.email,
+      name: currentUser.name,
+      password: currentUser.password,
+      state: state
+    };
+    
+    // Save to users list
+    let users = JSON.parse(localStorage.getItem('dateNightUsers') || '{}');
+    users[currentUser.email] = userData;
+    localStorage.setItem('dateNightUsers', JSON.stringify(users));
+    
+    // Save current session
+    localStorage.setItem('dateNightCurrentUser', currentUser.email);
+    
+    console.log('✅ Data saved for:', currentUser.email);
+    return true;
+  } catch (e) {
+    console.error('❌ Failed to save data:', e);
+    alert('Warning: Could not save data. You may be in private browsing mode.');
+    return false;
+  }
 }
 
 function loadUserData(email) {
-  const users = JSON.parse(localStorage.getItem('dateNightUsers') || '{}');
-  return users[email] || null;
+  try {
+    const users = JSON.parse(localStorage.getItem('dateNightUsers') || '{}');
+    console.log('📂 Stored users:', Object.keys(users));
+    return users[email] || null;
+  } catch (e) {
+    console.error('❌ Failed to load data:', e);
+    return null;
+  }
 }
 
 function checkExistingSession() {
-  const savedEmail = localStorage.getItem('dateNightCurrentUser');
-  if (savedEmail) {
-    const userData = loadUserData(savedEmail);
-    if (userData) {
-      isLoggedIn = true;
-      currentUser = {
-        email: userData.email,
-        name: userData.name,
-        password: userData.password
-      };
-      state = userData.state;
-      
-      // Skip to app if profile type already selected
-      if (state.profileType) {
-        document.getElementById('welcome').style.display = 'none';
-        document.getElementById('app').classList.add('active');
-        updateUIForLoggedInUser();
-        initApp();
-      } else {
-        document.getElementById('welcome').style.display = 'none';
-        document.getElementById('onboarding').classList.add('active');
-        document.getElementById('userGreeting').textContent = `Welcome back, ${currentUser.name}!`;
+  try {
+    const savedEmail = localStorage.getItem('dateNightCurrentUser');
+    console.log('🔍 Checking for saved session:', savedEmail);
+    
+    if (savedEmail) {
+      const userData = loadUserData(savedEmail);
+      if (userData) {
+        console.log('✅ Found saved user:', userData.name);
+        isLoggedIn = true;
+        currentUser = {
+          email: userData.email,
+          name: userData.name,
+          password: userData.password
+        };
+        state = userData.state;
+        
+        // Skip to app if profile type already selected
+        if (state.profileType) {
+          document.getElementById('welcome').style.display = 'none';
+          document.getElementById('app').classList.add('active');
+          updateUIForLoggedInUser();
+          initApp();
+        } else {
+          document.getElementById('welcome').style.display = 'none';
+          document.getElementById('onboarding').classList.add('active');
+          document.getElementById('userGreeting').textContent = `Welcome back, ${currentUser.name}!`;
+        }
+        return true;
       }
-      return true;
     }
+  } catch (e) {
+    console.error('❌ Session check failed:', e);
   }
   return false;
+}
+
+// Test if localStorage works
+function testLocalStorage() {
+  try {
+    localStorage.setItem('test', 'test');
+    localStorage.removeItem('test');
+    return true;
+  } catch (e) {
+    return false;
+  }
 }
 
 // ============ WELCOME & LOGIN ============
@@ -624,8 +818,17 @@ function handleLogin() {
       selectedPlanItems: [null, null, null, null],
       modalMedia: [],
       modalIndex: 0,
+      verificationStatus: 'none',
+      verificationData: {
+        idImage: null,
+        selfieImage: null,
+        submittedAt: null
+      }
     };
-    saveUserData();
+    
+    if (saveUserData()) {
+      console.log('✅ Account created successfully for:', email);
+    }
     
   } else {
     // Log In
@@ -680,6 +883,12 @@ function continueAsGuest() {
     selectedPlanItems: [null, null, null, null],
     modalMedia: [],
     modalIndex: 0,
+    verificationStatus: 'none',
+    verificationData: {
+      idImage: null,
+      selfieImage: null,
+      submittedAt: null
+    }
   };
   
   document.getElementById('welcome').style.display = 'none';
@@ -716,12 +925,6 @@ function logout() {
 }
 
 // ============ HELPERS ============
-function getDiscoverPool() {
-  return NYC_ACTIVITIES
-    .filter(item => state.interests.length === 0 || item.tags.some(t => state.interests.includes(t)))
-    .filter(item => !state.swipedIds.includes(item.id));
-}
-
 function formatDateTime(d) {
   return new Date(d).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 }
@@ -761,6 +964,39 @@ function showTab(tab) {
 }
 
 // ============ DISCOVER ============
+function getDiscoverPool() {
+  // Combine user-generated content with regular activities
+  const userContent = userGeneratedContent
+    .filter(c => !state.swipedIds.includes(c.id))
+    .map(c => ({
+      id: c.id,
+      title: c.placeName,
+      category: c.placeCategory,
+      description: c.caption || `Shared by ${c.userName}`,
+      price: NYC_ACTIVITIES.find(a => a.id === c.placeId)?.price || '$$',
+      rating: NYC_ACTIVITIES.find(a => a.id === c.placeId)?.rating || 4.5,
+      reviewCount: NYC_ACTIVITIES.find(a => a.id === c.placeId)?.reviewCount || 0,
+      distance: 'NYC',
+      address: c.placeAddress,
+      tags: NYC_ACTIVITIES.find(a => a.id === c.placeId)?.tags || [],
+      media: [c.mediaUrl],
+      mediaType: c.mediaType,
+      isUserContent: true,
+      userName: c.userName,
+      userVerified: c.userVerified,
+      createdAt: c.createdAt
+    }));
+  
+  const regularActivities = NYC_ACTIVITIES
+    .filter(item => state.interests.length === 0 || item.tags.some(t => state.interests.includes(t)))
+    .filter(item => !state.swipedIds.includes(item.id));
+  
+  // Interleave user content with regular activities (user content first, then regular)
+  const combined = [...userContent, ...regularActivities];
+  
+  return combined;
+}
+
 function renderDiscover() {
   const pool = getDiscoverPool();
   const card = document.getElementById('swipeCard');
@@ -775,25 +1011,50 @@ function renderDiscover() {
     empty.classList.add('hidden');
     btns.classList.remove('hidden');
     const item = pool[0];
+    
+    const userBadge = item.isUserContent ? `
+      <div class="user-content-badge">
+        <span>📸</span> ${item.userName} ${item.userVerified ? '<span class="verified-check">✓</span>' : ''}
+      </div>
+    ` : '';
+    
+    const userInfo = item.isUserContent ? `
+      <div class="card-user-info">
+        <div style="width:32px;height:32px;border-radius:50%;background:var(--secondary);display:flex;align-items:center;justify-content:center;color:white;font-size:14px;">
+          ${item.userName.charAt(0).toUpperCase()}
+        </div>
+        <span class="card-user-name">${item.userName}</span>
+        ${item.userVerified ? '<span class="card-user-verified">✓ Verified</span>' : ''}
+      </div>
+    ` : '';
+    
+    const mediaContent = item.mediaType === 'video' ? `
+      <video class="card-image" src="${item.media[0]}" autoplay loop muted playsinline></video>
+    ` : `
+      <img class="card-image" src="${item.media[0]}" alt="${item.title}" id="cardImage">
+    `;
+    
     card.innerHTML = `
       <div class="swipe-card" id="currentCard">
         <div class="card-image-wrapper">
-          <img class="card-image" src="${item.media[0]}" alt="${item.title}" id="cardImage">
+          ${mediaContent}
+          ${userBadge}
           <button class="card-gallery-btn" onclick="openGallery('${item.id}')">📷 ${item.media.length}</button>
-          ${item.media.length > 1 ? `
+          ${!item.isUserContent && item.media.length > 1 ? `
           <div class="card-dots">
             ${item.media.map((_, i) => `<div class="card-dot ${i === 0 ? 'active' : ''}" onclick="changeCardImage(${i})"></div>`).join('')}
           </div>
           ` : ''}
         </div>
         <div class="card-body">
+          ${userInfo}
           <div class="card-header">
             <h3 class="card-title">${item.title}</h3>
             <span class="card-price">${item.price}</span>
           </div>
           <div class="card-meta">
             <span>⭐ ${item.rating}</span>
-            <span>• ${item.reviewCount} reviews</span>
+            ${item.reviewCount ? `<span>• ${item.reviewCount} reviews</span>` : ''}
             <span>• ${item.distance}</span>
           </div>
           <p class="card-desc">${item.description}</p>
@@ -1084,6 +1345,7 @@ function renderProfile() {
   `).join('');
   
   updateUIForLoggedInUser();
+  updateProfileVerificationUI();
 }
 
 function toggleInterest(key) {
@@ -1111,6 +1373,16 @@ function resetProfile() {
 
 // ============ MODAL ============
 function openGallery(id) {
+  // Check if it's user content
+  const userContent = userGeneratedContent.find(c => c.id === id);
+  if (userContent) {
+    state.modalMedia = [userContent.mediaUrl];
+    state.modalIndex = 0;
+    updateModal();
+    document.getElementById('galleryModal').classList.add('active');
+    return;
+  }
+  
   const item = NYC_ACTIVITIES.find(i => i.id === id);
   if (!item) return;
   state.modalMedia = item.media;
@@ -1135,6 +1407,296 @@ function closeModal() {
   document.getElementById('galleryModal').classList.remove('active');
 }
 
+// ============ VERIFICATION ============
+function openVerifyModal() {
+  if (!isLoggedIn) {
+    alert('Please log in to get verified.');
+    return;
+  }
+  
+  document.getElementById('verifyModal').classList.add('active');
+  updateVerifyModalUI();
+  
+  // Start camera if not already verified
+  if (state.verificationStatus !== 'verified' && state.verificationStatus !== 'pending') {
+    startCamera();
+  }
+}
+
+function closeVerifyModal() {
+  document.getElementById('verifyModal').classList.remove('active');
+  stopCamera();
+}
+
+function updateVerifyModalUI() {
+  const form = document.getElementById('verifyForm');
+  const pendingStatus = document.getElementById('verifyPendingStatus');
+  const approvedStatus = document.getElementById('verifyApprovedStatus');
+  
+  if (state.verificationStatus === 'pending') {
+    form.style.display = 'none';
+    pendingStatus.style.display = 'block';
+    approvedStatus.style.display = 'none';
+  } else if (state.verificationStatus === 'verified') {
+    form.style.display = 'none';
+    pendingStatus.style.display = 'none';
+    approvedStatus.style.display = 'block';
+  } else {
+    form.style.display = 'block';
+    pendingStatus.style.display = 'none';
+    approvedStatus.style.display = 'none';
+  }
+}
+
+async function startCamera() {
+  try {
+    const video = document.getElementById('verifyVideo');
+    cameraStream = await navigator.mediaDevices.getUserMedia({ 
+      video: { facingMode: 'user' }, 
+      audio: false 
+    });
+    video.srcObject = cameraStream;
+    video.style.display = 'block';
+    document.getElementById('selfiePreview').style.display = 'none';
+    document.getElementById('cameraButtons').style.display = 'block';
+    document.getElementById('retakeButtons').style.display = 'none';
+  } catch (err) {
+    console.error('Camera error:', err);
+    alert('Could not access camera. Please allow camera permissions and try again.');
+  }
+}
+
+function stopCamera() {
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(track => track.stop());
+    cameraStream = null;
+  }
+}
+
+function captureSelfie() {
+  const video = document.getElementById('verifyVideo');
+  const canvas = document.getElementById('verifyCanvas');
+  const preview = document.getElementById('selfiePreview');
+  
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  
+  const imageData = canvas.toDataURL('image/jpeg');
+  state.verificationData.selfieImage = imageData;
+  
+  preview.src = imageData;
+  preview.style.display = 'block';
+  video.style.display = 'none';
+  document.getElementById('cameraButtons').style.display = 'none';
+  document.getElementById('retakeButtons').style.display = 'block';
+  
+  stopCamera();
+  checkVerifyFormComplete();
+}
+
+function retakeSelfie() {
+  state.verificationData.selfieImage = null;
+  document.getElementById('selfiePreview').style.display = 'none';
+  startCamera();
+  checkVerifyFormComplete();
+}
+
+function handleIdUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    state.verificationData.idImage = e.target.result;
+    document.getElementById('idUploadBox').classList.add('has-file');
+    document.getElementById('idUploadText').textContent = '✓ ID uploaded';
+    document.getElementById('idUploadText').classList.add('success');
+    checkVerifyFormComplete();
+  };
+  reader.readAsDataURL(file);
+}
+
+function checkVerifyFormComplete() {
+  const btn = document.getElementById('submitVerifyBtn');
+  if (state.verificationData.idImage && state.verificationData.selfieImage) {
+    btn.disabled = false;
+  } else {
+    btn.disabled = true;
+  }
+}
+
+function submitVerification() {
+  if (!state.verificationData.idImage || !state.verificationData.selfieImage) {
+    alert('Please complete both steps.');
+    return;
+  }
+  
+  state.verificationData.submittedAt = new Date().toISOString();
+  state.verificationStatus = 'pending';
+  saveUserData();
+  
+  updateVerifyModalUI();
+  updateProfileVerificationUI();
+  
+  // Simulate auto-approval after 3 seconds (for demo purposes)
+  setTimeout(() => {
+    if (state.verificationStatus === 'pending') {
+      state.verificationStatus = 'verified';
+      saveUserData();
+      updateVerifyModalUI();
+      updateProfileVerificationUI();
+      alert('🎉 Congratulations! Your account has been verified. You can now upload your own content!');
+    }
+  }, 3000);
+}
+
+function updateProfileVerificationUI() {
+  const section = document.getElementById('verificationSection');
+  const notVerified = document.getElementById('notVerifiedBox');
+  const pending = document.getElementById('pendingVerifyBox');
+  const verified = document.getElementById('verifiedBox');
+  const badge = document.getElementById('profileVerifiedBadge');
+  
+  if (!isLoggedIn) {
+    section.style.display = 'none';
+    return;
+  }
+  
+  section.style.display = 'block';
+  
+  if (state.verificationStatus === 'verified') {
+    notVerified.style.display = 'none';
+    pending.style.display = 'none';
+    verified.style.display = 'block';
+    badge.classList.remove('hidden');
+  } else if (state.verificationStatus === 'pending') {
+    notVerified.style.display = 'none';
+    pending.style.display = 'block';
+    verified.style.display = 'none';
+    badge.classList.add('hidden');
+  } else {
+    notVerified.style.display = 'block';
+    pending.style.display = 'none';
+    verified.style.display = 'none';
+    badge.classList.add('hidden');
+  }
+}
+
+// ============ UPLOAD CONTENT ============
+let uploadedContentFile = null;
+let uploadedContentType = null;
+
+function openUploadModal() {
+  if (!isLoggedIn || state.verificationStatus !== 'verified') {
+    alert('You must be verified to upload content.');
+    return;
+  }
+  
+  document.getElementById('uploadModal').classList.add('active');
+  
+  // Populate places dropdown
+  const select = document.getElementById('uploadPlace');
+  select.innerHTML = '<option value="">Choose a place...</option>' + 
+    NYC_ACTIVITIES.map(a => `<option value="${a.id}">${a.title}</option>`).join('');
+  
+  // Reset form
+  document.getElementById('uploadPreview').style.display = 'none';
+  document.getElementById('uploadVideoPreview').style.display = 'none';
+  document.getElementById('contentUploadBtn').classList.remove('has-file');
+  document.getElementById('contentUploadText').textContent = 'Tap to upload photo or video';
+  document.getElementById('uploadCaption').value = '';
+  document.getElementById('submitContentBtn').disabled = true;
+  uploadedContentFile = null;
+  uploadedContentType = null;
+}
+
+function closeUploadModal() {
+  document.getElementById('uploadModal').classList.remove('active');
+}
+
+function handleContentUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    uploadedContentFile = e.target.result;
+    
+    if (file.type.startsWith('video/')) {
+      uploadedContentType = 'video';
+      document.getElementById('uploadVideoPreview').src = e.target.result;
+      document.getElementById('uploadVideoPreview').style.display = 'block';
+      document.getElementById('uploadPreview').style.display = 'none';
+    } else {
+      uploadedContentType = 'image';
+      document.getElementById('uploadPreview').src = e.target.result;
+      document.getElementById('uploadPreview').style.display = 'block';
+      document.getElementById('uploadVideoPreview').style.display = 'none';
+    }
+    
+    document.getElementById('contentUploadBtn').classList.add('has-file');
+    document.getElementById('contentUploadText').textContent = '✓ File selected';
+    checkUploadFormComplete();
+  };
+  reader.readAsDataURL(file);
+}
+
+function checkUploadFormComplete() {
+  const btn = document.getElementById('submitContentBtn');
+  const place = document.getElementById('uploadPlace').value;
+  
+  if (uploadedContentFile && place) {
+    btn.disabled = false;
+  } else {
+    btn.disabled = true;
+  }
+}
+
+// Add event listener for place selection
+document.addEventListener('DOMContentLoaded', function() {
+  const placeSelect = document.getElementById('uploadPlace');
+  if (placeSelect) {
+    placeSelect.addEventListener('change', checkUploadFormComplete);
+  }
+});
+
+function submitContent() {
+  const placeId = document.getElementById('uploadPlace').value;
+  const caption = document.getElementById('uploadCaption').value;
+  
+  if (!uploadedContentFile || !placeId) {
+    alert('Please select a photo/video and a place.');
+    return;
+  }
+  
+  const place = NYC_ACTIVITIES.find(a => a.id === placeId);
+  
+  const newContent = {
+    id: 'user-' + Date.now(),
+    type: 'user-content',
+    mediaType: uploadedContentType,
+    mediaUrl: uploadedContentFile,
+    placeId: placeId,
+    placeName: place.title,
+    placeCategory: place.category,
+    placeAddress: place.address,
+    caption: caption,
+    userId: currentUser.email,
+    userName: currentUser.name,
+    userVerified: true,
+    createdAt: new Date().toISOString(),
+    likes: 0
+  };
+  
+  userGeneratedContent.unshift(newContent);
+  localStorage.setItem('dateNightUserContent', JSON.stringify(userGeneratedContent));
+  
+  closeUploadModal();
+  alert('🎉 Your content has been posted!');
+  renderDiscover();
+}
+
 // ============ INIT ============
 function initApp() {
   renderDiscover();
@@ -1148,6 +1710,11 @@ function initApp() {
 
 // Check for existing session on page load
 document.addEventListener('DOMContentLoaded', function() {
+  // Test if localStorage works
+  if (!testLocalStorage()) {
+    alert('⚠️ Your browser cannot save data. You may be in Private/Incognito mode. Your data will be lost when you close this page.');
+  }
+  
   if (!checkExistingSession()) {
     // No existing session, show welcome screen
     document.getElementById('welcome').style.display = 'flex';
