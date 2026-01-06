@@ -570,6 +570,40 @@
     .card-user-clickable { cursor: pointer; }
     .card-user-clickable:hover .card-user-name { color: var(--secondary); }
     
+    /* Search Tab */
+    .search-container { margin-bottom: 20px; }
+    .search-bar { display: flex; gap: 8px; margin-bottom: 16px; }
+    .search-input { flex: 1; padding: 14px 16px; border: 2px solid #eee; border-radius: 12px; font-size: 16px; transition: border-color 0.2s; }
+    .search-input:focus { outline: none; border-color: var(--secondary); }
+    .search-btn { padding: 14px 20px; background: var(--secondary); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; }
+    .search-btn:hover { background: #5a6fd6; }
+    
+    .search-filters { background: white; border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .search-filter-section { margin-bottom: 16px; }
+    .search-filter-section:last-child { margin-bottom: 0; }
+    .search-filter-label { font-size: 13px; font-weight: 600; color: #666; margin-bottom: 8px; display: block; }
+    .search-filter-row { display: flex; gap: 8px; }
+    .search-filter-row .search-input { flex: 1; padding: 10px 12px; font-size: 14px; }
+    
+    .activity-type-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .activity-type-btn { padding: 10px 16px; border: 2px solid #eee; border-radius: 20px; background: white; font-size: 13px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+    .activity-type-btn:hover { border-color: #ccc; background: #f9f9f9; }
+    .activity-type-btn.active { border-color: var(--secondary); background: rgba(102,126,234,0.1); color: var(--secondary); }
+    
+    .cuisine-filter { margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee; display: none; }
+    .cuisine-filter.show { display: block; }
+    .cuisine-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+    .cuisine-btn { padding: 6px 12px; border: 1px solid #ddd; border-radius: 16px; background: white; font-size: 12px; cursor: pointer; transition: all 0.2s; }
+    .cuisine-btn:hover { border-color: #bbb; }
+    .cuisine-btn.active { border-color: var(--primary); background: rgba(255,107,107,0.1); color: var(--primary); }
+    
+    .distance-select { padding: 10px 12px; border: 2px solid #eee; border-radius: 10px; font-size: 14px; background: white; cursor: pointer; min-width: 120px; }
+    .distance-select:focus { outline: none; border-color: var(--secondary); }
+    
+    .search-results-count { font-size: 14px; color: #888; margin-bottom: 12px; }
+    .no-results { text-align: center; padding: 40px 20px; color: #888; }
+    .no-results-icon { font-size: 48px; margin-bottom: 12px; }
+    
     /* Browse Cards */
     .browse-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 16px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
     .browse-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.12); }
@@ -707,10 +741,66 @@
     </div>
   </div>
 
-  <!-- Tab: Browse -->
+  <!-- Tab: Search -->
   <div class="content tab-content hidden" id="tab-browse">
-    <h2 class="section-title">Browse All Ideas 🔎</h2>
-    <div class="filter-chips" id="browseFilters"></div>
+    <h2 class="section-title">Search 🔍</h2>
+    
+    <!-- Search Bar -->
+    <div class="search-bar">
+      <input type="text" class="search-input" id="searchInput" placeholder="Search places, activities..." oninput="renderSearch()">
+    </div>
+    
+    <!-- Filters -->
+    <div class="search-filters">
+      <!-- Activity Type -->
+      <div class="search-filter-section">
+        <span class="search-filter-label">Activity Type</span>
+        <div class="activity-type-grid" id="activityTypeGrid">
+          <button class="activity-type-btn active" data-type="all" onclick="setActivityType('all')">🌟 All</button>
+          <button class="activity-type-btn" data-type="restaurants" onclick="setActivityType('restaurants')">🍽️ Dining</button>
+          <button class="activity-type-btn" data-type="movies" onclick="setActivityType('movies')">🎬 Movies</button>
+          <button class="activity-type-btn" data-type="outdoor" onclick="setActivityType('outdoor')">🏃 Outdoor</button>
+          <button class="activity-type-btn" data-type="arts" onclick="setActivityType('arts')">🎨 Arts</button>
+          <button class="activity-type-btn" data-type="nightlife" onclick="setActivityType('nightlife')">🌃 Nightlife</button>
+          <button class="activity-type-btn" data-type="shopping" onclick="setActivityType('shopping')">🛍️ Shopping</button>
+          <button class="activity-type-btn" data-type="wellness" onclick="setActivityType('wellness')">🧘 Wellness</button>
+        </div>
+        
+        <!-- Cuisine Filter (shows when Dining selected) -->
+        <div class="cuisine-filter" id="cuisineFilter">
+          <span class="search-filter-label">Cuisine Type</span>
+          <div class="cuisine-grid" id="cuisineGrid">
+            <button class="cuisine-btn active" data-cuisine="all" onclick="setCuisine('all')">All</button>
+            <button class="cuisine-btn" data-cuisine="italian" onclick="setCuisine('italian')">🍝 Italian</button>
+            <button class="cuisine-btn" data-cuisine="pizza" onclick="setCuisine('pizza')">🍕 Pizza</button>
+            <button class="cuisine-btn" data-cuisine="steak" onclick="setCuisine('steak')">🥩 Steakhouse</button>
+            <button class="cuisine-btn" data-cuisine="seafood" onclick="setCuisine('seafood')">🦞 Seafood</button>
+            <button class="cuisine-btn" data-cuisine="deli" onclick="setCuisine('deli')">🥪 Deli</button>
+            <button class="cuisine-btn" data-cuisine="asian" onclick="setCuisine('asian')">🍜 Asian</button>
+            <button class="cuisine-btn" data-cuisine="mexican" onclick="setCuisine('mexican')">🌮 Mexican</button>
+            <button class="cuisine-btn" data-cuisine="american" onclick="setCuisine('american')">🍔 American</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Location & Distance -->
+      <div class="search-filter-section">
+        <span class="search-filter-label">Location</span>
+        <div class="search-filter-row">
+          <input type="text" class="search-input" id="zipCodeInput" placeholder="Zip code (e.g. 10001)" oninput="renderSearch()">
+          <select class="distance-select" id="distanceSelect" onchange="renderSearch()">
+            <option value="any">Any distance</option>
+            <option value="1">Within 1 mile</option>
+            <option value="5">Within 5 miles</option>
+            <option value="10">Within 10 miles</option>
+            <option value="25">Within 25 miles</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Results -->
+    <div class="search-results-count" id="searchResultsCount"></div>
     <div id="browseList"></div>
   </div>
 
@@ -847,8 +937,8 @@
       <span class="nav-label">Dates</span>
     </button>
     <button class="nav-item" onclick="showTab('browse')">
-      <span class="nav-icon">🧭</span>
-      <span class="nav-label">Browse</span>
+      <span class="nav-icon">🔍</span>
+      <span class="nav-label">Search</span>
     </button>
     <button class="nav-item nav-center" onclick="showTab('discover')">
       <div class="nav-center-btn"><span>🎯</span></div>
@@ -2317,18 +2407,117 @@ function showTab(tab) {
 }
 
 // ============ BROWSE ============
-function renderBrowse() {
-  const filtersEl = document.getElementById('browseFilters');
-  filtersEl.innerHTML = ALL_INTERESTS.map(i => `
-    <button class="filter-chip ${state.browseFilters.includes(i.key) ? 'active' : ''}" onclick="toggleBrowseFilter('${i.key}')">${i.label}</button>
-  `).join('');
+// ============ SEARCH ============
+let searchFilters = {
+  query: '',
+  activityType: 'all',
+  cuisine: 'all',
+  zipCode: '',
+  distance: 'any'
+};
+
+const CUISINE_KEYWORDS = {
+  italian: ['italian', 'carbone', 'pasta', 'risotto'],
+  pizza: ['pizza', "joe's pizza"],
+  steak: ['steak', 'steakhouse', 'peter luger'],
+  seafood: ['seafood', 'fish', 'lobster', 'le bernardin'],
+  deli: ['deli', 'delicatessen', 'katz', 'pastrami', 'sandwich'],
+  asian: ['asian', 'chinese', 'japanese', 'sushi', 'ramen', 'thai', 'korean'],
+  mexican: ['mexican', 'taco', 'burrito', 'enchilada'],
+  american: ['american', 'burger', 'bbq', 'grill']
+};
+
+function setActivityType(type) {
+  searchFilters.activityType = type;
   
-  let items = NYC_ACTIVITIES;
-  if (state.browseFilters.length > 0) {
-    items = items.filter(item => item.tags.some(t => state.browseFilters.includes(t)));
+  // Update button states
+  document.querySelectorAll('.activity-type-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.type === type);
+  });
+  
+  // Show/hide cuisine filter
+  const cuisineFilter = document.getElementById('cuisineFilter');
+  if (type === 'restaurants') {
+    cuisineFilter.classList.add('show');
+  } else {
+    cuisineFilter.classList.remove('show');
+    searchFilters.cuisine = 'all';
+    document.querySelectorAll('.cuisine-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.cuisine === 'all');
+    });
   }
   
-  document.getElementById('browseList').innerHTML = items.map(item => {
+  renderSearch();
+}
+
+function setCuisine(cuisine) {
+  searchFilters.cuisine = cuisine;
+  
+  document.querySelectorAll('.cuisine-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.cuisine === cuisine);
+  });
+  
+  renderSearch();
+}
+
+function renderSearch() {
+  // Get current filter values
+  searchFilters.query = document.getElementById('searchInput').value.toLowerCase().trim();
+  searchFilters.zipCode = document.getElementById('zipCodeInput').value.trim();
+  searchFilters.distance = document.getElementById('distanceSelect').value;
+  
+  let items = [...NYC_ACTIVITIES];
+  
+  // Filter by search query
+  if (searchFilters.query) {
+    items = items.filter(item => 
+      item.title.toLowerCase().includes(searchFilters.query) ||
+      item.description.toLowerCase().includes(searchFilters.query) ||
+      item.category.toLowerCase().includes(searchFilters.query) ||
+      item.address.toLowerCase().includes(searchFilters.query)
+    );
+  }
+  
+  // Filter by activity type
+  if (searchFilters.activityType !== 'all') {
+    items = items.filter(item => item.tags.includes(searchFilters.activityType));
+  }
+  
+  // Filter by cuisine (only for restaurants)
+  if (searchFilters.activityType === 'restaurants' && searchFilters.cuisine !== 'all') {
+    const keywords = CUISINE_KEYWORDS[searchFilters.cuisine] || [];
+    items = items.filter(item => {
+      const searchText = (item.title + ' ' + item.description).toLowerCase();
+      return keywords.some(keyword => searchText.includes(keyword));
+    });
+  }
+  
+  // Note: Zip code and distance filtering would require real geolocation data
+  // For now, we'll just display a message if zip code is entered
+  
+  // Update results count
+  const resultsCount = document.getElementById('searchResultsCount');
+  if (searchFilters.query || searchFilters.activityType !== 'all' || searchFilters.cuisine !== 'all') {
+    resultsCount.textContent = `${items.length} result${items.length !== 1 ? 's' : ''} found`;
+  } else {
+    resultsCount.textContent = `Showing all ${items.length} places`;
+  }
+  
+  // Render results
+  const browseList = document.getElementById('browseList');
+  
+  if (items.length === 0) {
+    browseList.innerHTML = `
+      <div class="no-results">
+        <div class="no-results-icon">🔍</div>
+        <p>No results found</p>
+        <p style="font-size:13px;margin-top:4px;">Try adjusting your filters</p>
+      </div>
+    `;
+    return;
+  }
+  
+  browseList.innerHTML = items.map(item => {
     // Get popular photos for this location
     const locationContent = userGeneratedContent
       .filter(c => c.place_id === item.id)
@@ -2353,7 +2542,7 @@ function renderBrowse() {
             <span>⭐ ${item.rating}</span>
             <span>${item.price}</span>
             <span>${item.distance}</span>
-            <span>📸 ${locationContent.length}</span>
+            ${locationContent.length > 0 ? `<span>📸 ${locationContent.length}</span>` : ''}
           </div>
           <p class="browse-card-desc">${item.description}</p>
           ${photoPreview}
@@ -2363,13 +2552,18 @@ function renderBrowse() {
   }).join('');
 }
 
+// Keep old function name for compatibility
+function renderBrowse() {
+  renderSearch();
+}
+
 function toggleBrowseFilter(key) {
   if (state.browseFilters.includes(key)) {
     state.browseFilters = state.browseFilters.filter(k => k !== key);
   } else {
     state.browseFilters.push(key);
   }
-  renderBrowse();
+  renderSearch();
 }
 
 async function saveItem(id) {
