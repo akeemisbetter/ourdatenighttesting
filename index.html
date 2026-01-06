@@ -3612,15 +3612,27 @@ function closeSideMenu() {
 // ============ ADMIN DASHBOARD ============
 let adminUsers = [];
 let adminCurrentTab = 'users';
+let adminRefreshInterval = null;
 
 async function openAdminDashboard() {
   closeSideMenu();
   document.getElementById('adminDashboardModal').classList.add('active');
   await loadAdminDashboardData();
+  
+  // Auto-refresh every 10 seconds while dashboard is open
+  adminRefreshInterval = setInterval(async () => {
+    await loadAdminDashboardData();
+  }, 10000);
 }
 
 function closeAdminDashboard() {
   document.getElementById('adminDashboardModal').classList.remove('active');
+  
+  // Stop auto-refresh when dashboard is closed
+  if (adminRefreshInterval) {
+    clearInterval(adminRefreshInterval);
+    adminRefreshInterval = null;
+  }
 }
 
 function showAdminTab(tab) {
@@ -3638,6 +3650,9 @@ function showAdminTab(tab) {
 
 async function loadAdminDashboardData() {
   try {
+    // Reload user content from database
+    userGeneratedContent = await loadUserContent();
+    
     // Load all users
     const { data: users, error: usersError } = await db
       .from('profiles')
