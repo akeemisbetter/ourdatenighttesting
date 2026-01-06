@@ -262,6 +262,21 @@
     .card-user-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
     .card-user-name { font-weight: 600; font-size: 14px; }
     .card-user-verified { color: var(--success); font-size: 12px; }
+    
+    /* Admin Panel */
+    .admin-section { background: #fff3cd; border-radius: 16px; padding: 16px; margin-bottom: 24px; }
+    .admin-section h3 { color: #856404; margin-bottom: 12px; }
+    .admin-item { background: white; border-radius: 12px; padding: 12px; margin-bottom: 12px; display: flex; gap: 12px; align-items: center; }
+    .admin-item-img { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; }
+    .admin-item-info { flex: 1; }
+    .admin-item-name { font-weight: 600; }
+    .admin-item-email { font-size: 12px; color: #888; }
+    .admin-item-date { font-size: 11px; color: #aaa; }
+    .admin-btns { display: flex; gap: 8px; }
+    .admin-btn { padding: 8px 16px; border: none; border-radius: 20px; font-weight: 600; cursor: pointer; font-size: 12px; }
+    .admin-btn.approve { background: var(--success); color: white; }
+    .admin-btn.reject { background: var(--primary); color: white; }
+    .admin-btn.view { background: #eee; color: #333; }
   </style>
 </head>
 <body>
@@ -439,6 +454,15 @@
       <p id="accountStatus" style="margin-top:8px;color:var(--success);font-size:13px;"></p>
     </div>
     
+    <!-- Admin Panel (only visible to admins) -->
+    <div id="adminSection" class="admin-section" style="display:none;">
+      <h3>👑 Admin Panel</h3>
+      <p style="font-size:13px;color:#856404;margin-bottom:12px;">Pending verification requests:</p>
+      <div id="pendingVerifications">
+        <p style="color:#888;font-size:13px;">No pending requests</p>
+      </div>
+    </div>
+    
     <!-- Verification Section -->
     <div id="verificationSection" class="profile-card" style="display:none;">
       <h3 style="font-weight:700;margin-bottom:12px;">🛡️ Verification Status</h3>
@@ -447,7 +471,7 @@
         <button class="btn-full secondary" onclick="openVerifyModal()">Get Verified</button>
       </div>
       <div id="pendingVerifyBox" style="display:none;">
-        <p style="color:#856404;font-size:14px;">⏳ Verification pending review...</p>
+        <p style="color:#856404;font-size:14px;">⏳ Verification pending review (usually 24-48 hours)...</p>
       </div>
       <div id="verifiedBox" style="display:none;">
         <p style="color:#155724;font-size:14px;margin-bottom:12px;">✅ You are verified!</p>
@@ -1579,7 +1603,7 @@ async function finishPlan() {
 }
 
 // ============ PROFILE ============
-function renderProfile() {
+async function renderProfile() {
   document.getElementById('statLiked').textContent = state.stats.liked;
   document.getElementById('statPassed').textContent = state.stats.passed;
   
@@ -1588,6 +1612,11 @@ function renderProfile() {
   `).join('');
   
   updateUIForLoggedInUser();
+  
+  // Render admin panel if user is admin
+  if (isLoggedIn && userProfile?.is_admin) {
+    await renderAdminPanel();
+  }
 }
 
 async function toggleInterest(key) {
@@ -1771,37 +1800,188 @@ async function submitVerification() {
     return;
   }
   
-  state.verificationStatus = 'pending';
+  const submitBtn = document.getElementById('submitVerifyBtn');
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Submitting...';
   
-  if (isLoggedIn) {
+  try {
+    // Upload ID image to storage
+    const idResponse = await fetch(state.verificationData.idImage);
+    const idBlob = await idResponse.blob();
+    const idFileName = `verifications/${currentUser.id}/id-${Date.now()}.jpg`;
+    
+    const { error: idUploadError } = await db.storage
+      .from('user-uploads')
+      .upload(idFileName, idBlob, { contentType: 'image/jpeg' });
+    
+    if (idUploadError) {
+      console.error('ID upload error:', idUploadError);
+      alert('Error uploading ID. Please try again.');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit for Verification';
+      return;
+    }
+    
+    // Upload selfie to storage
+    const selfieResponse = await fetch(state.verificationData.selfieImage);
+    const selfieBlob = await selfieResponse.blob();
+    const selfieFileName = `verifications/${currentUser.id}/selfie-${Date.now()}.jpg`;
+    
+    const { error: selfieUploadError } = await db.storage
+      .from('user-uploads')
+      .upload(selfieFileName, selfieBlob, { contentType: 'image/jpeg' });
+    
+    if (selfieUploadError) {
+      console.error('Selfie upload error:', selfieUploadError);
+      alert('Error uploading selfie. Please try again.');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit for Verification';
+      return;
+    }
+    
+    // Get public URLs
+    const { data: idUrl } = db.storage.from('user-uploads').getPublicUrl(idFileName);
+    const { data: selfieUrl } = db.storage.from('user-uploads').getPublicUrl(selfieFileName);
+    
+    // Update profile with pending status
+    state.verificationStatus = 'pending';
+    
     await updateUserProfile({
       verification_status: 'pending',
-      verification_id_image: state.verificationData.idImage,
-      verification_selfie: state.verificationData.selfieImage,
+      verification_id_image: idUrl.publicUrl,
+      verification_selfie: selfieUrl.publicUrl,
       verification_submitted_at: new Date().toISOString()
     });
+    
+    updateVerifyModalUI();
+    updateProfileVerificationUI();
+    
+    alert('✅ Your verification request has been submitted! An admin will review it within 24-48 hours.');
+    closeVerifyModal();
+    
+  } catch (err) {
+    console.error('Verification error:', err);
+    alert('Error submitting verification. Please try again.');
   }
   
-  updateVerifyModalUI();
-  updateProfileVerificationUI();
-  
-  // Auto-approve after 3 seconds for demo
-  setTimeout(async () => {
-    if (state.verificationStatus === 'pending') {
-      state.verificationStatus = 'verified';
-      if (isLoggedIn) {
-        await updateUserProfile({ verification_status: 'verified' });
-      }
-      updateVerifyModalUI();
-      updateProfileVerificationUI();
-      alert('🎉 Congratulations! Your account has been verified. You can now upload your own content!');
-    }
-  }, 3000);
+  submitBtn.disabled = false;
+  submitBtn.textContent = 'Submit for Verification';
 }
 
 // ============ UPLOAD CONTENT ============
 let uploadedContentFile = null;
 let uploadedContentType = null;
+
+// ============ ADMIN FUNCTIONS ============
+async function loadPendingVerifications() {
+  if (!userProfile?.is_admin) return [];
+  
+  try {
+    const { data, error } = await db
+      .from('profiles')
+      .select('id, email, name, verification_status, verification_id_image, verification_selfie, verification_submitted_at')
+      .eq('verification_status', 'pending')
+      .order('verification_submitted_at', { ascending: true });
+    
+    if (error) {
+      console.error('Error loading pending verifications:', error);
+      return [];
+    }
+    
+    return data || [];
+  } catch (err) {
+    console.error('loadPendingVerifications error:', err);
+    return [];
+  }
+}
+
+async function approveVerification(userId) {
+  if (!userProfile?.is_admin) return;
+  
+  try {
+    const { error } = await db
+      .from('profiles')
+      .update({ verification_status: 'verified' })
+      .eq('id', userId);
+    
+    if (error) {
+      console.error('Error approving:', error);
+      alert('Error approving user');
+      return;
+    }
+    
+    alert('✅ User approved!');
+    renderProfile();
+  } catch (err) {
+    console.error('approveVerification error:', err);
+  }
+}
+
+async function rejectVerification(userId) {
+  if (!userProfile?.is_admin) return;
+  
+  try {
+    const { error } = await db
+      .from('profiles')
+      .update({ 
+        verification_status: 'none',
+        verification_id_image: null,
+        verification_selfie: null,
+        verification_submitted_at: null
+      })
+      .eq('id', userId);
+    
+    if (error) {
+      console.error('Error rejecting:', error);
+      alert('Error rejecting user');
+      return;
+    }
+    
+    alert('❌ User rejected');
+    renderProfile();
+  } catch (err) {
+    console.error('rejectVerification error:', err);
+  }
+}
+
+function viewVerificationDocs(idImage, selfieImage) {
+  // Open images in new tabs
+  if (idImage) window.open(idImage, '_blank');
+  if (selfieImage) window.open(selfieImage, '_blank');
+}
+
+async function renderAdminPanel() {
+  if (!userProfile?.is_admin) {
+    document.getElementById('adminSection').style.display = 'none';
+    return;
+  }
+  
+  document.getElementById('adminSection').style.display = 'block';
+  
+  const pending = await loadPendingVerifications();
+  const container = document.getElementById('pendingVerifications');
+  
+  if (pending.length === 0) {
+    container.innerHTML = '<p style="color:#888;font-size:13px;">No pending requests</p>';
+    return;
+  }
+  
+  container.innerHTML = pending.map(user => `
+    <div class="admin-item">
+      <img class="admin-item-img" src="${user.verification_selfie || 'https://via.placeholder.com/60'}" alt="Selfie">
+      <div class="admin-item-info">
+        <div class="admin-item-name">${user.name || 'Unknown'}</div>
+        <div class="admin-item-email">${user.email}</div>
+        <div class="admin-item-date">Submitted: ${new Date(user.verification_submitted_at).toLocaleDateString()}</div>
+      </div>
+      <div class="admin-btns">
+        <button class="admin-btn view" onclick="viewVerificationDocs('${user.verification_id_image}', '${user.verification_selfie}')">View</button>
+        <button class="admin-btn approve" onclick="approveVerification('${user.id}')">✓</button>
+        <button class="admin-btn reject" onclick="rejectVerification('${user.id}')">✗</button>
+      </div>
+    </div>
+  `).join('');
+}
 
 function openUploadModal() {
   if (!isLoggedIn || state.verificationStatus !== 'verified') {
@@ -1872,34 +2052,80 @@ async function submitContent() {
   }
   
   const place = NYC_ACTIVITIES.find(a => a.id === placeId);
+  const submitBtn = document.getElementById('submitContentBtn');
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Uploading...';
   
-  const { error } = await db
-    .from('user_content')
-    .insert({
-      user_id: currentUser.id,
-      user_name: userProfile.name,
-      user_verified: true,
-      place_id: placeId,
-      place_name: place.title,
-      place_category: place.category,
-      place_address: place.address,
-      media_url: uploadedContentFile,
-      media_type: uploadedContentType,
-      caption: caption
-    });
-  
-  if (error) {
-    console.error('Error uploading content:', error);
+  try {
+    // Convert base64 to blob for upload
+    const response = await fetch(uploadedContentFile);
+    const blob = await response.blob();
+    
+    // Generate unique filename
+    const ext = uploadedContentType === 'video' ? 'mp4' : 'jpg';
+    const fileName = `${currentUser.id}/${Date.now()}.${ext}`;
+    
+    // Upload to Supabase Storage
+    const { data: uploadData, error: uploadError } = await db.storage
+      .from('user-uploads')
+      .upload(fileName, blob, {
+        contentType: blob.type,
+        upsert: false
+      });
+    
+    if (uploadError) {
+      console.error('Upload error:', uploadError);
+      alert('Error uploading file: ' + uploadError.message);
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Post';
+      return;
+    }
+    
+    // Get public URL
+    const { data: urlData } = db.storage
+      .from('user-uploads')
+      .getPublicUrl(fileName);
+    
+    const publicUrl = urlData.publicUrl;
+    
+    // Save to database
+    const { error } = await db
+      .from('user_content')
+      .insert({
+        user_id: currentUser.id,
+        user_name: userProfile.name,
+        user_verified: true,
+        place_id: placeId,
+        place_name: place.title,
+        place_category: place.category,
+        place_address: place.address,
+        media_url: publicUrl,
+        media_type: uploadedContentType,
+        caption: caption
+      });
+    
+    if (error) {
+      console.error('Error saving content:', error);
+      alert('Error saving content: ' + error.message);
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Post';
+      return;
+    }
+    
+    // Reload user content
+    userGeneratedContent = await loadUserContent();
+    
+    closeUploadModal();
+    alert('🎉 Your content has been posted!');
+    renderDiscover();
+    
+  } catch (err) {
+    console.error('Submit error:', err);
     alert('Error uploading content. Please try again.');
-    return;
   }
   
-  // Reload user content
-  userGeneratedContent = await loadUserContent();
-  
-  closeUploadModal();
-  alert('🎉 Your content has been posted!');
-  renderDiscover();
+  submitBtn.disabled = false;
+  submitBtn.textContent = 'Post';
 }
 
 // ============ MODAL ============
