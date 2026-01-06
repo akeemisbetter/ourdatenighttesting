@@ -208,14 +208,109 @@
     .nav-center-btn span { filter: brightness(0) invert(1); }
     
     /* Modal */
-    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 200; }
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: none; align-items: center; justify-content: center; z-index: 600; }
     .modal.active { display: flex; }
     .modal-content { background: #000; border-radius: 16px; width: 90%; max-width: 600px; height: 70%; position: relative; overflow: hidden; }
     .modal-image { width: 100%; height: 100%; object-fit: contain; }
-    .modal-close { position: absolute; top: 12px; right: 12px; width: 32px; height: 32px; border-radius: 50%; background: rgba(0,0,0,0.7); color: white; border: none; font-weight: bold; cursor: pointer; }
+    .modal-close { position: absolute; top: 12px; right: 12px; width: 32px; height: 32px; border-radius: 50%; background: rgba(0,0,0,0.7); color: white; border: none; font-weight: bold; cursor: pointer; z-index: 601; }
     .modal-nav { position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; }
     .modal-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.5); border: none; cursor: pointer; }
     .modal-dot.active { background: white; }
+    
+    /* Content Viewer Modal */
+    .content-viewer-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: none; flex-direction: column; z-index: 650; }
+    .content-viewer-modal.active { display: flex; }
+    .content-viewer-header { display: flex; align-items: center; padding: 16px; gap: 12px; }
+    .content-viewer-user { display: flex; align-items: center; gap: 10px; flex: 1; cursor: pointer; }
+    .content-viewer-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--secondary); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 16px; overflow: hidden; }
+    .content-viewer-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .content-viewer-name { color: white; font-weight: 600; }
+    .content-viewer-close { background: none; border: none; color: white; font-size: 28px; cursor: pointer; padding: 8px; }
+    .content-viewer-media { flex: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .content-viewer-media img, .content-viewer-media video { max-width: 100%; max-height: 100%; object-fit: contain; }
+    .content-viewer-info { padding: 16px; color: white; }
+    .content-viewer-place { font-weight: 600; margin-bottom: 4px; }
+    .content-viewer-caption { color: rgba(255,255,255,0.8); font-size: 14px; margin-bottom: 12px; }
+    .content-viewer-likes { display: flex; align-items: center; gap: 8px; }
+    .content-viewer-like-btn { background: none; border: none; font-size: 24px; cursor: pointer; }
+    .content-viewer-like-count { color: white; font-size: 14px; }
+    
+    /* Avatar Selector */
+    .avatar-selector { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 16px 0; }
+    .avatar-option { width: 100%; aspect-ratio: 1; border-radius: 50%; border: 3px solid transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 28px; background: #f0f0f0; transition: all 0.2s; }
+    .avatar-option:hover { transform: scale(1.1); }
+    .avatar-option.selected { border-color: var(--secondary); }
+    .avatar-option img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+    .avatar-upload-btn { background: #eee; border: 2px dashed #ccc; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #888; }
+    .avatar-upload-btn:hover { border-color: var(--secondary); color: var(--secondary); }
+    
+    /* Animated Avatars */
+    @keyframes avatar-bounce { 
+      0%, 100% { transform: translateY(0); } 
+      50% { transform: translateY(-6px); } 
+    }
+    @keyframes avatar-wiggle { 
+      0%, 100% { transform: rotate(0deg); } 
+      25% { transform: rotate(-10deg); } 
+      75% { transform: rotate(10deg); } 
+    }
+    @keyframes avatar-pulse { 
+      0%, 100% { transform: scale(1); } 
+      50% { transform: scale(1.15); } 
+    }
+    @keyframes avatar-spin { 
+      0% { transform: rotate(0deg); } 
+      100% { transform: rotate(360deg); } 
+    }
+    @keyframes avatar-float { 
+      0%, 100% { transform: translateY(0) rotate(-5deg); } 
+      50% { transform: translateY(-8px) rotate(5deg); } 
+    }
+    @keyframes avatar-shake { 
+      0%, 100% { transform: translateX(0); } 
+      25% { transform: translateX(-4px); } 
+      75% { transform: translateX(4px); } 
+    }
+    @keyframes avatar-heartbeat { 
+      0%, 100% { transform: scale(1); } 
+      14% { transform: scale(1.2); } 
+      28% { transform: scale(1); } 
+      42% { transform: scale(1.2); } 
+      70% { transform: scale(1); } 
+    }
+    @keyframes avatar-wave { 
+      0%, 100% { transform: rotate(0deg); } 
+      20% { transform: rotate(20deg); } 
+      40% { transform: rotate(-10deg); } 
+      60% { transform: rotate(20deg); } 
+      80% { transform: rotate(-5deg); } 
+    }
+    @keyframes avatar-jelly { 
+      0%, 100% { transform: scale(1, 1); } 
+      25% { transform: scale(0.9, 1.1); } 
+      50% { transform: scale(1.1, 0.9); } 
+      75% { transform: scale(0.95, 1.05); } 
+    }
+    @keyframes avatar-glow {
+      0%, 100% { filter: drop-shadow(0 0 2px rgba(255,107,107,0.5)); }
+      50% { filter: drop-shadow(0 0 10px rgba(255,107,107,0.8)); }
+    }
+    
+    .avatar-animated { display: inline-block; }
+    .avatar-bounce { animation: avatar-bounce 1s ease-in-out infinite; }
+    .avatar-wiggle { animation: avatar-wiggle 0.8s ease-in-out infinite; }
+    .avatar-pulse { animation: avatar-pulse 1.2s ease-in-out infinite; }
+    .avatar-spin { animation: avatar-spin 3s linear infinite; }
+    .avatar-float { animation: avatar-float 2s ease-in-out infinite; }
+    .avatar-shake { animation: avatar-shake 0.5s ease-in-out infinite; }
+    .avatar-heartbeat { animation: avatar-heartbeat 1.5s ease-in-out infinite; }
+    .avatar-wave { animation: avatar-wave 1s ease-in-out infinite; }
+    .avatar-jelly { animation: avatar-jelly 0.8s ease-in-out infinite; }
+    .avatar-glow { animation: avatar-glow 1.5s ease-in-out infinite; }
+    
+    /* User Profile Avatar Editable */
+    .user-profile-avatar-editable { position: relative; cursor: pointer; }
+    .user-profile-avatar-edit { position: absolute; bottom: 0; right: 0; background: var(--secondary); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; }
     
     /* Verification Modal */
     .verify-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 300; padding: 24px; overflow-y: auto; }
@@ -361,7 +456,7 @@
     .user-profile-box { background: white; border-radius: 24px; width: 100%; max-width: 500px; margin: auto; overflow: hidden; }
     .user-profile-header { background: linear-gradient(135deg, #667eea 0%, #ff6b6b 100%); padding: 32px 20px; text-align: center; color: white; position: relative; }
     .user-profile-close { position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.2); color: white; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 18px; cursor: pointer; }
-    .user-profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto 12px; color: var(--secondary); }
+    .user-profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto 12px; color: var(--secondary); overflow: hidden; }
     .user-profile-name { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
     .user-profile-verified { font-size: 14px; opacity: 0.9; }
     .user-profile-stats { display: flex; justify-content: center; gap: 32px; margin-top: 16px; }
@@ -822,7 +917,10 @@
   <div class="user-profile-box">
     <div class="user-profile-header">
       <button class="user-profile-close" onclick="closeUserProfileModal()">✕</button>
-      <div class="user-profile-avatar" id="userProfileAvatar">J</div>
+      <div class="user-profile-avatar-editable" id="userProfileAvatarContainer" onclick="openAvatarSelector()">
+        <div class="user-profile-avatar" id="userProfileAvatar">J</div>
+        <div class="user-profile-avatar-edit" id="avatarEditIcon" style="display:none;">✏️</div>
+      </div>
       <div class="user-profile-name" id="userProfileName">John Doe</div>
       <div class="user-profile-verified">✓ Verified Reviewer</div>
       <div class="user-profile-stats">
@@ -845,6 +943,109 @@
         <p style="color:#888;font-size:13px;grid-column:1/-1;">No posts yet.</p>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- Content Viewer Modal -->
+<div class="content-viewer-modal" id="contentViewerModal">
+  <div class="content-viewer-header">
+    <div class="content-viewer-user" id="contentViewerUser" onclick="viewContentUserProfile()">
+      <div class="content-viewer-avatar" id="contentViewerAvatar">J</div>
+      <div class="content-viewer-name" id="contentViewerName">User</div>
+    </div>
+    <button class="content-viewer-close" onclick="closeContentViewer()">✕</button>
+  </div>
+  <div class="content-viewer-media" id="contentViewerMedia"></div>
+  <div class="content-viewer-info">
+    <div class="content-viewer-place" id="contentViewerPlace">Place Name</div>
+    <div class="content-viewer-caption" id="contentViewerCaption">Caption...</div>
+    <div class="content-viewer-likes">
+      <button class="content-viewer-like-btn" id="contentViewerLikeBtn" onclick="likeCurrentContent()">🤍</button>
+      <span class="content-viewer-like-count" id="contentViewerLikeCount">0 likes</span>
+    </div>
+  </div>
+</div>
+
+<!-- Avatar Selector Modal -->
+<div class="payment-modal" id="avatarModal">
+  <div class="payment-box" style="max-height:85vh;overflow-y:auto;">
+    <h2>Choose Your Avatar</h2>
+    <p>Select an animated avatar or upload your own photo</p>
+    
+    <h4 style="font-size:13px;color:#888;margin:16px 0 8px;">📷 Custom Photo</h4>
+    <div class="avatar-selector" style="grid-template-columns: repeat(4, 1fr);">
+      <div class="avatar-option avatar-upload-btn" onclick="document.getElementById('avatarUploadInput').click()">
+        ➕
+        <input type="file" id="avatarUploadInput" accept="image/*" style="display:none;" onchange="handleAvatarUpload(event)">
+      </div>
+    </div>
+    
+    <h4 style="font-size:13px;color:#888;margin:16px 0 8px;">😊 Bouncing</h4>
+    <div class="avatar-selector">
+      <div class="avatar-option" onclick="selectAvatar('😊', 'bounce')"><span class="avatar-animated avatar-bounce">😊</span></div>
+      <div class="avatar-option" onclick="selectAvatar('😄', 'bounce')"><span class="avatar-animated avatar-bounce">😄</span></div>
+      <div class="avatar-option" onclick="selectAvatar('🥳', 'bounce')"><span class="avatar-animated avatar-bounce">🥳</span></div>
+      <div class="avatar-option" onclick="selectAvatar('😎', 'bounce')"><span class="avatar-animated avatar-bounce">😎</span></div>
+    </div>
+    
+    <h4 style="font-size:13px;color:#888;margin:16px 0 8px;">💕 Heartbeat</h4>
+    <div class="avatar-selector">
+      <div class="avatar-option" onclick="selectAvatar('🥰', 'heartbeat')"><span class="avatar-animated avatar-heartbeat">🥰</span></div>
+      <div class="avatar-option" onclick="selectAvatar('😍', 'heartbeat')"><span class="avatar-animated avatar-heartbeat">😍</span></div>
+      <div class="avatar-option" onclick="selectAvatar('💖', 'heartbeat')"><span class="avatar-animated avatar-heartbeat">💖</span></div>
+      <div class="avatar-option" onclick="selectAvatar('❤️', 'heartbeat')"><span class="avatar-animated avatar-heartbeat">❤️</span></div>
+    </div>
+    
+    <h4 style="font-size:13px;color:#888;margin:16px 0 8px;">👋 Waving</h4>
+    <div class="avatar-selector">
+      <div class="avatar-option" onclick="selectAvatar('👋', 'wave')"><span class="avatar-animated avatar-wave">👋</span></div>
+      <div class="avatar-option" onclick="selectAvatar('🤗', 'wave')"><span class="avatar-animated avatar-wave">🤗</span></div>
+      <div class="avatar-option" onclick="selectAvatar('✌️', 'wave')"><span class="avatar-animated avatar-wave">✌️</span></div>
+      <div class="avatar-option" onclick="selectAvatar('🙋', 'wave')"><span class="avatar-animated avatar-wave">🙋</span></div>
+    </div>
+    
+    <h4 style="font-size:13px;color:#888;margin:16px 0 8px;">🌟 Pulsing</h4>
+    <div class="avatar-selector">
+      <div class="avatar-option" onclick="selectAvatar('⭐', 'pulse')"><span class="avatar-animated avatar-pulse">⭐</span></div>
+      <div class="avatar-option" onclick="selectAvatar('🌟', 'pulse')"><span class="avatar-animated avatar-pulse">🌟</span></div>
+      <div class="avatar-option" onclick="selectAvatar('✨', 'pulse')"><span class="avatar-animated avatar-pulse">✨</span></div>
+      <div class="avatar-option" onclick="selectAvatar('💫', 'pulse')"><span class="avatar-animated avatar-pulse">💫</span></div>
+    </div>
+    
+    <h4 style="font-size:13px;color:#888;margin:16px 0 8px;">🎈 Floating</h4>
+    <div class="avatar-selector">
+      <div class="avatar-option" onclick="selectAvatar('🦋', 'float')"><span class="avatar-animated avatar-float">🦋</span></div>
+      <div class="avatar-option" onclick="selectAvatar('🎈', 'float')"><span class="avatar-animated avatar-float">🎈</span></div>
+      <div class="avatar-option" onclick="selectAvatar('☁️', 'float')"><span class="avatar-animated avatar-float">☁️</span></div>
+      <div class="avatar-option" onclick="selectAvatar('🌙', 'float')"><span class="avatar-animated avatar-float">🌙</span></div>
+    </div>
+    
+    <h4 style="font-size:13px;color:#888;margin:16px 0 8px;">🔄 Spinning</h4>
+    <div class="avatar-selector">
+      <div class="avatar-option" onclick="selectAvatar('🌀', 'spin')"><span class="avatar-animated avatar-spin">🌀</span></div>
+      <div class="avatar-option" onclick="selectAvatar('☀️', 'spin')"><span class="avatar-animated avatar-spin">☀️</span></div>
+      <div class="avatar-option" onclick="selectAvatar('🌈', 'spin')"><span class="avatar-animated avatar-spin">🌈</span></div>
+      <div class="avatar-option" onclick="selectAvatar('💿', 'spin')"><span class="avatar-animated avatar-spin">💿</span></div>
+    </div>
+    
+    <h4 style="font-size:13px;color:#888;margin:16px 0 8px;">🐾 Wiggling</h4>
+    <div class="avatar-selector">
+      <div class="avatar-option" onclick="selectAvatar('🐱', 'wiggle')"><span class="avatar-animated avatar-wiggle">🐱</span></div>
+      <div class="avatar-option" onclick="selectAvatar('🐶', 'wiggle')"><span class="avatar-animated avatar-wiggle">🐶</span></div>
+      <div class="avatar-option" onclick="selectAvatar('🦊', 'wiggle')"><span class="avatar-animated avatar-wiggle">🦊</span></div>
+      <div class="avatar-option" onclick="selectAvatar('🐼', 'wiggle')"><span class="avatar-animated avatar-wiggle">🐼</span></div>
+    </div>
+    
+    <h4 style="font-size:13px;color:#888;margin:16px 0 8px;">🍭 Jelly</h4>
+    <div class="avatar-selector">
+      <div class="avatar-option" onclick="selectAvatar('🍭', 'jelly')"><span class="avatar-animated avatar-jelly">🍭</span></div>
+      <div class="avatar-option" onclick="selectAvatar('🧁', 'jelly')"><span class="avatar-animated avatar-jelly">🧁</span></div>
+      <div class="avatar-option" onclick="selectAvatar('🍩', 'jelly')"><span class="avatar-animated avatar-jelly">🍩</span></div>
+      <div class="avatar-option" onclick="selectAvatar('🍦', 'jelly')"><span class="avatar-animated avatar-jelly">🍦</span></div>
+    </div>
+    
+    <button class="btn-full secondary" style="margin-top:16px;" onclick="saveAvatar()">Save Avatar</button>
+    <button class="btn-full" style="background:#eee;color:#666;margin-top:12px;" onclick="closeAvatarModal()">Cancel</button>
   </div>
 </div>
 
@@ -2632,6 +2833,7 @@ async function submitContent() {
         user_id: currentUser.id,
         user_name: userProfile.name,
         user_verified: true,
+        user_avatar: userProfile.avatar || null,
         place_id: placeId,
         place_name: place.title,
         place_category: place.category,
@@ -2796,7 +2998,10 @@ async function openUserProfileModal(userId, userName) {
   currentProfileUserId = userId;
   isOwnProfile = isLoggedIn && currentUser && currentUser.id === userId;
   
-  document.getElementById('userProfileAvatar').textContent = userName.charAt(0).toUpperCase();
+  // Show edit icon only for own profile
+  document.getElementById('avatarEditIcon').style.display = isOwnProfile ? 'flex' : 'none';
+  document.getElementById('userProfileAvatarContainer').style.cursor = isOwnProfile ? 'pointer' : 'default';
+  
   document.getElementById('userProfileName').textContent = userName;
   
   // Show share button only for own profile
@@ -2808,6 +3013,33 @@ async function openUserProfileModal(userId, userName) {
   
   document.getElementById('userProfilePosts').textContent = userContent.length;
   document.getElementById('userProfileLikes').textContent = totalLikes;
+  
+  // Set avatar - check if user has custom avatar in their content or profile
+  const avatarEl = document.getElementById('userProfileAvatar');
+  let userAvatar = null;
+  
+  // If viewing own profile, use profile avatar
+  if (isOwnProfile && userProfile?.avatar) {
+    userAvatar = userProfile.avatar;
+  } else {
+    // Try to get avatar from user's content
+    const contentWithAvatar = userContent.find(c => c.user_avatar);
+    if (contentWithAvatar) userAvatar = contentWithAvatar.user_avatar;
+  }
+  
+  // Display avatar with animation if applicable
+  if (userAvatar && userAvatar.startsWith('http')) {
+    avatarEl.innerHTML = `<img src="${userAvatar}" style="width:100%;height:100%;object-fit:cover;">`;
+  } else if (userAvatar && userAvatar.includes(':')) {
+    const [emoji, animation] = userAvatar.split(':');
+    avatarEl.innerHTML = `<span class="avatar-animated avatar-${animation}" style="font-size:36px;">${emoji}</span>`;
+  } else if (userAvatar) {
+    avatarEl.innerHTML = userAvatar;
+    avatarEl.style.fontSize = '36px';
+  } else {
+    avatarEl.innerHTML = userName.charAt(0).toUpperCase();
+    avatarEl.style.fontSize = '36px';
+  }
   
   const grid = document.getElementById('userProfileGrid');
   
@@ -2883,15 +3115,91 @@ function copyToClipboard(text) {
 }
 
 // ============ CONTENT DETAIL & LIKES ============
+let currentViewingContent = null;
+
 function openContentDetail(contentId) {
   const content = userGeneratedContent.find(c => c.id === contentId);
   if (!content) return;
   
-  // For now, open in gallery modal
-  state.modalMedia = [content.media_url];
-  state.modalIndex = 0;
-  updateModal();
-  document.getElementById('galleryModal').classList.add('active');
+  currentViewingContent = content;
+  
+  // Set user info with animated avatar support
+  const avatarEl = document.getElementById('contentViewerAvatar');
+  const userAvatar = content.user_avatar;
+  
+  if (userAvatar && userAvatar.startsWith('http')) {
+    avatarEl.innerHTML = `<img src="${userAvatar}" alt="">`;
+  } else if (userAvatar && userAvatar.includes(':')) {
+    const [emoji, animation] = userAvatar.split(':');
+    avatarEl.innerHTML = `<span class="avatar-animated avatar-${animation}">${emoji}</span>`;
+  } else if (userAvatar) {
+    avatarEl.innerHTML = userAvatar;
+  } else {
+    avatarEl.innerHTML = content.user_name.charAt(0).toUpperCase();
+  }
+  
+  document.getElementById('contentViewerName').textContent = content.user_name;
+  
+  // Set media
+  const mediaEl = document.getElementById('contentViewerMedia');
+  if (content.media_type === 'video') {
+    mediaEl.innerHTML = `<video src="${content.media_url}" controls autoplay playsinline style="max-width:100%;max-height:100%;"></video>`;
+  } else {
+    mediaEl.innerHTML = `<img src="${content.media_url}" alt="">`;
+  }
+  
+  // Set info
+  document.getElementById('contentViewerPlace').textContent = content.place_name;
+  document.getElementById('contentViewerCaption').textContent = content.caption || '';
+  document.getElementById('contentViewerLikeCount').textContent = `${content.likes || 0} likes`;
+  document.getElementById('contentViewerLikeBtn').textContent = '🤍';
+  
+  document.getElementById('contentViewerModal').classList.add('active');
+}
+
+function closeContentViewer() {
+  document.getElementById('contentViewerModal').classList.remove('active');
+  currentViewingContent = null;
+}
+
+function viewContentUserProfile() {
+  if (!currentViewingContent) return;
+  closeContentViewer();
+  openUserProfileModal(currentViewingContent.user_id, currentViewingContent.user_name);
+}
+
+async function likeCurrentContent() {
+  if (!currentViewingContent) return;
+  if (!isLoggedIn) {
+    alert('Please log in to like content');
+    return;
+  }
+  
+  try {
+    const newLikes = (currentViewingContent.likes || 0) + 1;
+    
+    const { error } = await db
+      .from('user_content')
+      .update({ likes: newLikes })
+      .eq('id', currentViewingContent.id);
+    
+    if (error) {
+      console.error('Error liking content:', error);
+      return;
+    }
+    
+    // Update local state
+    currentViewingContent.likes = newLikes;
+    const contentInArray = userGeneratedContent.find(c => c.id === currentViewingContent.id);
+    if (contentInArray) contentInArray.likes = newLikes;
+    
+    // Update UI
+    document.getElementById('contentViewerLikeCount').textContent = `${newLikes} likes`;
+    document.getElementById('contentViewerLikeBtn').textContent = '❤️';
+    
+  } catch (err) {
+    console.error('likeCurrentContent error:', err);
+  }
 }
 
 async function likeContent(contentId) {
@@ -2922,6 +3230,159 @@ async function likeContent(contentId) {
     
   } catch (err) {
     console.error('likeContent error:', err);
+  }
+}
+
+// ============ AVATAR MANAGEMENT ============
+let selectedAvatar = null;
+let selectedAnimation = null;
+let customAvatarUrl = null;
+
+function openAvatarSelector() {
+  // Only allow editing own profile
+  if (!isOwnProfile) return;
+  
+  selectedAvatar = null;
+  selectedAnimation = null;
+  customAvatarUrl = null;
+  
+  // Clear previous selections
+  document.querySelectorAll('.avatar-option').forEach(opt => opt.classList.remove('selected'));
+  
+  // Reset upload button
+  const uploadBtn = document.querySelector('.avatar-upload-btn');
+  if (uploadBtn) uploadBtn.innerHTML = '➕<input type="file" id="avatarUploadInput" accept="image/*" style="display:none;" onchange="handleAvatarUpload(event)">';
+  
+  document.getElementById('avatarModal').classList.add('active');
+}
+
+function closeAvatarModal() {
+  document.getElementById('avatarModal').classList.remove('active');
+}
+
+function selectAvatar(emoji, animation) {
+  selectedAvatar = emoji;
+  selectedAnimation = animation || 'none';
+  customAvatarUrl = null;
+  
+  // Update selection UI
+  document.querySelectorAll('.avatar-option').forEach(opt => {
+    opt.classList.remove('selected');
+  });
+  
+  // Find and select the clicked option
+  event.currentTarget.classList.add('selected');
+}
+
+async function handleAvatarUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  // Check file size (max 2MB)
+  if (file.size > 2 * 1024 * 1024) {
+    alert('Image is too large. Maximum size is 2MB.');
+    return;
+  }
+  
+  try {
+    // Upload to Supabase Storage
+    const fileName = `avatars/${currentUser.id}/${Date.now()}.jpg`;
+    
+    const { error: uploadError } = await db.storage
+      .from('user-uploads')
+      .upload(fileName, file, { contentType: file.type });
+    
+    if (uploadError) {
+      console.error('Avatar upload error:', uploadError);
+      alert('Error uploading avatar');
+      return;
+    }
+    
+    // Get public URL
+    const { data: urlData } = db.storage
+      .from('user-uploads')
+      .getPublicUrl(fileName);
+    
+    customAvatarUrl = urlData.publicUrl;
+    selectedAvatar = null;
+    selectedAnimation = null;
+    
+    // Show preview
+    document.querySelectorAll('.avatar-option').forEach(opt => opt.classList.remove('selected'));
+    
+    // Update the upload button to show preview
+    const uploadBtn = document.querySelector('.avatar-upload-btn');
+    uploadBtn.innerHTML = `<img src="${customAvatarUrl}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+    uploadBtn.classList.add('selected');
+    
+  } catch (err) {
+    console.error('handleAvatarUpload error:', err);
+    alert('Error uploading avatar');
+  }
+}
+
+async function saveAvatar() {
+  if (!selectedAvatar && !customAvatarUrl) {
+    alert('Please select an avatar');
+    return;
+  }
+  
+  // Format: "emoji:animation" or just URL for custom
+  const avatarValue = customAvatarUrl || `${selectedAvatar}:${selectedAnimation}`;
+  
+  try {
+    // Update profile in database
+    await updateUserProfile({ avatar: avatarValue });
+    
+    // Update local profile
+    if (userProfile) userProfile.avatar = avatarValue;
+    
+    // Update UI
+    updateAvatarDisplay(avatarValue);
+    
+    closeAvatarModal();
+    alert('Avatar updated!');
+    
+  } catch (err) {
+    console.error('saveAvatar error:', err);
+    alert('Error saving avatar');
+  }
+}
+
+function updateAvatarDisplay(avatar) {
+  const avatarEl = document.getElementById('userProfileAvatar');
+  
+  if (!avatar) {
+    avatarEl.innerHTML = userProfile?.name?.charAt(0).toUpperCase() || 'U';
+    avatarEl.style.fontSize = '36px';
+    return;
+  }
+  
+  if (avatar.startsWith('http')) {
+    // Custom uploaded image
+    avatarEl.innerHTML = `<img src="${avatar}" style="width:100%;height:100%;object-fit:cover;">`;
+  } else if (avatar.includes(':')) {
+    // Animated emoji format "emoji:animation"
+    const [emoji, animation] = avatar.split(':');
+    avatarEl.innerHTML = `<span class="avatar-animated avatar-${animation}">${emoji}</span>`;
+    avatarEl.style.fontSize = '36px';
+  } else {
+    // Just emoji (legacy)
+    avatarEl.innerHTML = avatar;
+    avatarEl.style.fontSize = '36px';
+  }
+}
+
+function renderAvatarHtml(avatar, size = '36px') {
+  if (!avatar) return '';
+  
+  if (avatar.startsWith('http')) {
+    return `<img src="${avatar}" style="width:100%;height:100%;object-fit:cover;">`;
+  } else if (avatar.includes(':')) {
+    const [emoji, animation] = avatar.split(':');
+    return `<span class="avatar-animated avatar-${animation}" style="font-size:${size};">${emoji}</span>`;
+  } else {
+    return avatar;
   }
 }
 
@@ -3199,6 +3660,12 @@ document.getElementById('locationModal').addEventListener('click', function(e) {
 });
 document.getElementById('userProfileModal').addEventListener('click', function(e) {
   if (e.target === this) closeUserProfileModal();
+});
+document.getElementById('contentViewerModal').addEventListener('click', function(e) {
+  if (e.target === this) closeContentViewer();
+});
+document.getElementById('avatarModal').addEventListener('click', function(e) {
+  if (e.target === this) closeAvatarModal();
 });
 </script>
 </body>
