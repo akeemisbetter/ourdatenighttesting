@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Our Date Night</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; min-height: 100vh; }
+    
+    /* Colors */
+    :root {
+      --primary: #ff6b6b;
+      --secondary: #667eea;
+      --success: #4ecdc4;
+    }
+    
+    /* Onboarding */
+    .onboarding { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .onboarding-content { text-align: center; max-width: 400px; }
+    .onboarding h2 { font-size: 20px; color: #666; margin-bottom: 4px; }
+    .onboarding h1 { font-size: 32px; font-weight: 800; color: var(--primary); margin-bottom: 8px; }
+    .onboarding p { color: #888; margin-bottom: 32px; }
+    .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .profile-btn { background: white; border: none; border-radius: 16px; padding: 24px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: transform 0.2s, box-shadow 0.2s; }
+    .profile-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
+    .profile-btn .emoji { font-size: 32px; display: block; margin-bottom: 8px; }
+    .profile-btn .label { font-weight: 600; color: #333; }
+    
+    /* App Container */
+    .app { display: none; min-height: 100vh; padding-bottom: 80px; }
+    .app.active { display: block; }
+    
+    /* Header */
+    .header { background: #000; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .header-left { display: flex; align-items: center; gap: 8px; }
+    .header-logo { font-size: 18px; }
+    .header-title { color: var(--primary); font-weight: 700; font-size: 18px; }
+    .header-right { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    .header-info { text-align: right; }
+    .header-type { color: white; font-size: 13px; font-weight: 500; }
+    .header-location { color: #ccc; font-size: 11px; }
+    .header-avatar { width: 32px; height: 32px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    
+    /* Content */
+    .content { padding: 16px; }
+    .section-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; }
+    .hidden { display: none !important; }
+    
+    /* Swipe Card */
+    .card-container { max-width: 400px; margin: 0 auto; }
+    .swipe-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.15); cursor: grab; transition: transform 0.1s; }
+    .swipe-card:active { cursor: grabbing; }
+    .card-image { width: 100%; height: 280px; object-fit: cover; background: #ddd; }
+    .card-body { padding: 16px; }
+    .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+    .card-title { font-size: 20px; font-weight: 700; color: #222; flex: 1; padding-right: 8px; }
+    .card-price { background: #4caf50; color: white; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 600; }
+    .card-meta { display: flex; flex-wrap: wrap; gap: 8px; font-size: 12px; color: #666; margin-bottom: 8px; }
+    .card-desc { font-size: 14px; color: #555; margin-bottom: 8px; line-height: 1.4; }
+    .card-address { font-size: 13px; color: #888; }
+    .card-dots { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; background: rgba(0,0,0,0.5); padding: 6px 12px; border-radius: 20px; }
+    .card-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.5); cursor: pointer; }
+    .card-dot.active { background: white; }
+    .card-image-wrapper { position: relative; height: 280px; }
+    .card-gallery-btn { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.6); color: white; border: none; padding: 6px 12px; border-radius: 20px; font-size: 13px; cursor: pointer; }
+    
+    /* Swipe Buttons */
+    .swipe-buttons { display: flex; justify-content: center; gap: 64px; margin-top: 24px; }
+    .swipe-btn { width: 64px; height: 64px; border-radius: 50%; border: 4px solid; background: white; font-size: 24px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+    .swipe-btn.pass { border-color: var(--primary); }
+    .swipe-btn.pass:hover { background: var(--primary); }
+    .swipe-btn.like { border-color: var(--success); }
+    .swipe-btn.like:hover { background: var(--success); }
+    .swipe-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    
+    /* Empty State */
+    .empty-state { background: white; border-radius: 16px; padding: 48px 24px; text-align: center; color: #888; }
+    
+    /* Filter Chips */
+    .filter-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .filter-chip { padding: 8px 14px; border-radius: 20px; border: none; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; background: #e9ecef; color: #555; }
+    .filter-chip.active { background: var(--secondary); color: white; }
+    
+    /* List Items */
+    .list-item { background: white; border-radius: 12px; padding: 12px; display: flex; gap: 12px; margin-bottom: 12px; }
+    .list-image { width: 80px; height: 80px; border-radius: 10px; object-fit: cover; cursor: pointer; flex-shrink: 0; }
+    .list-content { flex: 1; min-width: 0; }
+    .list-title { font-weight: 600; color: #333; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .list-meta { font-size: 12px; color: #666; margin-bottom: 4px; }
+    .list-rating { font-size: 12px; color: var(--primary); }
+    .list-actions { display: flex; gap: 8px; margin-top: 8px; }
+    .btn-small { padding: 6px 12px; border-radius: 20px; border: none; font-size: 11px; font-weight: 600; color: white; cursor: pointer; }
+    .btn-success { background: var(--success); }
+    .btn-primary { background: var(--primary); }
+    .btn-secondary { background: var(--secondary); }
+    .btn-gray { background: #ddd; color: #333; }
+    
+    /* Date Cards */
+    .date-card { background: white; border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+    .date-title { font-weight: 600; margin-bottom: 4px; }
+    .date-time { font-size: 13px; color: var(--secondary); margin-bottom: 4px; }
+    .date-activities { font-size: 12px; color: #666; }
+    
+    /* Plan Section */
+    .plan-card { background: white; border-radius: 16px; padding: 16px; }
+    .plan-label { font-weight: 600; margin-bottom: 8px; display: block; }
+    .plan-input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 14px; margin-bottom: 16px; }
+    .part-count-row { display: flex; gap: 8px; margin-bottom: 16px; }
+    .part-count-btn { width: 40px; height: 40px; border-radius: 50%; border: none; font-weight: 600; cursor: pointer; background: #e9ecef; color: #555; }
+    .part-count-btn.active { background: var(--secondary); color: white; }
+    .part-row { display: flex; align-items: center; gap: 12px; background: #f8f9fa; border-radius: 12px; padding: 12px; margin-bottom: 8px; }
+    .part-num { font-size: 18px; font-weight: 700; color: var(--secondary); width: 24px; }
+    .part-select { flex: 1; background: white; border: none; padding: 10px 12px; border-radius: 8px; cursor: pointer; text-align: left; font-size: 14px; }
+    .btn-full { width: 100%; padding: 14px; border-radius: 25px; border: none; font-weight: 700; font-size: 15px; cursor: pointer; margin-top: 16px; }
+    .btn-full.secondary { background: var(--secondary); color: white; }
+    .btn-full.primary { background: var(--primary); color: white; }
+    
+    /* Plan Selecting */
+    .plan-header { padding: 16px; border-bottom: 1px solid #eee; background: white; position: sticky; top: 56px; z-index: 10; }
+    .plan-header-row { display: flex; align-items: center; justify-content: space-between; }
+    .plan-back { font-size: 24px; background: none; border: none; cursor: pointer; }
+    .plan-header-center { text-align: center; }
+    .plan-header-title { font-weight: 700; }
+    .plan-header-subtitle { font-size: 13px; color: var(--secondary); }
+    .progress-bar { height: 4px; background: #e9ecef; border-radius: 2px; margin-top: 12px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--secondary); transition: width 0.3s; }
+    .activity-btn { width: 100%; background: white; border: 2px solid #f0f0f0; border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 12px; text-align: left; cursor: pointer; margin-bottom: 12px; transition: border-color 0.2s; }
+    .activity-btn:hover { border-color: var(--secondary); }
+    .activity-btn img { width: 64px; height: 64px; border-radius: 8px; object-fit: cover; }
+    .activity-btn-content { flex: 1; min-width: 0; }
+    .activity-btn-title { font-weight: 600; margin-bottom: 4px; }
+    .activity-btn-category { font-size: 12px; color: #666; margin-bottom: 4px; }
+    .activity-btn-meta { display: flex; gap: 8px; font-size: 11px; color: #888; }
+    .activity-btn-meta .price { color: #4caf50; font-weight: 600; }
+    .activity-btn-arrow { font-size: 20px; color: var(--secondary); }
+    
+    /* Complete */
+    .complete-title { font-size: 24px; font-weight: 700; text-align: center; margin-bottom: 24px; }
+    .complete-item { display: flex; align-items: center; gap: 12px; background: #f8f9fa; border-radius: 12px; padding: 12px; margin-bottom: 12px; }
+    .complete-num { font-size: 20px; font-weight: 700; color: var(--secondary); width: 32px; }
+    .complete-img { width: 56px; height: 56px; border-radius: 8px; object-fit: cover; }
+    .complete-info p:first-child { font-weight: 600; }
+    .complete-info p:last-child { font-size: 13px; color: #666; }
+    
+    /* Profile */
+    .profile-card { background: white; border-radius: 16px; padding: 16px; margin-bottom: 24px; }
+    .profile-card p { margin-bottom: 4px; }
+    .profile-card strong { font-weight: 600; }
+    
+    /* Bottom Nav */
+    .nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #eee; padding: 8px 16px 12px; display: flex; justify-content: space-around; align-items: flex-end; z-index: 100; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; background: none; border: none; cursor: pointer; padding: 4px 8px; }
+    .nav-icon { font-size: 20px; color: #aaa; }
+    .nav-label { font-size: 11px; color: #aaa; margin-top: 2px; }
+    .nav-item.active .nav-icon, .nav-item.active .nav-label { color: var(--primary); }
+    .nav-item.active .nav-label { font-weight: 600; }
+    .nav-center { margin-top: -20px; }
+    .nav-center-btn { width: 56px; height: 56px; border-radius: 50%; background: var(--primary); border: none; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 15px rgba(255,107,107,0.4); }
+    .nav-center-btn span { filter: brightness(0) invert(1); }
+    
+    /* Modal */
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 200; }
+    .modal.active { display: flex; }
+    .modal-content { background: #000; border-radius: 16px; width: 90%; max-width: 600px; height: 70%; position: relative; overflow: hidden; }
+    .modal-image { width: 100%; height: 100%; object-fit: contain; }
+    .modal-close { position: absolute; top: 12px; right: 12px; width: 32px; height: 32px; border-radius: 50%; background: rgba(0,0,0,0.7); color: white; border: none; font-weight: bold; cursor: pointer; }
+    .modal-nav { position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; }
+    .modal-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.5); border: none; cursor: pointer; }
+    .modal-dot.active { background: white; }
+  </style>
+</head>
+<body>
+ 
+<!-- Onboarding Screen -->
+<div class="onboarding" id="onboarding">
+  <div class="onboarding-content">
+    <h2>Welcome to</h2>
+    <h1>Our Date Night</h1>
+    <p>Choose how you're planning to date.</p>
+    <div class="profile-grid">
+      <button class="profile-btn" onclick="selectProfile('Individual')">
+        <span class="emoji">🧍</span>
+        <span class="label">Individual</span>
+      </button>
+      <button class="profile-btn" onclick="selectProfile('Couple')">
+        <span class="emoji">❤️</span>
+        <span class="label">Couple</span>
+      </button>
+      <button class="profile-btn" onclick="selectProfile('Group')">
+        <span class="emoji">👥</span>
+        <span class="label">Group</span>
+      </button>
+      <button class="profile-btn" onclick="selectProfile('Guest')">
+        <span class="emoji">🎟️</span>
+        <span class="label">Guest</span>
+      </button>
+    </div>
+  </div>
+</div>
+ 
+<!-- Main App -->
+<div class="app" id="app">
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <span class="header-logo">💕</span>
+      <span class="header-title">Our Date Night</span>
+    </div>
+    <div class="header-right" onclick="showTab('profile')">
+      <div class="header-info">
+        <div class="header-type" id="headerType">Guest</div>
+        <div class="header-location">📍 New York, NY</div>
+      </div>
+      <div class="header-avatar">👤</div>
+    </div>
+  </header>
+ 
+  <!-- Tab: Discover -->
+  <div class="content tab-content" id="tab-discover">
+    <h2 class="section-title">Discover Together 💕</h2>
+    <div class="card-container">
+      <div id="swipeCard"></div>
+      <div class="empty-state hidden" id="emptyDiscover">
+        You're all caught up! Adjust interests or browse for more.
+      </div>
+    </div>
+    <div class="swipe-buttons" id="swipeButtons">
+      <button class="swipe-btn pass" onclick="passActivity()">✖</button>
+      <button class="swipe-btn like" onclick="likeActivity()">❤️</button>
+    </div>
+  </div>
+ 
+  <!-- Tab: Browse -->
+  <div class="content tab-content hidden" id="tab-browse">
+    <h2 class="section-title">Browse All Ideas 🔎</h2>
+    <div class="filter-chips" id="browseFilters"></div>
+    <div id="browseList"></div>
+  </div>
+ 
+  <!-- Tab: Saved -->
+  <div class="content tab-content hidden" id="tab-saved">
+    <h2 class="section-title">Saved Ideas ❤️</h2>
+    <div id="savedList"></div>
+  </div>
+ 
+  <!-- Tab: Dates -->
+  <div class="content tab-content hidden" id="tab-dates">
+    <h2 class="section-title">Upcoming Dates</h2>
+    <div id="upcomingDates"></div>
+    <h2 class="section-title" style="margin-top:24px;">Past Dates</h2>
+    <div id="pastDates"></div>
+  </div>
+ 
+  <!-- Tab: Plan -->
+  <div class="content tab-content hidden" id="tab-plan">
+    <div id="planSetup">
+      <h2 class="section-title">Plan Your Date 📅</h2>
+      <div class="plan-card">
+        <label class="plan-label">Start Date & Time</label>
+        <input type="datetime-local" class="plan-input" id="planDateTime">
+        
+        <label class="plan-label">How many parts?</label>
+        <div class="part-count-row" id="partCountRow"></div>
+        
+        <label class="plan-label">Preview Your Date</label>
+        <div id="partsPreview"></div>
+        
+        <button class="btn-full secondary" onclick="startPlanSelection()">Plan My Date →</button>
+      </div>
+    </div>
+    
+    <div id="planSelecting" class="hidden">
+      <div class="plan-header">
+        <div class="plan-header-row">
+          <button class="plan-back" onclick="planBack()">←</button>
+          <div class="plan-header-center">
+            <div class="plan-header-title" id="planStepTitle">Part 1 of 2</div>
+            <div class="plan-header-subtitle" id="planStepType">Dinner</div>
+          </div>
+          <div style="width:24px;"></div>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="planProgress"></div>
+        </div>
+      </div>
+      <div style="padding:16px;" id="planActivities"></div>
+    </div>
+    
+    <div id="planComplete" class="hidden">
+      <h2 class="complete-title">🎉 Your Date is Planned!</h2>
+      <div id="completedItems"></div>
+      <button class="btn-full secondary" onclick="finishPlan()">Done</button>
+    </div>
+  </div>
+ 
+  <!-- Tab: Profile -->
+  <div class="content tab-content hidden" id="tab-profile">
+    <h2 class="section-title">Your Profile 👤</h2>
+    <div class="profile-card">
+      <p><strong>Type:</strong> <span id="profileType">Guest</span></p>
+      <p><strong>Location:</strong> New York, NY</p>
+      <p style="margin-top:8px;"><strong>Stats:</strong> ❤️ <span id="statLiked">0</span> liked • ✖ <span id="statPassed">0</span> passed</p>
+    </div>
+    
+    <h3 style="font-weight:700;margin-bottom:12px;">Interests</h3>
+    <div class="filter-chips" id="interestChips"></div>
+    
+    <button class="btn-full primary" style="margin-top:24px;" onclick="resetProfile()">Reset Profile</button>
+  </div>
+ 
+  <!-- Bottom Nav -->
+  <nav class="nav">
+    <button class="nav-item" onclick="showTab('dates')">
+      <span class="nav-icon">📅</span>
+      <span class="nav-label">Dates</span>
+    </button>
+    <button class="nav-item" onclick="showTab('browse')">
+      <span class="nav-icon">🧭</span>
+      <span class="nav-label">Browse</span>
+    </button>
+    <button class="nav-item nav-center" onclick="showTab('discover')">
+      <div class="nav-center-btn"><span>🎯</span></div>
+      <span class="nav-label" style="margin-top:4px;">Discover</span>
+    </button>
+    <button class="nav-item" onclick="showTab('saved')">
+      <span class="nav-icon">❤️</span>
+      <span class="nav-label">Saved</span>
+    </button>
+    <button class="nav-item" onclick="showTab('plan')">
+      <span class="nav-icon">✨</span>
+      <span class="nav-label">Plan</span>
+    </button>
+  </nav>
+</div>
+ 
+<!-- Gallery Modal -->
+<div class="modal" id="galleryModal">
+  <div class="modal-content">
+    <img class="modal-image" id="modalImage" src="" alt="">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-nav" id="modalNav"></div>
+  </div>
+</div>
+ 
+<script>
+// ============ DATA ============
+const NYC_ACTIVITIES = [
+  { id: 'dining-0', title: "Katz's Delicatessen", category: 'Dining', description: "Iconic NYC deli famous for pastrami sandwiches since 1888.", price: '$$', rating: 4.6, reviewCount: 8234, distance: 'NYC', address: 'Lower East Side, NY', tags: ['restaurants'], media: ['https://images.unsplash.com/photo-1553909489-cd47e0907980?w=800', 'https://images.unsplash.com/photo-1619096252214-ef06c45683e3?w=800', 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800'] },
+  { id: 'dining-1', title: "Joe's Pizza", category: 'Dining', description: "Classic NY slice joint, serving perfect pizza since 1975.", price: '$', rating: 4.7, reviewCount: 5621, distance: 'NYC', address: 'Greenwich Village, NY', tags: ['restaurants'], media: ['https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800', 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=800'] },
+  { id: 'dining-2', title: 'Carbone', category: 'Dining', description: "Upscale Italian-American with old-school charm.", price: '$$$', rating: 4.8, reviewCount: 3456, distance: 'NYC', address: 'Greenwich Village, NY', tags: ['restaurants'], media: ['https://images.unsplash.com/photo-1555992336-fb0d29498b13?w=800', 'https://images.unsplash.com/photo-1551218372-a8789b81b253?w=800'] },
+  { id: 'dining-3', title: 'Peter Luger Steak House', category: 'Dining', description: "Legendary Brooklyn steakhouse since 1887.", price: '$$$', rating: 4.7, reviewCount: 9821, distance: 'NYC', address: 'Williamsburg, Brooklyn', tags: ['restaurants'], media: ['https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=800', 'https://images.unsplash.com/photo-1558030006-450675393462?w=800'] },
+  { id: 'dining-4', title: 'Le Bernardin', category: 'Dining', description: "Three Michelin-starred seafood temple.", price: '$$$$', rating: 4.9, reviewCount: 2134, distance: 'NYC', address: 'Midtown, NY', tags: ['restaurants'], media: ['https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800', 'https://images.unsplash.com/photo-1580554530778-ca36943938b2?w=800'] },
+  { id: 'movies-0', title: 'AMC Empire 25', category: 'Movie Theater', description: "Massive Times Square multiplex with IMAX.", price: '$$', rating: 4.5, reviewCount: 8901, distance: 'NYC', address: 'Times Square, NY', tags: ['movies'], media: ['https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800', 'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=800'] },
+  { id: 'movies-1', title: 'Nitehawk Cinema', category: 'Movie Theater', description: "Dine-in theater serving food and cocktails.", price: '$$', rating: 4.6, reviewCount: 4567, distance: 'NYC', address: 'Williamsburg, Brooklyn', tags: ['movies'], media: ['https://images.unsplash.com/photo-1594909122845-11baa439b7bf?w=800', 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800'] },
+  { id: 'outdoor-0', title: 'Central Park Boathouse', category: 'Outdoor', description: "Romantic rowboat rentals on Central Park Lake.", price: '$$', rating: 4.7, reviewCount: 7890, distance: 'NYC', address: 'Central Park, NY', tags: ['outdoor'], media: ['https://images.unsplash.com/photo-1568515387631-8b650bbcdb90?w=800', 'https://images.unsplash.com/photo-1534430458160-e5945e863c0c?w=800'] },
+  { id: 'outdoor-1', title: 'Brooklyn Bridge Park', category: 'Outdoor', description: "Stunning waterfront views of Manhattan.", price: '$', rating: 4.8, reviewCount: 12345, distance: 'NYC', address: 'Brooklyn, NY', tags: ['outdoor'], media: ['https://images.unsplash.com/photo-1514565131-fce0801e5785?w=800', 'https://images.unsplash.com/photo-1518391846015-55a9cc003b25?w=800'] },
+  { id: 'outdoor-2', title: 'The High Line', category: 'Outdoor', description: "Elevated park with gardens and art.", price: '$', rating: 4.7, reviewCount: 15678, distance: 'NYC', address: 'Chelsea, NY', tags: ['outdoor'], media: ['https://images.unsplash.com/photo-1555109307-f7d9da25c244?w=800', 'https://images.unsplash.com/photo-1565094052366-dd58cd3eaf6e?w=800'] },
+  { id: 'arts-0', title: 'The Met Museum', category: 'Arts & Culture', description: "World-class museum with 2 million works.", price: '$$', rating: 4.8, reviewCount: 25678, distance: 'NYC', address: 'Upper East Side, NY', tags: ['arts'], media: ['https://images.unsplash.com/photo-1564399579883-451a5d44ec08?w=800', 'https://images.unsplash.com/photo-1566127444979-b3d2b64977e9?w=800'] },
+  { id: 'arts-1', title: 'MoMA', category: 'Arts & Culture', description: "Iconic modern and contemporary art.", price: '$$', rating: 4.7, reviewCount: 18901, distance: 'NYC', address: 'Midtown, NY', tags: ['arts'], media: ['https://images.unsplash.com/photo-1564399580075-5dfe19c205f3?w=800', 'https://images.unsplash.com/photo-1577083553936-205ff5d3e44f?w=800'] },
+  { id: 'nightlife-0', title: 'Press Lounge Rooftop', category: 'Nightlife', description: "Elegant rooftop bar with Hudson views.", price: '$$$', rating: 4.6, reviewCount: 5678, distance: 'NYC', address: "Hell's Kitchen, NY", tags: ['nightlife'], media: ['https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800', 'https://images.unsplash.com/photo-1566417713940-fe7c737a9ef2?w=800'] },
+  { id: 'nightlife-1', title: 'The Dead Rabbit', category: 'Nightlife', description: "Award-winning Irish pub with cocktails.", price: '$$', rating: 4.7, reviewCount: 9876, distance: 'NYC', address: 'Financial District, NY', tags: ['nightlife'], media: ['https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=800', 'https://images.unsplash.com/photo-1546171753-97d7676e4602?w=800'] },
+  { id: 'shopping-0', title: 'SoHo Boutiques', category: 'Shopping', description: "Trendy boutiques in cobblestone SoHo.", price: '$$$', rating: 4.5, reviewCount: 9876, distance: 'NYC', address: 'SoHo, NY', tags: ['shopping'], media: ['https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800', 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800'] },
+  { id: 'wellness-0', title: 'Aire Ancient Baths', category: 'Wellness', description: "Luxurious thermal baths in TriBeCa.", price: '$$$', rating: 4.8, reviewCount: 6234, distance: 'NYC', address: 'TriBeCa, NY', tags: ['wellness'], media: ['https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=800', 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800'] },
+];
+ 
+const ALL_INTERESTS = [
+  { key: 'restaurants', label: '🍽️ Dining' },
+  { key: 'movies', label: '🎬 Movies' },
+  { key: 'outdoor', label: '🏃 Outdoor' },
+  { key: 'arts', label: '🎨 Arts' },
+  { key: 'nightlife', label: '🌃 Nightlife' },
+  { key: 'shopping', label: '🛍️ Shopping' },
+  { key: 'wellness', label: '🧘 Wellness' },
+];
+ 
+const PART_TYPES = ['Coffee', 'Lunch', 'Dinner', 'Movie', 'Activity', 'Drinks'];
+ 
+// ============ STATE ============
+let state = {
+  profileType: null,
+  interests: ['restaurants', 'nightlife', 'arts'],
+  savedItems: [],
+  swipedIds: [],
+  dates: [],
+  stats: { liked: 0, passed: 0 },
+  browseFilters: [],
+  currentTab: 'discover',
+  // Plan state
+  planDate: '',
+  numParts: 2,
+  parts: ['Dinner', 'Activity', null, null],
+  planStep: 'setup',
+  currentPartIndex: 0,
+  selectedPlanItems: [null, null, null, null],
+  // Modal
+  modalMedia: [],
+  modalIndex: 0,
+};
+ 
+// ============ HELPERS ============
+function getDiscoverPool() {
+  return NYC_ACTIVITIES
+    .filter(item => state.interests.length === 0 || item.tags.some(t => state.interests.includes(t)))
+    .filter(item => !state.swipedIds.includes(item.id));
+}
+ 
+function formatDateTime(d) {
+  return new Date(d).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+}
+ 
+function getTagForPart(part) {
+  if (['Coffee', 'Lunch', 'Dinner'].includes(part)) return 'restaurants';
+  if (part === 'Movie') return 'movies';
+  if (part === 'Activity') return 'outdoor';
+  if (part === 'Drinks') return 'nightlife';
+  return null;
+}
+ 
+// ============ ONBOARDING ============
+function selectProfile(type) {
+  state.profileType = type;
+  document.getElementById('onboarding').style.display = 'none';
+  document.getElementById('app').classList.add('active');
+  document.getElementById('headerType').textContent = type;
+  document.getElementById('profileType').textContent = type;
+  initApp();
+}
+ 
+// ============ TABS ============
+function showTab(tab) {
+  state.currentTab = tab;
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+  document.getElementById('tab-' + tab).classList.remove('hidden');
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  
+  if (tab === 'discover') renderDiscover();
+  if (tab === 'browse') renderBrowse();
+  if (tab === 'saved') renderSaved();
+  if (tab === 'dates') renderDates();
+  if (tab === 'plan') renderPlan();
+  if (tab === 'profile') renderProfile();
+}
+ 
+// ============ DISCOVER ============
+function renderDiscover() {
+  const pool = getDiscoverPool();
+  const card = document.getElementById('swipeCard');
+  const empty = document.getElementById('emptyDiscover');
+  const btns = document.getElementById('swipeButtons');
+  
+  if (pool.length === 0) {
+    card.innerHTML = '';
+    empty.classList.remove('hidden');
+    btns.classList.add('hidden');
+  } else {
+    empty.classList.add('hidden');
+    btns.classList.remove('hidden');
+    const item = pool[0];
+    card.innerHTML = `
+      <div class="swipe-card" id="currentCard">
+        <div class="card-image-wrapper">
+          <img class="card-image" src="${item.media[0]}" alt="${item.title}" id="cardImage">
+          <button class="card-gallery-btn" onclick="openGallery('${item.id}')">📷 ${item.media.length}</button>
+          ${item.media.length > 1 ? `
+          <div class="card-dots">
+            ${item.media.map((_, i) => `<div class="card-dot ${i === 0 ? 'active' : ''}" onclick="changeCardImage(${i})"></div>`).join('')}
+          </div>
+          ` : ''}
+        </div>
+        <div class="card-body">
+          <div class="card-header">
+            <h3 class="card-title">${item.title}</h3>
+            <span class="card-price">${item.price}</span>
+          </div>
+          <div class="card-meta">
+            <span>⭐ ${item.rating}</span>
+            <span>• ${item.reviewCount} reviews</span>
+            <span>• ${item.distance}</span>
+          </div>
+          <p class="card-desc">${item.description}</p>
+          <p class="card-address">📍 ${item.address}</p>
+        </div>
+      </div>
+    `;
+  }
+}
+ 
+let cardImageIndex = 0;
+function changeCardImage(idx) {
+  const pool = getDiscoverPool();
+  if (pool.length === 0) return;
+  cardImageIndex = idx;
+  document.getElementById('cardImage').src = pool[0].media[idx];
+  document.querySelectorAll('.card-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
+}
+ 
+function likeActivity() {
+  const pool = getDiscoverPool();
+  if (pool.length === 0) return;
+  const item = pool[0];
+  if (!state.savedItems.find(i => i.id === item.id)) {
+    state.savedItems.push(item);
+  }
+  state.swipedIds.push(item.id);
+  state.stats.liked++;
+  cardImageIndex = 0;
+  renderDiscover();
+}
+ 
+function passActivity() {
+  const pool = getDiscoverPool();
+  if (pool.length === 0) return;
+  state.swipedIds.push(pool[0].id);
+  state.stats.passed++;
+  cardImageIndex = 0;
+  renderDiscover();
+}
+ 
+// ============ BROWSE ============
+function renderBrowse() {
+  const filtersEl = document.getElementById('browseFilters');
+  filtersEl.innerHTML = ALL_INTERESTS.map(i => `
+    <button class="filter-chip ${state.browseFilters.includes(i.key) ? 'active' : ''}" onclick="toggleBrowseFilter('${i.key}')">${i.label}</button>
+  `).join('');
+  
+  let items = NYC_ACTIVITIES;
+  if (state.browseFilters.length > 0) {
+    items = items.filter(item => item.tags.some(t => state.browseFilters.includes(t)));
+  }
+  
+  document.getElementById('browseList').innerHTML = items.map(item => `
+    <div class="list-item">
+      <img class="list-image" src="${item.media[0]}" alt="${item.title}" onclick="openGallery('${item.id}')">
+      <div class="list-content">
+        <div class="list-title">${item.title}</div>
+        <div class="list-meta">${item.category} • ${item.price} • ${item.distance}</div>
+        <div class="list-rating">⭐ ${item.rating}</div>
+        <div class="list-actions">
+          <button class="btn-small btn-success" onclick="openBooking('${item.title}')">Book</button>
+          <button class="btn-small btn-primary" onclick="saveItem('${item.id}')">Save</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+ 
+function toggleBrowseFilter(key) {
+  if (state.browseFilters.includes(key)) {
+    state.browseFilters = state.browseFilters.filter(k => k !== key);
+  } else {
+    state.browseFilters.push(key);
+  }
+  renderBrowse();
+}
+ 
+function saveItem(id) {
+  const item = NYC_ACTIVITIES.find(i => i.id === id);
+  if (item && !state.savedItems.find(i => i.id === id)) {
+    state.savedItems.push(item);
+    alert('Saved to your favorites!');
+  }
+}
+ 
+function openBooking(title) {
+  const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  window.open('https://www.opentable.com/r/' + slug, '_blank');
+}
+ 
+// ============ SAVED ============
+function renderSaved() {
+  const list = document.getElementById('savedList');
+  if (state.savedItems.length === 0) {
+    list.innerHTML = '<p style="color:#888;">You haven\'t saved anything yet.</p>';
+    return;
+  }
+  list.innerHTML = state.savedItems.map(item => `
+    <div class="list-item">
+      <img class="list-image" src="${item.media[0]}" alt="${item.title}" onclick="openGallery('${item.id}')">
+      <div class="list-content">
+        <div class="list-title">${item.title}</div>
+        <div class="list-meta">${item.category} • ${item.price}</div>
+        <div class="list-actions">
+          <button class="btn-small btn-success" onclick="openBooking('${item.title}')">Book</button>
+          <button class="btn-small btn-primary" onclick="removeItem('${item.id}')">Remove</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+ 
+function removeItem(id) {
+  state.savedItems = state.savedItems.filter(i => i.id !== id);
+  renderSaved();
+}
+ 
+// ============ DATES ============
+function renderDates() {
+  const upcoming = state.dates.filter(d => d.status === 'upcoming');
+  const past = state.dates.filter(d => d.status === 'past');
+  
+  document.getElementById('upcomingDates').innerHTML = upcoming.length === 0 
+    ? '<p style="color:#888;">No upcoming dates yet.</p>'
+    : upcoming.map(d => `
+      <div class="date-card">
+        <div class="date-title">${d.title}</div>
+        <div class="date-time">${formatDateTime(d.datetime)}</div>
+        <div class="date-activities">${d.activities.join(' • ')}</div>
+        <button class="btn-small btn-gray" style="margin-top:8px;" onclick="removeDate(${d.id})">Remove</button>
+      </div>
+    `).join('');
+    
+  document.getElementById('pastDates').innerHTML = past.length === 0
+    ? '<p style="color:#888;">Your date history will appear here.</p>'
+    : past.map(d => `
+      <div class="date-card" style="opacity:0.8;">
+        <div class="date-title">${d.title}</div>
+        <div class="date-time">${formatDateTime(d.datetime)}</div>
+      </div>
+    `).join('');
+}
+ 
+function removeDate(id) {
+  state.dates = state.dates.filter(d => d.id !== id);
+  renderDates();
+}
+ 
+// ============ PLAN ============
+function renderPlan() {
+  // Set default datetime
+  if (!state.planDate) {
+    const now = new Date();
+    now.setHours(19, 0, 0, 0);
+    document.getElementById('planDateTime').value = now.toISOString().slice(0, 16);
+  }
+  
+  // Part count buttons
+  document.getElementById('partCountRow').innerHTML = [1,2,3,4].map(n => `
+    <button class="part-count-btn ${state.numParts === n ? 'active' : ''}" onclick="setNumParts(${n})">${n}</button>
+  `).join('');
+  
+  // Parts preview
+  document.getElementById('partsPreview').innerHTML = Array.from({length: state.numParts}).map((_, i) => `
+    <div class="part-row">
+      <span class="part-num">${i + 1}</span>
+      <button class="part-select" onclick="cyclePartType(${i})">${state.parts[i] || 'Pick part'}</button>
+    </div>
+  `).join('');
+  
+  // Show correct view
+  document.getElementById('planSetup').classList.toggle('hidden', state.planStep !== 'setup');
+  document.getElementById('planSelecting').classList.toggle('hidden', state.planStep !== 'selecting');
+  document.getElementById('planComplete').classList.toggle('hidden', state.planStep !== 'complete');
+  
+  if (state.planStep === 'selecting') {
+    renderPlanSelecting();
+  }
+  if (state.planStep === 'complete') {
+    renderPlanComplete();
+  }
+}
+ 
+function setNumParts(n) {
+  state.numParts = n;
+  renderPlan();
+}
+ 
+function cyclePartType(idx) {
+  const current = state.parts[idx];
+  const currentIdx = PART_TYPES.indexOf(current);
+  state.parts[idx] = PART_TYPES[(currentIdx + 1) % PART_TYPES.length];
+  renderPlan();
+}
+ 
+function startPlanSelection() {
+  state.planDate = document.getElementById('planDateTime').value;
+  state.planStep = 'selecting';
+  state.currentPartIndex = 0;
+  state.selectedPlanItems = [null, null, null, null];
+  renderPlan();
+}
+ 
+function renderPlanSelecting() {
+  document.getElementById('planStepTitle').textContent = `Part ${state.currentPartIndex + 1} of ${state.numParts}`;
+  document.getElementById('planStepType').textContent = state.parts[state.currentPartIndex];
+  document.getElementById('planProgress').style.width = `${((state.currentPartIndex + 1) / state.numParts) * 100}%`;
+  
+  const tag = getTagForPart(state.parts[state.currentPartIndex]);
+  const activities = tag ? NYC_ACTIVITIES.filter(a => a.tags.includes(tag)) : [];
+  
+  document.getElementById('planActivities').innerHTML = activities.map(a => `
+    <button class="activity-btn" onclick="selectPlanActivity('${a.id}')">
+      <img src="${a.media[0]}" alt="${a.title}">
+      <div class="activity-btn-content">
+        <div class="activity-btn-title">${a.title}</div>
+        <div class="activity-btn-category">${a.category}</div>
+        <div class="activity-btn-meta">
+          <span style="color:var(--primary);">📍 ${a.distance}</span>
+          <span>⭐ ${a.rating}</span>
+          <span class="price">${a.price}</span>
+        </div>
+      </div>
+      <span class="activity-btn-arrow">→</span>
+    </button>
+  `).join('');
+}
+ 
+function selectPlanActivity(id) {
+  const activity = NYC_ACTIVITIES.find(a => a.id === id);
+  state.selectedPlanItems[state.currentPartIndex] = activity;
+  
+  if (state.currentPartIndex < state.numParts - 1) {
+    state.currentPartIndex++;
+    renderPlan();
+  } else {
+    state.planStep = 'complete';
+    renderPlan();
+  }
+}
+ 
+function planBack() {
+  if (state.currentPartIndex > 0) {
+    state.currentPartIndex--;
+    renderPlan();
+  } else {
+    state.planStep = 'setup';
+    renderPlan();
+  }
+}
+ 
+function renderPlanComplete() {
+  const completed = state.selectedPlanItems.slice(0, state.numParts).filter(Boolean);
+  document.getElementById('completedItems').innerHTML = completed.map((a, i) => `
+    <div class="complete-item">
+      <span class="complete-num">${i + 1}</span>
+      <img class="complete-img" src="${a.media[0]}" alt="${a.title}">
+      <div class="complete-info">
+        <p>${a.title}</p>
+        <p>${state.parts[i]} • ${a.distance}</p>
+      </div>
+    </div>
+  `).join('');
+}
+ 
+function finishPlan() {
+  const selected = state.selectedPlanItems.slice(0, state.numParts).filter(Boolean);
+  const newDate = {
+    id: Date.now(),
+    title: 'Planned Date Night',
+    datetime: state.planDate,
+    status: 'upcoming',
+    activities: selected.map(s => s.title),
+  };
+  state.dates.push(newDate);
+  state.planStep = 'setup';
+  state.selectedPlanItems = [null, null, null, null];
+  alert('Your date plan has been added to Upcoming Dates!');
+  renderPlan();
+}
+ 
+// ============ PROFILE ============
+function renderProfile() {
+  document.getElementById('statLiked').textContent = state.stats.liked;
+  document.getElementById('statPassed').textContent = state.stats.passed;
+  
+  document.getElementById('interestChips').innerHTML = ALL_INTERESTS.map(i => `
+    <button class="filter-chip ${state.interests.includes(i.key) ? 'active' : ''}" onclick="toggleInterest('${i.key}')">${i.label}</button>
+  `).join('');
+}
+ 
+function toggleInterest(key) {
+  if (state.interests.includes(key)) {
+    state.interests = state.interests.filter(k => k !== key);
+  } else {
+    state.interests.push(key);
+  }
+  renderProfile();
+}
+ 
+function resetProfile() {
+  if (confirm('Reset all your data?')) {
+    state.interests = [];
+    state.savedItems = [];
+    state.swipedIds = [];
+    state.stats = { liked: 0, passed: 0 };
+    renderProfile();
+    renderDiscover();
+  }
+}
+ 
+// ============ MODAL ============
+function openGallery(id) {
+  const item = NYC_ACTIVITIES.find(i => i.id === id);
+  if (!item) return;
+  state.modalMedia = item.media;
+  state.modalIndex = 0;
+  updateModal();
+  document.getElementById('galleryModal').classList.add('active');
+}
+ 
+function updateModal() {
+  document.getElementById('modalImage').src = state.modalMedia[state.modalIndex];
+  document.getElementById('modalNav').innerHTML = state.modalMedia.map((_, i) => `
+    <button class="modal-dot ${i === state.modalIndex ? 'active' : ''}" onclick="setModalIndex(${i})"></button>
+  `).join('');
+}
+ 
+function setModalIndex(i) {
+  state.modalIndex = i;
+  updateModal();
+}
+ 
+function closeModal() {
+  document.getElementById('galleryModal').classList.remove('active');
+}
+ 
+// ============ INIT ============
+function initApp() {
+  renderDiscover();
+  renderBrowse();
+  renderSaved();
+  renderDates();
+  renderPlan();
+  renderProfile();
+  
+  // Set discover as active tab
+  document.querySelector('.nav-center').classList.add('active');
+}
+ 
+// Close modal on backdrop click
+document.getElementById('galleryModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+</script>
+</body>
+</html>
