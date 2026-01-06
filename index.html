@@ -585,7 +585,7 @@
 const SUPABASE_URL = 'https://yvobrmkvtpvrldpewrma.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2b2JybWt2dHB2cmxkcGV3cm1hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2NzUxMTksImV4cCI6MjA4MzI1MTExOX0.9TFhi_qL2VDx4691bR225KCYuOZqWRd5t5PWI3w2J9M';
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ============ DATA ============
 const NYC_ACTIVITIES = [
@@ -675,7 +675,7 @@ function showLoading() {
 async function loadUserProfile() {
   if (!currentUser) return null;
   
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from('profiles')
     .select('*')
     .eq('id', currentUser.id)
@@ -683,7 +683,7 @@ async function loadUserProfile() {
   
   if (error && error.code === 'PGRST116') {
     // Profile doesn't exist, create it
-    const { data: newProfile, error: createError } = await supabase
+    const { data: newProfile, error: createError } = await db
       .from('profiles')
       .insert({
         id: currentUser.id,
@@ -703,7 +703,7 @@ async function loadUserProfile() {
 async function updateUserProfile(updates) {
   if (!currentUser) return;
   
-  const { error } = await supabase
+  const { error } = await db
     .from('profiles')
     .update(updates)
     .eq('id', currentUser.id);
@@ -714,7 +714,7 @@ async function updateUserProfile(updates) {
 async function loadSavedItems() {
   if (!currentUser) return [];
   
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from('saved_items')
     .select('activity_id')
     .eq('user_id', currentUser.id);
@@ -733,7 +733,7 @@ async function loadSavedItems() {
 async function loadSwipedItems() {
   if (!currentUser) return [];
   
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from('swiped_items')
     .select('activity_id')
     .eq('user_id', currentUser.id);
@@ -749,7 +749,7 @@ async function loadSwipedItems() {
 async function loadPlannedDates() {
   if (!currentUser) return [];
   
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from('planned_dates')
     .select('*')
     .eq('user_id', currentUser.id)
@@ -764,23 +764,29 @@ async function loadPlannedDates() {
 }
 
 async function loadUserContent() {
-  const { data, error } = await supabase
-    .from('user_content')
-    .select('*')
-    .order('created_at', { ascending: false });
-  
-  if (error) {
-    console.error('Error loading user content:', error);
+  try {
+    const { data, error } = await db
+      .from('user_content')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(50);
+    
+    if (error) {
+      console.error('Error loading user content:', error);
+      return [];
+    }
+    
+    return data || [];
+  } catch (err) {
+    console.error('loadUserContent error:', err);
     return [];
   }
-  
-  return data;
 }
 
 async function saveSwipedItem(activityId, action) {
   if (!currentUser) return;
   
-  const { error } = await supabase
+  const { error } = await db
     .from('swiped_items')
     .insert({
       user_id: currentUser.id,
@@ -794,7 +800,7 @@ async function saveSwipedItem(activityId, action) {
 async function saveSavedItem(activityId) {
   if (!currentUser) return;
   
-  const { error } = await supabase
+  const { error } = await db
     .from('saved_items')
     .insert({
       user_id: currentUser.id,
@@ -807,7 +813,7 @@ async function saveSavedItem(activityId) {
 async function removeSavedItem(activityId) {
   if (!currentUser) return;
   
-  const { error } = await supabase
+  const { error } = await db
     .from('saved_items')
     .delete()
     .eq('user_id', currentUser.id)
@@ -819,7 +825,7 @@ async function removeSavedItem(activityId) {
 async function savePlannedDate(dateData) {
   if (!currentUser) return;
   
-  const { error } = await supabase
+  const { error } = await db
     .from('planned_dates')
     .insert({
       user_id: currentUser.id,
@@ -835,7 +841,7 @@ async function savePlannedDate(dateData) {
 async function removePlannedDate(dateId) {
   if (!currentUser) return;
   
-  const { error } = await supabase
+  const { error } = await db
     .from('planned_dates')
     .delete()
     .eq('id', dateId)
@@ -846,42 +852,62 @@ async function removePlannedDate(dateId) {
 
 // ============ AUTH FUNCTIONS ============
 async function checkSession() {
-  const { data: { session } } = await supabase.auth.getSession();
-  
-  if (session) {
-    currentUser = session.user;
-    isLoggedIn = true;
-    isGuestMode = false;
+  try {
+    const { data: { session }, error } = await db.auth.getSession();
     
-    // Load user data
-    userProfile = await loadUserProfile();
-    state.savedItems = await loadSavedItems();
-    state.swipedIds = await loadSwipedItems();
-    state.dates = await loadPlannedDates();
-    userGeneratedContent = await loadUserContent();
-    
-    if (userProfile) {
-      state.interests = userProfile.interests || ['restaurants', 'nightlife', 'arts'];
-      state.stats.liked = userProfile.stats_liked || 0;
-      state.stats.passed = userProfile.stats_passed || 0;
-      state.verificationStatus = userProfile.verification_status || 'none';
-      
-      if (userProfile.profile_type) {
-        // User has completed onboarding, go to app
-        document.getElementById('app').classList.add('active');
-        updateUIForLoggedInUser();
-        initApp();
-      } else {
-        // Show onboarding
-        document.getElementById('onboarding').classList.add('active');
-        document.getElementById('userGreeting').textContent = `Welcome, ${userProfile.name}!`;
-      }
+    if (error) {
+      console.error('Session error:', error);
+      hideLoading();
+      document.getElementById('welcome').classList.remove('hidden');
+      return;
     }
-  } else {
-    // Load user content for guests too
-    userGeneratedContent = await loadUserContent();
     
-    // No session, show welcome
+    if (session) {
+      currentUser = session.user;
+      isLoggedIn = true;
+      isGuestMode = false;
+      
+      // Load user data with error handling
+      try {
+        userProfile = await loadUserProfile();
+        state.savedItems = await loadSavedItems();
+        state.swipedIds = await loadSwipedItems();
+        state.dates = await loadPlannedDates();
+        userGeneratedContent = await loadUserContent();
+      } catch (loadError) {
+        console.error('Error loading user data:', loadError);
+      }
+      
+      if (userProfile) {
+        state.interests = userProfile.interests || ['restaurants', 'nightlife', 'arts'];
+        state.stats.liked = userProfile.stats_liked || 0;
+        state.stats.passed = userProfile.stats_passed || 0;
+        state.verificationStatus = userProfile.verification_status || 'none';
+        
+        if (userProfile.profile_type) {
+          document.getElementById('app').classList.add('active');
+          updateUIForLoggedInUser();
+          initApp();
+        } else {
+          document.getElementById('onboarding').classList.add('active');
+          document.getElementById('userGreeting').textContent = `Welcome, ${userProfile.name}!`;
+        }
+      } else {
+        document.getElementById('onboarding').classList.add('active');
+        document.getElementById('userGreeting').textContent = `Welcome!`;
+      }
+    } else {
+      // Load user content for guests too
+      try {
+        userGeneratedContent = await loadUserContent();
+      } catch (e) {
+        console.error('Error loading content:', e);
+      }
+      
+      document.getElementById('welcome').classList.remove('hidden');
+    }
+  } catch (err) {
+    console.error('checkSession error:', err);
     document.getElementById('welcome').classList.remove('hidden');
   }
   
@@ -973,7 +999,7 @@ async function handleLogin() {
         return;
       }
       
-      const { data, error } = await supabase.auth.signUp({
+      const { data, error } = await db.auth.signUp({
         email,
         password,
         options: {
@@ -1012,7 +1038,7 @@ async function handleLogin() {
       
     } else {
       // Log In
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await db.auth.signInWithPassword({
         email,
         password
       });
@@ -1133,7 +1159,7 @@ function updateUIForLoggedInUser() {
 
 async function logout() {
   if (confirm('Are you sure you want to log out?')) {
-    await supabase.auth.signOut();
+    await db.auth.signOut();
     isLoggedIn = false;
     currentUser = null;
     userProfile = null;
@@ -1847,7 +1873,7 @@ async function submitContent() {
   
   const place = NYC_ACTIVITIES.find(a => a.id === placeId);
   
-  const { error } = await supabase
+  const { error } = await db
     .from('user_content')
     .insert({
       user_id: currentUser.id,
@@ -1925,8 +1951,23 @@ function initApp() {
 }
 
 // Start app
-document.addEventListener('DOMContentLoaded', function() {
-  checkSession();
+document.addEventListener('DOMContentLoaded', async function() {
+  try {
+    // Set a timeout to force hide loading after 5 seconds
+    setTimeout(() => {
+      hideLoading();
+      if (!document.getElementById('app').classList.contains('active') && 
+          !document.getElementById('onboarding').classList.contains('active')) {
+        document.getElementById('welcome').classList.remove('hidden');
+      }
+    }, 5000);
+    
+    await checkSession();
+  } catch (err) {
+    console.error('Startup error:', err);
+    hideLoading();
+    document.getElementById('welcome').classList.remove('hidden');
+  }
   
   // Add event listener for place selection
   document.getElementById('uploadPlace').addEventListener('change', checkUploadFormComplete);
