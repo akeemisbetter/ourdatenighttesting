@@ -91,10 +91,14 @@
     .hidden { display: none !important; }
     
     /* Swipe Card */
-    .card-container { max-width: 400px; margin: 0 auto; }
-    .swipe-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.15); cursor: grab; transition: transform 0.1s; }
+    .card-container { max-width: 400px; margin: 0 auto; position: relative; }
+    .swipe-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.15); cursor: grab; transition: none; position: relative; touch-action: pan-y; user-select: none; }
+    .swipe-card.animating { transition: transform 0.3s ease, opacity 0.3s ease; }
     .swipe-card:active { cursor: grabbing; }
-    .card-image { width: 100%; height: 280px; object-fit: cover; background: #ddd; }
+    .swipe-card .swipe-indicator { position: absolute; top: 50%; transform: translateY(-50%); font-size: 48px; font-weight: 800; padding: 12px 24px; border-radius: 12px; border: 4px solid; opacity: 0; z-index: 10; }
+    .swipe-card .swipe-like { right: 20px; color: var(--success); border-color: var(--success); transform: translateY(-50%) rotate(20deg); }
+    .swipe-card .swipe-nope { left: 20px; color: var(--primary); border-color: var(--primary); transform: translateY(-50%) rotate(-20deg); }
+    .card-image { width: 100%; height: 280px; object-fit: cover; background: #ddd; pointer-events: none; }
     .card-body { padding: 16px; }
     .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
     .card-title { font-size: 20px; font-weight: 700; color: #222; flex: 1; padding-right: 8px; }
@@ -416,8 +420,8 @@
       </div>
     </div>
     <div class="swipe-buttons" id="swipeButtons">
-      <button class="swipe-btn pass" onclick="passActivity(); return false;">✖</button>
-      <button class="swipe-btn like" onclick="likeActivity(); return false;">❤️</button>
+      <button class="swipe-btn pass" onclick="passActivity()">✖</button>
+      <button class="swipe-btn like" onclick="likeActivity()">❤️</button>
     </div>
   </div>
 
@@ -1375,6 +1379,8 @@ function renderDiscover() {
     
     card.innerHTML = `
       <div class="swipe-card" id="currentCard">
+        <div class="swipe-indicator swipe-like">LIKE</div>
+        <div class="swipe-indicator swipe-nope">NOPE</div>
         <div class="card-image-wrapper">
           ${mediaContent}
           ${userBadge}
@@ -1401,6 +1407,9 @@ function renderDiscover() {
         </div>
       </div>
     `;
+    
+    // Initialize swipe gestures on the new card
+    initSwipeGestures();
   }
 }
 
@@ -1413,14 +1422,140 @@ function changeCardImage(idx) {
   document.querySelectorAll('.card-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
 }
 
+// ============ SWIPE GESTURES ============
+let swipeStartX = 0;
+let swipeStartY = 0;
+let swipeCurrentX = 0;
+let swipeCurrentY = 0;
+let isSwiping = false;
+let swipeCard = null;
+
+function initSwipeGestures() {
+  swipeCard = document.getElementById('currentCard');
+  if (!swipeCard) return;
+  
+  // Touch events
+  swipeCard.addEventListener('touchstart', handleSwipeStart, { passive: true });
+  swipeCard.addEventListener('touchmove', handleSwipeMove, { passive: false });
+  swipeCard.addEventListener('touchend', handleSwipeEnd);
+  
+  // Mouse events (for desktop)
+  swipeCard.addEventListener('mousedown', handleSwipeStart);
+  document.addEventListener('mousemove', handleSwipeMove);
+  document.addEventListener('mouseup', handleSwipeEnd);
+}
+
+function handleSwipeStart(e) {
+  if (!swipeCard) return;
+  
+  // Don't start swipe if clicking on buttons
+  if (e.target.closest('.card-gallery-btn') || e.target.closest('.card-dot')) return;
+  
+  isSwiping = true;
+  swipeCard.classList.remove('animating');
+  
+  if (e.type === 'touchstart') {
+    swipeStartX = e.touches[0].clientX;
+    swipeStartY = e.touches[0].clientY;
+  } else {
+    swipeStartX = e.clientX;
+    swipeStartY = e.clientY;
+    e.preventDefault();
+  }
+  
+  swipeCurrentX = swipeStartX;
+  swipeCurrentY = swipeStartY;
+}
+
+function handleSwipeMove(e) {
+  if (!isSwiping || !swipeCard) return;
+  
+  if (e.type === 'touchmove') {
+    swipeCurrentX = e.touches[0].clientX;
+    swipeCurrentY = e.touches[0].clientY;
+  } else {
+    swipeCurrentX = e.clientX;
+    swipeCurrentY = e.clientY;
+  }
+  
+  const deltaX = swipeCurrentX - swipeStartX;
+  const deltaY = swipeCurrentY - swipeStartY;
+  
+  // Only prevent default if horizontal swipe is dominant
+  if (Math.abs(deltaX) > Math.abs(deltaY) && e.cancelable) {
+    e.preventDefault();
+  }
+  
+  // Calculate rotation based on swipe distance
+  const rotation = deltaX * 0.1;
+  const opacity = Math.min(Math.abs(deltaX) / 100, 1);
+  
+  // Apply transform
+  swipeCard.style.transform = `translateX(${deltaX}px) rotate(${rotation}deg)`;
+  
+  // Show like/nope indicators
+  const likeIndicator = swipeCard.querySelector('.swipe-like');
+  const nopeIndicator = swipeCard.querySelector('.swipe-nope');
+  
+  if (likeIndicator && nopeIndicator) {
+    if (deltaX > 0) {
+      likeIndicator.style.opacity = opacity;
+      nopeIndicator.style.opacity = 0;
+    } else {
+      nopeIndicator.style.opacity = opacity;
+      likeIndicator.style.opacity = 0;
+    }
+  }
+}
+
+function handleSwipeEnd(e) {
+  if (!isSwiping || !swipeCard) return;
+  isSwiping = false;
+  
+  const deltaX = swipeCurrentX - swipeStartX;
+  const threshold = 100; // Minimum swipe distance to trigger action
+  
+  swipeCard.classList.add('animating');
+  
+  if (deltaX > threshold) {
+    // Swiped right - LIKE
+    swipeCard.style.transform = `translateX(${window.innerWidth}px) rotate(30deg)`;
+    swipeCard.style.opacity = '0';
+    setTimeout(() => {
+      likeActivity();
+    }, 200);
+  } else if (deltaX < -threshold) {
+    // Swiped left - NOPE
+    swipeCard.style.transform = `translateX(-${window.innerWidth}px) rotate(-30deg)`;
+    swipeCard.style.opacity = '0';
+    setTimeout(() => {
+      passActivity();
+    }, 200);
+  } else {
+    // Not enough swipe - snap back
+    swipeCard.style.transform = 'translateX(0) rotate(0)';
+    const likeIndicator = swipeCard.querySelector('.swipe-like');
+    const nopeIndicator = swipeCard.querySelector('.swipe-nope');
+    if (likeIndicator) likeIndicator.style.opacity = 0;
+    if (nopeIndicator) nopeIndicator.style.opacity = 0;
+  }
+}
+
 async function likeActivity() {
-  console.log('Like button clicked');
   try {
     const pool = getDiscoverPool();
-    console.log('Pool length:', pool.length);
     if (pool.length === 0) return;
     const item = pool[0];
-    console.log('Liking item:', item.id);
+    
+    // Animate card flying right
+    const card = document.getElementById('currentCard');
+    if (card) {
+      card.classList.add('animating');
+      card.style.transform = `translateX(${window.innerWidth}px) rotate(30deg)`;
+      card.style.opacity = '0';
+      const likeIndicator = card.querySelector('.swipe-like');
+      if (likeIndicator) likeIndicator.style.opacity = 1;
+    }
     
     state.swipedIds.push(item.id);
     state.stats.liked++;
@@ -1438,8 +1573,8 @@ async function likeActivity() {
     }
     
     cardImageIndex = 0;
-    renderDiscover();
-    console.log('Like complete');
+    setTimeout(() => renderDiscover(), 200);
+    
   } catch (err) {
     console.error('likeActivity error:', err);
     renderDiscover();
@@ -1447,12 +1582,19 @@ async function likeActivity() {
 }
 
 async function passActivity() {
-  console.log('Pass button clicked');
   try {
     const pool = getDiscoverPool();
-    console.log('Pool length:', pool.length);
     if (pool.length === 0) return;
-    console.log('Passing item:', pool[0].id);
+    
+    // Animate card flying left
+    const card = document.getElementById('currentCard');
+    if (card) {
+      card.classList.add('animating');
+      card.style.transform = `translateX(-${window.innerWidth}px) rotate(-30deg)`;
+      card.style.opacity = '0';
+      const nopeIndicator = card.querySelector('.swipe-nope');
+      if (nopeIndicator) nopeIndicator.style.opacity = 1;
+    }
     
     state.swipedIds.push(pool[0].id);
     state.stats.passed++;
@@ -1463,8 +1605,8 @@ async function passActivity() {
     }
     
     cardImageIndex = 0;
-    renderDiscover();
-    console.log('Pass complete');
+    setTimeout(() => renderDiscover(), 200);
+    
   } catch (err) {
     console.error('passActivity error:', err);
     renderDiscover();
