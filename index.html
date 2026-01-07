@@ -7296,18 +7296,35 @@ async function adminVerifyUser(userId) {
   if (!confirm('Verify this user?')) return;
   
   try {
-    const { error } = await db
-      .from('profiles')
-      .update({ verification_status: 'verified' })
-      .eq('id', userId);
+    console.log('Attempting to verify user:', userId);
     
-    if (error) throw error;
+    const { data, error } = await db
+      .from('profiles')
+      .update({ 
+        verification_status: 'verified',
+        verified_at: new Date().toISOString()
+      })
+      .eq('id', userId)
+      .select();
+    
+    if (error) {
+      console.error('Supabase error:', error);
+      alert(`Error verifying user: ${error.message}\n\nMake sure admin RLS policies are set up in Supabase.`);
+      return;
+    }
+    
+    console.log('Update result:', data);
+    
+    if (!data || data.length === 0) {
+      alert('Update failed - no rows affected. Check RLS policies in Supabase.');
+      return;
+    }
     
     await loadAdminDashboardData();
-    alert('User verified!');
+    alert('✅ User verified successfully!');
   } catch (err) {
     console.error('adminVerifyUser error:', err);
-    alert('Error verifying user');
+    alert('Error verifying user: ' + err.message);
   }
 }
 
@@ -7315,18 +7332,35 @@ async function adminUnverifyUser(userId) {
   if (!confirm('Remove verification from this user?')) return;
   
   try {
-    const { error } = await db
-      .from('profiles')
-      .update({ verification_status: 'none' })
-      .eq('id', userId);
+    console.log('Attempting to unverify user:', userId);
     
-    if (error) throw error;
+    const { data, error } = await db
+      .from('profiles')
+      .update({ 
+        verification_status: 'none',
+        verified_at: null
+      })
+      .eq('id', userId)
+      .select();
+    
+    if (error) {
+      console.error('Supabase error:', error);
+      alert(`Error unverifying user: ${error.message}\n\nMake sure admin RLS policies are set up in Supabase.`);
+      return;
+    }
+    
+    console.log('Update result:', data);
+    
+    if (!data || data.length === 0) {
+      alert('Update failed - no rows affected. Check RLS policies in Supabase.');
+      return;
+    }
     
     await loadAdminDashboardData();
-    alert('User unverified');
+    alert('User verification removed');
   } catch (err) {
     console.error('adminUnverifyUser error:', err);
-    alert('Error unverifying user');
+    alert('Error unverifying user: ' + err.message);
   }
 }
 
