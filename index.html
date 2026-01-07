@@ -5630,6 +5630,7 @@ async function toggleFollow() {
     recordFollowActivity(currentProfileUserId, userName);
     
     // Send notification to the user being followed
+    console.log('Sending follow notification to:', currentProfileUserId);
     const followerName = userProfile?.name || 'Someone';
     const followerAvatar = userProfile?.avatar || null;
     await notifyNewFollower(
@@ -5638,6 +5639,7 @@ async function toggleFollow() {
       followerName,          // follower name
       followerAvatar         // follower avatar
     );
+    console.log('Follow notification sent!');
   }
   
   saveFollowData();
@@ -6508,8 +6510,12 @@ function sortMyFun() {
 async function loadNotifications() {
   if (!currentUser) return;
   
+  // Load from localStorage (primary storage)
+  const notifKey = `notifications_${currentUser.id}`;
+  userNotifications = JSON.parse(localStorage.getItem(notifKey) || '[]');
+  
+  // Also try to load from Supabase and merge
   try {
-    // Load from Supabase
     const { data, error } = await db
       .from('notifications')
       .select('*')
@@ -6517,49 +6523,74 @@ async function loadNotifications() {
       .order('created_at', { ascending: false })
       .limit(100);
     
-    if (error) {
-      console.log('Notifications table may not exist, using localStorage fallback');
-      // Fallback to localStorage
-      const notifKey = `notifications_${currentUser.id}`;
-      userNotifications = JSON.parse(localStorage.getItem(notifKey) || '[]');
-    } else {
-      userNotifications = (data || []).map(n => ({
+    if (!error && data && data.length > 0) {
+      // Merge Supabase notifications with local ones
+      const supabaseNotifs = data.map(n => ({
         id: n.id,
         type: n.type,
         data: n.data,
         read: n.read,
         createdAt: n.created_at
       }));
+      
+      // Add any from Supabase that aren't in local storage
+      supabaseNotifs.forEach(sn => {
+        if (!userNotifications.find(ln => ln.id === sn.id)) {
+          userNotifications.push(sn);
+        }
+      });
+      
+      // Sort by date
+      userNotifications.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      
+      // Save merged list to localStorage
+      localStorage.setItem(notifKey, JSON.stringify(userNotifications));
     }
   } catch (err) {
-    console.log('Using localStorage for notifications');
-    const notifKey = `notifications_${currentUser.id}`;
-    userNotifications = JSON.parse(localStorage.getItem(notifKey) || '[]');
+    console.log('Supabase notifications not available, using localStorage only');
   }
   
   updateNotificationBadge();
 }
 
 async function saveNotificationToSupabase(notification) {
-  if (!currentUser) return;
-  
   try {
-    await db.from('notifications').insert({
-      user_id: notification.userId || currentUser.id,
+    const { error } = await db.from('notifications').insert({
+      user_id: notification.userId,
       type: notification.type,
       data: notification.data,
       read: false,
       created_at: new Date().toISOString()
     });
+    
+    if (error) {
+      console.log('Supabase notification insert error:', error.message);
+    } else {
+      console.log('Notification saved to Supabase for user:', notification.userId);
+    }
   } catch (err) {
-    console.log('Could not save to Supabase, using localStorage');
+    console.log('Could not save notification to Supabase:', err.message);
   }
+}
+
+// Save notification to target user's localStorage (for same-device testing)
+function saveNotificationToLocalStorage(targetUserId, notification) {
+  const notifKey = `notifications_${targetUserId}`;
+  let notifications = JSON.parse(localStorage.getItem(notifKey) || '[]');
+  notifications.unshift(notification);
+  
+  // Keep only last 100
+  if (notifications.length > 100) {
+    notifications = notifications.slice(0, 100);
+  }
+  
+  localStorage.setItem(notifKey, JSON.stringify(notifications));
+  console.log('Notification saved to localStorage for user:', targetUserId);
 }
 
 function saveNotifications() {
   if (!currentUser) return;
   
-  // Save to localStorage as backup
   const notifKey = `notifications_${currentUser.id}`;
   localStorage.setItem(notifKey, JSON.stringify(userNotifications));
   updateNotificationBadge();
@@ -6604,30 +6635,35 @@ function updateNotificationBadge() {
 
 async function addNotification(type, data, targetUserId = null) {
   const userId = targetUserId || currentUser?.id;
-  if (!userId) return;
+  if (!userId) {
+    console.log('addNotification: No target user ID');
+    return;
+  }
+  
+  console.log('Adding notification:', type, 'for user:', userId);
   
   const notification = {
     id: Date.now(),
-    type: type, // 'follower', 'like', 'badge', 'system'
+    type: type,
     data: data,
     read: false,
     createdAt: new Date().toISOString(),
     userId: userId
   };
   
-  // Save to Supabase for the target user
+  // Always save to localStorage for the target user
+  saveNotificationToLocalStorage(userId, notification);
+  
+  // Also try to save to Supabase
   await saveNotificationToSupabase(notification);
   
-  // If it's for the current user, also update local state
+  // If it's for the current user, also update local state immediately
   if (userId === currentUser?.id) {
     userNotifications.unshift(notification);
-    
-    // Keep only last 100 notifications
     if (userNotifications.length > 100) {
       userNotifications = userNotifications.slice(0, 100);
     }
-    
-    saveNotifications();
+    updateNotificationBadge();
   }
 }
 
@@ -6775,6 +6811,11 @@ function getTimeAgo(dateString) {
 
 // Helper to add follower notification - sends to the user being followed
 async function notifyNewFollower(targetUserId, followerId, followerName, followerAvatar) {
+  console.log('notifyNewFollower called:', { targetUserId, followerId, followerName });
+  if (!targetUserId) {
+    console.log('notifyNewFollower: No target user ID!');
+    return;
+  }
   await addNotification('follower', {
     followerId,
     followerName,
@@ -6784,6 +6825,11 @@ async function notifyNewFollower(targetUserId, followerId, followerName, followe
 
 // Helper to add like notification - sends to content owner
 async function notifyContentLiked(targetUserId, likerId, likerName, contentId, contentThumb, contentType, placeName) {
+  console.log('notifyContentLiked called:', { targetUserId, likerId, likerName, placeName });
+  if (!targetUserId) {
+    console.log('notifyContentLiked: No target user ID!');
+    return;
+  }
   await addNotification('like', {
     likerId,
     likerName,
@@ -7188,6 +7234,7 @@ async function likeContent(contentId) {
     
     // Send notification to content owner (if not liking own content)
     if (content.user_id && content.user_id !== currentUser.id) {
+      console.log('Sending like notification to content owner:', content.user_id);
       const likerName = userProfile?.name || 'Someone';
       const contentType = content.media_type === 'video' ? 'video' : 'photo';
       await notifyContentLiked(
@@ -7199,6 +7246,9 @@ async function likeContent(contentId) {
         contentType,          // photo or video
         content.place_name    // place name
       );
+      console.log('Like notification sent!');
+    } else {
+      console.log('Not sending like notification - own content or no user_id');
     }
     
   } catch (err) {
