@@ -527,11 +527,11 @@
     .side-menu-item { display: flex; align-items: center; gap: 16px; padding: 16px 24px; cursor: pointer; transition: background 0.2s; text-decoration: none; color: #333; }
     .side-menu-item:hover { background: #f8f9fa; }
     .side-menu-item-icon { font-size: 20px; width: 28px; text-align: center; }
-    .side-menu-item-text { font-size: 15px; font-weight: 500; }
+    .side-menu-item-text { font-size: 15px; font-weight: 500; flex: 1; }
     .side-menu-divider { height: 1px; background: #eee; margin: 8px 24px; }
     .side-menu-dark-mode { justify-content: flex-start; }
-    .side-menu-dark-mode .side-menu-item-text { flex: 1; }
     .side-menu-dark-mode .toggle-switch { margin-left: auto; }
+    .side-menu-notif-badge { background: var(--primary); color: white; font-size: 11px; font-weight: 700; min-width: 20px; height: 20px; border-radius: 10px; display: flex; align-items: center; justify-content: center; padding: 0 6px; }
     
     /* Payment Modal */
     .payment-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 500; padding: 24px; overflow-y: auto; }
@@ -751,48 +751,69 @@
     .friendships-activity-image { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; flex-shrink: 0; cursor: pointer; }
     
     /* My Fun Modal */
-    .my-fun-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 350; padding: 16px; }
+    /* My Fun Modal - Full Screen */
+    .my-fun-modal { position: fixed; inset: 0; background: var(--bg-primary); display: none; z-index: 350; flex-direction: column; }
     .my-fun-modal.active { display: flex; }
-    .my-fun-box { background: var(--bg-card); border-radius: 20px; width: 100%; max-width: 500px; max-height: 85vh; overflow: hidden; display: flex; flex-direction: column; }
-    .my-fun-header { padding: 16px 20px; border-bottom: 1px solid var(--border-color); }
-    .my-fun-header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-    .my-fun-title { font-size: 20px; font-weight: 700; color: var(--text-primary); }
-    .my-fun-close { background: none; border: none; font-size: 24px; color: var(--text-muted); cursor: pointer; }
+    .my-fun-box { background: var(--bg-primary); width: 100%; height: 100%; overflow: hidden; display: flex; flex-direction: column; }
+    .my-fun-header { padding: 16px 20px; background: var(--bg-card); border-bottom: 1px solid var(--border-color); }
+    .my-fun-header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .my-fun-title { font-size: 24px; font-weight: 700; color: var(--text-primary); }
+    .my-fun-close { background: none; border: none; font-size: 28px; color: var(--text-muted); cursor: pointer; padding: 4px; }
     .my-fun-tabs { display: flex; gap: 4px; background: var(--bg-secondary); border-radius: 12px; padding: 4px; }
-    .my-fun-tab { flex: 1; padding: 10px 12px; border: none; background: transparent; border-radius: 10px; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
+    .my-fun-tab { flex: 1; padding: 12px 8px; border: none; background: transparent; border-radius: 10px; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: all 0.2s; position: relative; }
     .my-fun-tab.active { background: var(--bg-card); color: var(--text-primary); box-shadow: 0 2px 4px var(--shadow-color); }
-    .my-fun-controls { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; border-bottom: 1px solid var(--border-color); }
+    .my-fun-tab-badge { position: absolute; top: 4px; right: 4px; background: var(--primary); color: white; font-size: 10px; font-weight: 700; min-width: 18px; height: 18px; border-radius: 9px; display: flex; align-items: center; justify-content: center; }
+    .my-fun-controls { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; border-bottom: 1px solid var(--border-color); background: var(--bg-card); }
     .my-fun-sort { display: flex; align-items: center; gap: 8px; }
     .my-fun-sort-label { font-size: 13px; color: var(--text-muted); }
-    .my-fun-sort-select { padding: 6px 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); cursor: pointer; }
+    .my-fun-sort-select { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); cursor: pointer; }
     .my-fun-count { font-size: 13px; color: var(--text-muted); }
-    .my-fun-content { flex: 1; overflow-y: auto; padding: 16px; }
+    .my-fun-content { flex: 1; overflow-y: auto; padding: 16px; background: var(--bg-secondary); }
     .my-fun-panel { display: none; }
     .my-fun-panel.active { display: block; }
-    .my-fun-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-    .my-fun-item { position: relative; aspect-ratio: 1; border-radius: 12px; overflow: hidden; cursor: pointer; }
+    .my-fun-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .my-fun-item { position: relative; aspect-ratio: 1; border-radius: 16px; overflow: hidden; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
     .my-fun-item img, .my-fun-item video { width: 100%; height: 100%; object-fit: cover; }
-    .my-fun-item-overlay { position: absolute; inset: 0; background: linear-gradient(transparent 50%, rgba(0,0,0,0.7)); opacity: 0; transition: opacity 0.2s; }
-    .my-fun-item:hover .my-fun-item-overlay { opacity: 1; }
-    .my-fun-item-info { position: absolute; bottom: 8px; left: 8px; right: 8px; color: white; }
-    .my-fun-item-place { font-size: 11px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .my-fun-item-date { font-size: 10px; opacity: 0.8; }
-    .my-fun-item-likes { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.6); color: white; padding: 2px 6px; border-radius: 8px; font-size: 10px; }
-    .my-fun-item-video { position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.6); color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; }
-    .my-fun-item-delete { position: absolute; bottom: 8px; right: 8px; background: var(--primary); color: white; border: none; padding: 4px 8px; border-radius: 12px; font-size: 10px; cursor: pointer; opacity: 0; transition: opacity 0.2s; }
+    .my-fun-item-overlay { position: absolute; inset: 0; background: linear-gradient(transparent 40%, rgba(0,0,0,0.8)); opacity: 1; }
+    .my-fun-item-info { position: absolute; bottom: 12px; left: 12px; right: 12px; color: white; }
+    .my-fun-item-place { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
+    .my-fun-item-date { font-size: 11px; opacity: 0.8; }
+    .my-fun-item-likes { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.6); color: white; padding: 4px 8px; border-radius: 10px; font-size: 12px; font-weight: 600; }
+    .my-fun-item-video { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.6); color: white; padding: 4px 8px; border-radius: 6px; font-size: 11px; }
+    .my-fun-item-delete { position: absolute; bottom: 10px; right: 10px; background: var(--primary); color: white; border: none; padding: 6px 12px; border-radius: 16px; font-size: 11px; font-weight: 600; cursor: pointer; opacity: 0; transition: opacity 0.2s; }
     .my-fun-item:hover .my-fun-item-delete { opacity: 1; }
-    .my-fun-empty { text-align: center; padding: 60px 20px; color: var(--text-muted); }
-    .my-fun-empty-icon { font-size: 48px; margin-bottom: 16px; }
-    .my-fun-empty-text { margin-bottom: 16px; }
-    .my-fun-empty-btn { display: inline-block; padding: 12px 24px; background: var(--secondary); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; }
-    .my-fun-review { background: var(--bg-secondary); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
-    .my-fun-review-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
-    .my-fun-review-place { font-weight: 600; color: var(--text-primary); cursor: pointer; }
+    .my-fun-empty { text-align: center; padding: 80px 20px; color: var(--text-muted); }
+    .my-fun-empty-icon { font-size: 64px; margin-bottom: 20px; }
+    .my-fun-empty-text { font-size: 16px; margin-bottom: 20px; }
+    .my-fun-empty-btn { display: inline-block; padding: 14px 28px; background: var(--secondary); color: white; border: none; border-radius: 14px; font-weight: 600; font-size: 15px; cursor: pointer; }
+    .my-fun-review { background: var(--bg-card); border-radius: 16px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .my-fun-review-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+    .my-fun-review-place { font-weight: 600; font-size: 16px; color: var(--text-primary); cursor: pointer; }
     .my-fun-review-place:hover { text-decoration: underline; }
-    .my-fun-review-rating { color: #f5a623; }
-    .my-fun-review-text { font-size: 14px; color: var(--text-primary); line-height: 1.5; margin-bottom: 8px; }
+    .my-fun-review-rating { color: #f5a623; font-size: 16px; }
+    .my-fun-review-text { font-size: 14px; color: var(--text-primary); line-height: 1.6; margin-bottom: 12px; }
     .my-fun-review-date { font-size: 12px; color: var(--text-muted); }
     .my-fun-review-delete { background: none; border: none; color: var(--primary); font-size: 12px; cursor: pointer; margin-left: 12px; }
+    
+    /* Notifications Panel */
+    .my-fun-notifications { }
+    .notification-item { display: flex; align-items: flex-start; gap: 14px; padding: 16px; background: var(--bg-card); border-radius: 16px; margin-bottom: 12px; cursor: pointer; transition: transform 0.2s; }
+    .notification-item:hover { transform: translateX(4px); }
+    .notification-item.unread { border-left: 4px solid var(--secondary); }
+    .notification-icon { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
+    .notification-icon.follower { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .notification-icon.like { background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%); }
+    .notification-icon.badge { background: linear-gradient(135deg, #f5a623 0%, #f7931e 100%); }
+    .notification-icon.system { background: linear-gradient(135deg, #4caf50 0%, #43a047 100%); }
+    .notification-content { flex: 1; min-width: 0; }
+    .notification-text { font-size: 14px; color: var(--text-primary); line-height: 1.4; margin-bottom: 4px; }
+    .notification-text strong { font-weight: 600; }
+    .notification-time { font-size: 12px; color: var(--text-muted); }
+    .notification-thumb { width: 50px; height: 50px; border-radius: 10px; object-fit: cover; flex-shrink: 0; }
+    .notification-actions { padding: 16px 20px; background: var(--bg-card); border-top: 1px solid var(--border-color); display: flex; gap: 12px; }
+    .notification-action-btn { flex: 1; padding: 12px; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; }
+    .notification-action-btn.primary { background: var(--secondary); color: white; }
+    .notification-action-btn.secondary { background: var(--bg-secondary); color: var(--text-primary); }
     
     .user-profile-body { padding: 20px; }
     .user-profile-section-title { font-weight: 700; margin-bottom: 12px; }
@@ -1106,17 +1127,24 @@
     [data-theme="dark"] .friendships-activity-item { background: var(--bg-secondary); }
     [data-theme="dark"] .friendships-activity-text { color: var(--text-primary); }
     
-    [data-theme="dark"] .my-fun-box { background: var(--bg-card); }
-    [data-theme="dark"] .my-fun-header { border-color: var(--border-color); }
+    [data-theme="dark"] .my-fun-modal { background: var(--bg-primary); }
+    [data-theme="dark"] .my-fun-box { background: var(--bg-primary); }
+    [data-theme="dark"] .my-fun-header { background: var(--bg-card); border-color: var(--border-color); }
     [data-theme="dark"] .my-fun-title { color: var(--text-primary); }
     [data-theme="dark"] .my-fun-tabs { background: var(--bg-secondary); }
     [data-theme="dark"] .my-fun-tab { color: var(--text-muted); }
     [data-theme="dark"] .my-fun-tab.active { background: var(--bg-card); color: var(--text-primary); }
-    [data-theme="dark"] .my-fun-controls { border-color: var(--border-color); }
+    [data-theme="dark"] .my-fun-controls { background: var(--bg-card); border-color: var(--border-color); }
     [data-theme="dark"] .my-fun-sort-select { background: var(--bg-secondary); border-color: var(--border-color); color: var(--text-primary); }
-    [data-theme="dark"] .my-fun-review { background: var(--bg-secondary); }
+    [data-theme="dark"] .my-fun-content { background: var(--bg-primary); }
+    [data-theme="dark"] .my-fun-item { box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+    [data-theme="dark"] .my-fun-review { background: var(--bg-card); }
     [data-theme="dark"] .my-fun-review-place { color: var(--text-primary); }
     [data-theme="dark"] .my-fun-review-text { color: var(--text-primary); }
+    [data-theme="dark"] .notification-item { background: var(--bg-card); }
+    [data-theme="dark"] .notification-text { color: var(--text-primary); }
+    [data-theme="dark"] .notification-actions { background: var(--bg-card); border-color: var(--border-color); }
+    [data-theme="dark"] .notification-action-btn.secondary { background: var(--bg-secondary); color: var(--text-primary); }
     
     [data-theme="dark"] .payment-box { background: var(--bg-card); }
     [data-theme="dark"] .payment-box h2, [data-theme="dark"] .payment-box h3 { color: var(--text-primary); }
@@ -1675,6 +1703,7 @@
     <div class="side-menu-item" id="myFunItem" style="display:none;" onclick="openMyFunModal()">
       <span class="side-menu-item-icon">🎉</span>
       <span class="side-menu-item-text">My Fun</span>
+      <span class="side-menu-notif-badge" id="sideMenuNotifBadge" style="display:none;">0</span>
     </div>
     <div class="side-menu-item" onclick="openPaymentModal()">
       <span class="side-menu-item-icon">💳</span>
@@ -1855,11 +1884,15 @@
         <button class="my-fun-close" onclick="closeMyFunModal()">✕</button>
       </div>
       <div class="my-fun-tabs">
-        <button class="my-fun-tab active" onclick="showMyFunTab('uploads')" data-tab="uploads">Uploads</button>
-        <button class="my-fun-tab" onclick="showMyFunTab('reviews')" data-tab="reviews">Reviews</button>
+        <button class="my-fun-tab" onclick="showMyFunTab('notifications')" data-tab="notifications">
+          🔔 Notifications
+          <span class="my-fun-tab-badge" id="notificationBadge" style="display:none;">0</span>
+        </button>
+        <button class="my-fun-tab active" onclick="showMyFunTab('uploads')" data-tab="uploads">📸 Uploads</button>
+        <button class="my-fun-tab" onclick="showMyFunTab('reviews')" data-tab="reviews">⭐ Reviews</button>
       </div>
     </div>
-    <div class="my-fun-controls">
+    <div class="my-fun-controls" id="myFunControlsBar">
       <div class="my-fun-sort">
         <span class="my-fun-sort-label">Sort:</span>
         <select class="my-fun-sort-select" id="myFunSortSelect" onchange="sortMyFun()">
@@ -1870,6 +1903,13 @@
       <div class="my-fun-count" id="myFunCount">0 items</div>
     </div>
     <div class="my-fun-content">
+      <!-- Notifications Panel -->
+      <div class="my-fun-panel" id="myFunNotificationsPanel">
+        <div class="my-fun-notifications" id="myFunNotificationsList">
+          <!-- Filled by JS -->
+        </div>
+      </div>
+      
       <!-- Uploads Panel -->
       <div class="my-fun-panel active" id="myFunUploadsPanel">
         <div class="my-fun-grid" id="myFunUploadsGrid">
@@ -2445,6 +2485,9 @@ async function checkSession() {
         state.stats.passed = userProfile.stats_passed || 0;
         state.verificationStatus = userProfile.verification_status || 'none';
         
+        // Load notifications
+        loadNotifications();
+        
         if (userProfile.profile_type) {
           document.getElementById('app').classList.add('active');
           updateUIForLoggedInUser();
@@ -2973,7 +3016,10 @@ function checkBadges() {
 }
 
 function showBadgeEarned(badge) {
-  // Could add a celebration animation here
+  // Add notification
+  notifyBadgeEarned(badge.id, badge.name, badge.icon);
+  
+  // Show alert
   alert(`🎉 Badge Earned: ${badge.name}!\n${badge.desc}`);
 }
 
@@ -6367,6 +6413,7 @@ async function updateProfileFollowStats() {
 // ============ MY FUN MODAL ============
 let currentMyFunTab = 'uploads';
 let myFunSortOrder = 'newest';
+let userNotifications = [];
 
 function openMyFunModal() {
   closeSideMenu();
@@ -6379,6 +6426,9 @@ function openMyFunModal() {
   currentMyFunTab = 'uploads';
   myFunSortOrder = 'newest';
   document.getElementById('myFunSortSelect').value = 'newest';
+  
+  // Load notifications
+  loadNotifications();
   
   showMyFunTab('uploads');
   document.getElementById('myFunModal').classList.add('active');
@@ -6401,11 +6451,20 @@ function showMyFunTab(tabName) {
     panel.classList.remove('active');
   });
   
-  if (tabName === 'uploads') {
+  // Show/hide controls bar for notifications tab
+  const controlsBar = document.getElementById('myFunControlsBar');
+  
+  if (tabName === 'notifications') {
+    document.getElementById('myFunNotificationsPanel').classList.add('active');
+    controlsBar.style.display = 'none';
+    renderMyFunNotifications();
+  } else if (tabName === 'uploads') {
     document.getElementById('myFunUploadsPanel').classList.add('active');
+    controlsBar.style.display = 'flex';
     renderMyFunUploads();
   } else if (tabName === 'reviews') {
     document.getElementById('myFunReviewsPanel').classList.add('active');
+    controlsBar.style.display = 'flex';
     renderMyFunReviews();
   }
 }
@@ -6415,8 +6474,257 @@ function sortMyFun() {
   
   if (currentMyFunTab === 'uploads') {
     renderMyFunUploads();
-  } else {
+  } else if (currentMyFunTab === 'reviews') {
     renderMyFunReviews();
+  }
+}
+
+// ============ NOTIFICATIONS ============
+function loadNotifications() {
+  if (!currentUser) return;
+  
+  const notifKey = `notifications_${currentUser.id}`;
+  userNotifications = JSON.parse(localStorage.getItem(notifKey) || '[]');
+  updateNotificationBadge();
+}
+
+function saveNotifications() {
+  if (!currentUser) return;
+  
+  const notifKey = `notifications_${currentUser.id}`;
+  localStorage.setItem(notifKey, JSON.stringify(userNotifications));
+  updateNotificationBadge();
+}
+
+function updateNotificationBadge() {
+  const badge = document.getElementById('notificationBadge');
+  const sideMenuBadge = document.getElementById('sideMenuNotifBadge');
+  const unreadCount = userNotifications.filter(n => !n.read).length;
+  
+  // Update My Fun modal badge
+  if (badge) {
+    if (unreadCount > 0) {
+      badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+      badge.style.display = 'flex';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+  
+  // Update side menu badge
+  if (sideMenuBadge) {
+    if (unreadCount > 0) {
+      sideMenuBadge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+      sideMenuBadge.style.display = 'flex';
+    } else {
+      sideMenuBadge.style.display = 'none';
+    }
+  }
+}
+
+function addNotification(type, data) {
+  if (!currentUser) return;
+  
+  const notification = {
+    id: Date.now(),
+    type: type, // 'follower', 'like', 'badge', 'system'
+    data: data,
+    read: false,
+    createdAt: new Date().toISOString()
+  };
+  
+  userNotifications.unshift(notification);
+  
+  // Keep only last 100 notifications
+  if (userNotifications.length > 100) {
+    userNotifications = userNotifications.slice(0, 100);
+  }
+  
+  saveNotifications();
+}
+
+function markNotificationRead(notificationId) {
+  const notif = userNotifications.find(n => n.id === notificationId);
+  if (notif) {
+    notif.read = true;
+    saveNotifications();
+    renderMyFunNotifications();
+  }
+}
+
+function markAllNotificationsRead() {
+  userNotifications.forEach(n => n.read = true);
+  saveNotifications();
+  renderMyFunNotifications();
+}
+
+function clearAllNotifications() {
+  if (!confirm('Clear all notifications?')) return;
+  userNotifications = [];
+  saveNotifications();
+  renderMyFunNotifications();
+}
+
+function renderMyFunNotifications() {
+  const container = document.getElementById('myFunNotificationsList');
+  
+  if (!isLoggedIn || !currentUser) {
+    container.innerHTML = `
+      <div class="my-fun-empty">
+        <div class="my-fun-empty-icon">🔐</div>
+        <div class="my-fun-empty-text">Please log in to see notifications</div>
+      </div>
+    `;
+    return;
+  }
+  
+  if (userNotifications.length === 0) {
+    container.innerHTML = `
+      <div class="my-fun-empty">
+        <div class="my-fun-empty-icon">🔔</div>
+        <div class="my-fun-empty-text">No notifications yet</div>
+        <div style="font-size:14px;color:var(--text-muted);margin-top:8px;">
+          You'll see notifications here when someone follows you, likes your content, or you earn badges!
+        </div>
+      </div>
+    `;
+    return;
+  }
+  
+  const unreadCount = userNotifications.filter(n => !n.read).length;
+  
+  let html = '';
+  
+  // Header with actions
+  if (userNotifications.length > 0) {
+    html += `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding:0 4px;">
+        <div style="font-size:14px;color:var(--text-muted);">${unreadCount} unread</div>
+        <div style="display:flex;gap:12px;">
+          ${unreadCount > 0 ? `<button onclick="markAllNotificationsRead()" style="background:none;border:none;color:var(--secondary);font-size:13px;font-weight:600;cursor:pointer;">Mark all read</button>` : ''}
+          <button onclick="clearAllNotifications()" style="background:none;border:none;color:var(--text-muted);font-size:13px;cursor:pointer;">Clear all</button>
+        </div>
+      </div>
+    `;
+  }
+  
+  // Notification items
+  html += userNotifications.map(notif => {
+    const timeAgo = getTimeAgo(notif.createdAt);
+    let icon, iconClass, text, thumb = '', onclick = '';
+    
+    switch (notif.type) {
+      case 'follower':
+        icon = '👤';
+        iconClass = 'follower';
+        text = `<strong>${notif.data.followerName || 'Someone'}</strong> started following you`;
+        onclick = `onclick="markNotificationRead(${notif.id}); closeMyFunModal(); openUserProfileModal('${notif.data.followerId}', '${notif.data.followerName || 'User'}')"`;
+        if (notif.data.followerAvatar) {
+          thumb = `<img class="notification-thumb" src="${notif.data.followerAvatar}" alt="">`;
+        }
+        break;
+        
+      case 'like':
+        icon = '❤️';
+        iconClass = 'like';
+        text = `<strong>${notif.data.likerName || 'Someone'}</strong> liked your ${notif.data.contentType || 'post'}`;
+        if (notif.data.placeName) {
+          text += ` at <strong>${notif.data.placeName}</strong>`;
+        }
+        onclick = `onclick="markNotificationRead(${notif.id}); closeMyFunModal(); openContentDetail(${notif.data.contentId})"`;
+        if (notif.data.contentThumb) {
+          thumb = `<img class="notification-thumb" src="${notif.data.contentThumb}" alt="">`;
+        }
+        break;
+        
+      case 'badge':
+        icon = '🏆';
+        iconClass = 'badge';
+        text = `You earned the <strong>${notif.data.badgeName || 'Badge'}</strong> badge! ${notif.data.badgeIcon || ''}`;
+        onclick = `onclick="markNotificationRead(${notif.id}); openBadgeDetail('${notif.data.badgeId}')"`;
+        break;
+        
+      case 'system':
+        icon = '✨';
+        iconClass = 'system';
+        text = notif.data.message || 'System notification';
+        onclick = `onclick="markNotificationRead(${notif.id})"`;
+        break;
+        
+      default:
+        icon = '📢';
+        iconClass = 'system';
+        text = notif.data.message || 'Notification';
+        onclick = `onclick="markNotificationRead(${notif.id})"`;
+    }
+    
+    return `
+      <div class="notification-item ${notif.read ? '' : 'unread'}" ${onclick}>
+        <div class="notification-icon ${iconClass}">${icon}</div>
+        <div class="notification-content">
+          <div class="notification-text">${text}</div>
+          <div class="notification-time">${timeAgo}</div>
+        </div>
+        ${thumb}
+      </div>
+    `;
+  }).join('');
+  
+  container.innerHTML = html;
+}
+
+function getTimeAgo(dateString) {
+  const date = new Date(dateString);
+  const now = new Date();
+  const seconds = Math.floor((now - date) / 1000);
+  
+  if (seconds < 60) return 'Just now';
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+  if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
+  return date.toLocaleDateString();
+}
+
+// Helper to add follower notification
+function notifyNewFollower(followerId, followerName, followerAvatar) {
+  addNotification('follower', {
+    followerId,
+    followerName,
+    followerAvatar
+  });
+}
+
+// Helper to add like notification
+function notifyContentLiked(likerId, likerName, contentId, contentThumb, contentType, placeName) {
+  addNotification('like', {
+    likerId,
+    likerName,
+    contentId,
+    contentThumb,
+    contentType,
+    placeName
+  });
+}
+
+// Helper to add badge notification
+function notifyBadgeEarned(badgeId, badgeName, badgeIcon) {
+  addNotification('badge', {
+    badgeId,
+    badgeName,
+    badgeIcon
+  });
+}
+
+// Helper to add system notification
+function notifySystem(message) {
+  addNotification('system', { message });
+}
+
+function openBadgeDetail(badgeId) {
+  // Find badge and open modal
+  const badge = BADGES.find(b => b.id === badgeId);
+  if (badge) {
+    openBadgeModal(badge.icon, badge.name, badge.desc, true);
   }
 }
 
@@ -6540,7 +6848,7 @@ function renderMyFunReviews() {
       <div class="my-fun-empty">
         <div class="my-fun-empty-icon">⭐</div>
         <div class="my-fun-empty-text">You haven't written any reviews yet</div>
-        <div style="font-size:13px;color:var(--text-muted);margin-top:8px;">Visit a place and tap "Write Review" to share your experience</div>
+        <div style="font-size:14px;color:var(--text-muted);margin-top:8px;">Visit a place and tap "Write Review" to share your experience</div>
       </div>
     `;
     return;
@@ -6972,9 +7280,9 @@ function openSideMenu() {
     myProfileItem.style.display = 'none';
   }
   
-  // Show/hide My Fun for logged in verified users
+  // Show/hide My Fun for logged in users (all users can see notifications)
   const myFunItem = document.getElementById('myFunItem');
-  if (isLoggedIn && state.verificationStatus === 'verified') {
+  if (isLoggedIn) {
     myFunItem.style.display = 'flex';
   } else {
     myFunItem.style.display = 'none';
@@ -6990,6 +7298,9 @@ function openSideMenu() {
   
   // Update dark mode toggle state
   updateDarkModeToggle();
+  
+  // Update notification badge
+  updateNotificationBadge();
   
   document.getElementById('sideMenu').classList.add('active');
   document.getElementById('sideMenuOverlay').classList.add('active');
