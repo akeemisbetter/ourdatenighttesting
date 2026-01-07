@@ -529,6 +529,9 @@
     .side-menu-item-icon { font-size: 20px; width: 28px; text-align: center; }
     .side-menu-item-text { font-size: 15px; font-weight: 500; }
     .side-menu-divider { height: 1px; background: #eee; margin: 8px 24px; }
+    .side-menu-dark-mode { justify-content: flex-start; }
+    .side-menu-dark-mode .side-menu-item-text { flex: 1; }
+    .side-menu-dark-mode .toggle-switch { margin-left: auto; }
     
     /* Payment Modal */
     .payment-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 500; padding: 24px; overflow-y: auto; }
@@ -1510,16 +1513,6 @@
       </div>
     </div>
     
-    <!-- Settings -->
-    <h3 style="font-weight:700;margin-bottom:12px;">Settings</h3>
-    <div class="dark-mode-toggle">
-      <div class="dark-mode-toggle-label">
-        <span>🌙</span>
-        <span>Dark Mode</span>
-      </div>
-      <div class="toggle-switch" id="darkModeToggle" onclick="toggleDarkMode()"></div>
-    </div>
-    
     <h3 style="font-weight:700;margin-bottom:12px;">Interests</h3>
     <div class="filter-chips" id="interestChips"></div>
     
@@ -1692,6 +1685,12 @@
       <span class="side-menu-item-icon">📱</span>
       <span class="side-menu-item-text">Contact Us</span>
     </a>
+    <div class="side-menu-divider"></div>
+    <div class="side-menu-item side-menu-dark-mode" onclick="toggleDarkMode()">
+      <span class="side-menu-item-icon">🌙</span>
+      <span class="side-menu-item-text">Dark Mode</span>
+      <div class="toggle-switch" id="darkModeToggle"></div>
+    </div>
   </div>
 </div>
 
@@ -6988,6 +6987,9 @@ function openSideMenu() {
   } else {
     adminDashboardItem.style.display = 'none';
   }
+  
+  // Update dark mode toggle state
+  updateDarkModeToggle();
   
   document.getElementById('sideMenu').classList.add('active');
   document.getElementById('sideMenuOverlay').classList.add('active');
