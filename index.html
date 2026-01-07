@@ -644,6 +644,51 @@
     .friendships-activity-text strong { font-weight: 600; }
     .friendships-activity-time { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
     .friendships-activity-image { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; flex-shrink: 0; cursor: pointer; }
+    
+    /* My Fun Modal */
+    .my-fun-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 350; padding: 16px; }
+    .my-fun-modal.active { display: flex; }
+    .my-fun-box { background: var(--bg-card); border-radius: 20px; width: 100%; max-width: 500px; max-height: 85vh; overflow: hidden; display: flex; flex-direction: column; }
+    .my-fun-header { padding: 16px 20px; border-bottom: 1px solid var(--border-color); }
+    .my-fun-header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .my-fun-title { font-size: 20px; font-weight: 700; color: var(--text-primary); }
+    .my-fun-close { background: none; border: none; font-size: 24px; color: var(--text-muted); cursor: pointer; }
+    .my-fun-tabs { display: flex; gap: 4px; background: var(--bg-secondary); border-radius: 12px; padding: 4px; }
+    .my-fun-tab { flex: 1; padding: 10px 12px; border: none; background: transparent; border-radius: 10px; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
+    .my-fun-tab.active { background: var(--bg-card); color: var(--text-primary); box-shadow: 0 2px 4px var(--shadow-color); }
+    .my-fun-controls { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; border-bottom: 1px solid var(--border-color); }
+    .my-fun-sort { display: flex; align-items: center; gap: 8px; }
+    .my-fun-sort-label { font-size: 13px; color: var(--text-muted); }
+    .my-fun-sort-select { padding: 6px 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); cursor: pointer; }
+    .my-fun-count { font-size: 13px; color: var(--text-muted); }
+    .my-fun-content { flex: 1; overflow-y: auto; padding: 16px; }
+    .my-fun-panel { display: none; }
+    .my-fun-panel.active { display: block; }
+    .my-fun-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .my-fun-item { position: relative; aspect-ratio: 1; border-radius: 12px; overflow: hidden; cursor: pointer; }
+    .my-fun-item img, .my-fun-item video { width: 100%; height: 100%; object-fit: cover; }
+    .my-fun-item-overlay { position: absolute; inset: 0; background: linear-gradient(transparent 50%, rgba(0,0,0,0.7)); opacity: 0; transition: opacity 0.2s; }
+    .my-fun-item:hover .my-fun-item-overlay { opacity: 1; }
+    .my-fun-item-info { position: absolute; bottom: 8px; left: 8px; right: 8px; color: white; }
+    .my-fun-item-place { font-size: 11px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .my-fun-item-date { font-size: 10px; opacity: 0.8; }
+    .my-fun-item-likes { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.6); color: white; padding: 2px 6px; border-radius: 8px; font-size: 10px; }
+    .my-fun-item-video { position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.6); color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; }
+    .my-fun-item-delete { position: absolute; bottom: 8px; right: 8px; background: var(--primary); color: white; border: none; padding: 4px 8px; border-radius: 12px; font-size: 10px; cursor: pointer; opacity: 0; transition: opacity 0.2s; }
+    .my-fun-item:hover .my-fun-item-delete { opacity: 1; }
+    .my-fun-empty { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+    .my-fun-empty-icon { font-size: 48px; margin-bottom: 16px; }
+    .my-fun-empty-text { margin-bottom: 16px; }
+    .my-fun-empty-btn { display: inline-block; padding: 12px 24px; background: var(--secondary); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; }
+    .my-fun-review { background: var(--bg-secondary); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+    .my-fun-review-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+    .my-fun-review-place { font-weight: 600; color: var(--text-primary); cursor: pointer; }
+    .my-fun-review-place:hover { text-decoration: underline; }
+    .my-fun-review-rating { color: #f5a623; }
+    .my-fun-review-text { font-size: 14px; color: var(--text-primary); line-height: 1.5; margin-bottom: 8px; }
+    .my-fun-review-date { font-size: 12px; color: var(--text-muted); }
+    .my-fun-review-delete { background: none; border: none; color: var(--primary); font-size: 12px; cursor: pointer; margin-left: 12px; }
+    
     .user-profile-body { padding: 20px; }
     .user-profile-section-title { font-weight: 700; margin-bottom: 12px; }
     .user-profile-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
@@ -931,6 +976,18 @@
     [data-theme="dark"] .friendships-btn { background: var(--bg-card); border-color: var(--border-color); color: var(--text-primary); }
     [data-theme="dark"] .friendships-activity-item { background: var(--bg-secondary); }
     [data-theme="dark"] .friendships-activity-text { color: var(--text-primary); }
+    
+    [data-theme="dark"] .my-fun-box { background: var(--bg-card); }
+    [data-theme="dark"] .my-fun-header { border-color: var(--border-color); }
+    [data-theme="dark"] .my-fun-title { color: var(--text-primary); }
+    [data-theme="dark"] .my-fun-tabs { background: var(--bg-secondary); }
+    [data-theme="dark"] .my-fun-tab { color: var(--text-muted); }
+    [data-theme="dark"] .my-fun-tab.active { background: var(--bg-card); color: var(--text-primary); }
+    [data-theme="dark"] .my-fun-controls { border-color: var(--border-color); }
+    [data-theme="dark"] .my-fun-sort-select { background: var(--bg-secondary); border-color: var(--border-color); color: var(--text-primary); }
+    [data-theme="dark"] .my-fun-review { background: var(--bg-secondary); }
+    [data-theme="dark"] .my-fun-review-place { color: var(--text-primary); }
+    [data-theme="dark"] .my-fun-review-text { color: var(--text-primary); }
     
     [data-theme="dark"] .payment-box { background: var(--bg-card); }
     [data-theme="dark"] .payment-box h2, [data-theme="dark"] .payment-box h3 { color: var(--text-primary); }
@@ -1316,14 +1373,6 @@
       </div>
     </div>
     
-    <!-- My Uploads Section (verified users only) -->
-    <div id="myUploadsSection" class="profile-card my-uploads" style="display:none;">
-      <h3>📸 My Uploads</h3>
-      <div class="upload-grid" id="myUploadsGrid">
-        <p style="color:#888;font-size:13px;grid-column:1/-1;">You haven't uploaded anything yet.</p>
-      </div>
-    </div>
-    
     <!-- Settings -->
     <h3 style="font-weight:700;margin-bottom:12px;">Settings</h3>
     <div class="dark-mode-toggle">
@@ -1493,6 +1542,10 @@
       <span class="side-menu-item-icon">👥</span>
       <span class="side-menu-item-text">Friendships</span>
     </div>
+    <div class="side-menu-item" id="myFunItem" style="display:none;" onclick="openMyFunModal()">
+      <span class="side-menu-item-icon">🎉</span>
+      <span class="side-menu-item-text">My Fun</span>
+    </div>
     <div class="side-menu-item" onclick="openPaymentModal()">
       <span class="side-menu-item-icon">💳</span>
       <span class="side-menu-item-text">Payments</span>
@@ -1651,6 +1704,47 @@
           <div class="friendships-list" id="friendshipsSuggestionsList">
             <!-- Filled by JS -->
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- My Fun Modal -->
+<div class="my-fun-modal" id="myFunModal">
+  <div class="my-fun-box">
+    <div class="my-fun-header">
+      <div class="my-fun-header-top">
+        <div class="my-fun-title">🎉 My Fun</div>
+        <button class="my-fun-close" onclick="closeMyFunModal()">✕</button>
+      </div>
+      <div class="my-fun-tabs">
+        <button class="my-fun-tab active" onclick="showMyFunTab('uploads')" data-tab="uploads">Uploads</button>
+        <button class="my-fun-tab" onclick="showMyFunTab('reviews')" data-tab="reviews">Reviews</button>
+      </div>
+    </div>
+    <div class="my-fun-controls">
+      <div class="my-fun-sort">
+        <span class="my-fun-sort-label">Sort:</span>
+        <select class="my-fun-sort-select" id="myFunSortSelect" onchange="sortMyFun()">
+          <option value="newest">Newest First</option>
+          <option value="oldest">Oldest First</option>
+        </select>
+      </div>
+      <div class="my-fun-count" id="myFunCount">0 items</div>
+    </div>
+    <div class="my-fun-content">
+      <!-- Uploads Panel -->
+      <div class="my-fun-panel active" id="myFunUploadsPanel">
+        <div class="my-fun-grid" id="myFunUploadsGrid">
+          <!-- Filled by JS -->
+        </div>
+      </div>
+      
+      <!-- Reviews Panel -->
+      <div class="my-fun-panel" id="myFunReviewsPanel">
+        <div id="myFunReviewsList">
+          <!-- Filled by JS -->
         </div>
       </div>
     </div>
@@ -3735,9 +3829,6 @@ async function renderProfile() {
   if (isLoggedIn && userProfile?.is_admin) {
     await renderAdminPanel();
   }
-  
-  // Load my uploads if verified
-  await loadMyUploads();
 }
 
 async function toggleInterest(key) {
@@ -5577,6 +5668,237 @@ async function updateProfileFollowStats() {
   }
 }
 
+// ============ MY FUN MODAL ============
+let currentMyFunTab = 'uploads';
+let myFunSortOrder = 'newest';
+
+function openMyFunModal() {
+  closeSideMenu();
+  
+  if (!isLoggedIn || !currentUser) {
+    alert('Please log in to view your fun');
+    return;
+  }
+  
+  currentMyFunTab = 'uploads';
+  myFunSortOrder = 'newest';
+  document.getElementById('myFunSortSelect').value = 'newest';
+  
+  showMyFunTab('uploads');
+  document.getElementById('myFunModal').classList.add('active');
+}
+
+function closeMyFunModal() {
+  document.getElementById('myFunModal').classList.remove('active');
+}
+
+function showMyFunTab(tabName) {
+  currentMyFunTab = tabName;
+  
+  // Update tab buttons
+  document.querySelectorAll('.my-fun-tab').forEach(tab => {
+    tab.classList.toggle('active', tab.dataset.tab === tabName);
+  });
+  
+  // Update panels
+  document.querySelectorAll('.my-fun-panel').forEach(panel => {
+    panel.classList.remove('active');
+  });
+  
+  if (tabName === 'uploads') {
+    document.getElementById('myFunUploadsPanel').classList.add('active');
+    renderMyFunUploads();
+  } else if (tabName === 'reviews') {
+    document.getElementById('myFunReviewsPanel').classList.add('active');
+    renderMyFunReviews();
+  }
+}
+
+function sortMyFun() {
+  myFunSortOrder = document.getElementById('myFunSortSelect').value;
+  
+  if (currentMyFunTab === 'uploads') {
+    renderMyFunUploads();
+  } else {
+    renderMyFunReviews();
+  }
+}
+
+function renderMyFunUploads() {
+  const grid = document.getElementById('myFunUploadsGrid');
+  
+  if (!isLoggedIn || !currentUser) {
+    grid.innerHTML = `
+      <div class="my-fun-empty" style="grid-column:1/-1;">
+        <div class="my-fun-empty-icon">🔐</div>
+        <div class="my-fun-empty-text">Please log in to see your uploads</div>
+      </div>
+    `;
+    document.getElementById('myFunCount').textContent = '0 items';
+    return;
+  }
+  
+  let myUploads = userGeneratedContent.filter(c => c.user_id === currentUser.id);
+  
+  // Sort
+  if (myFunSortOrder === 'newest') {
+    myUploads.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+  } else {
+    myUploads.sort((a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0));
+  }
+  
+  document.getElementById('myFunCount').textContent = `${myUploads.length} upload${myUploads.length !== 1 ? 's' : ''}`;
+  
+  if (myUploads.length === 0) {
+    grid.innerHTML = `
+      <div class="my-fun-empty" style="grid-column:1/-1;">
+        <div class="my-fun-empty-icon">📸</div>
+        <div class="my-fun-empty-text">You haven't uploaded anything yet</div>
+        <button class="my-fun-empty-btn" onclick="closeMyFunModal(); openUploadModal()">Upload Your First Photo</button>
+      </div>
+    `;
+    return;
+  }
+  
+  grid.innerHTML = myUploads.map(content => {
+    const date = content.created_at ? new Date(content.created_at).toLocaleDateString() : '';
+    
+    return `
+      <div class="my-fun-item" onclick="openContentDetail(${content.id})">
+        ${content.media_type === 'video' 
+          ? `<video src="${content.media_url}" muted></video><span class="my-fun-item-video">▶</span>`
+          : `<img src="${content.media_url}" alt="">`
+        }
+        <div class="my-fun-item-overlay">
+          <div class="my-fun-item-info">
+            <div class="my-fun-item-place">${content.place_name || 'Unknown place'}</div>
+            <div class="my-fun-item-date">${date}</div>
+          </div>
+        </div>
+        <div class="my-fun-item-likes">❤️ ${content.likes || 0}</div>
+        <button class="my-fun-item-delete" onclick="event.stopPropagation(); deleteMyFunUpload(${content.id})">🗑️</button>
+      </div>
+    `;
+  }).join('');
+}
+
+async function deleteMyFunUpload(contentId) {
+  if (!confirm('Delete this upload? This cannot be undone.')) return;
+  
+  try {
+    const { error } = await db
+      .from('user_content')
+      .delete()
+      .eq('id', contentId)
+      .eq('user_id', currentUser.id);
+    
+    if (error) {
+      console.error('Error deleting content:', error);
+      alert('Error deleting content');
+      return;
+    }
+    
+    // Remove from local state
+    userGeneratedContent = userGeneratedContent.filter(c => c.id !== contentId);
+    
+    // Refresh UI
+    renderMyFunUploads();
+    renderDiscover();
+    
+    alert('Upload deleted successfully');
+  } catch (err) {
+    console.error('Delete error:', err);
+    alert('Error deleting upload');
+  }
+}
+
+function renderMyFunReviews() {
+  const container = document.getElementById('myFunReviewsList');
+  
+  if (!isLoggedIn || !currentUser) {
+    container.innerHTML = `
+      <div class="my-fun-empty">
+        <div class="my-fun-empty-icon">🔐</div>
+        <div class="my-fun-empty-text">Please log in to see your reviews</div>
+      </div>
+    `;
+    document.getElementById('myFunCount').textContent = '0 items';
+    return;
+  }
+  
+  // Get reviews from localStorage
+  const reviewsKey = `reviews_${currentUser.id}`;
+  let myReviews = JSON.parse(localStorage.getItem(reviewsKey) || '[]');
+  
+  // Sort
+  if (myFunSortOrder === 'newest') {
+    myReviews.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+  } else {
+    myReviews.sort((a, b) => new Date(a.date || 0) - new Date(b.date || 0));
+  }
+  
+  document.getElementById('myFunCount').textContent = `${myReviews.length} review${myReviews.length !== 1 ? 's' : ''}`;
+  
+  if (myReviews.length === 0) {
+    container.innerHTML = `
+      <div class="my-fun-empty">
+        <div class="my-fun-empty-icon">⭐</div>
+        <div class="my-fun-empty-text">You haven't written any reviews yet</div>
+        <div style="font-size:13px;color:var(--text-muted);margin-top:8px;">Visit a place and tap "Write Review" to share your experience</div>
+      </div>
+    `;
+    return;
+  }
+  
+  container.innerHTML = myReviews.map((review, index) => {
+    const stars = '⭐'.repeat(review.rating || 0);
+    const date = review.date ? new Date(review.date).toLocaleDateString() : '';
+    
+    return `
+      <div class="my-fun-review">
+        <div class="my-fun-review-header">
+          <div class="my-fun-review-place" onclick="openLocationModal('${review.placeId}')">${review.placeName || 'Unknown Place'}</div>
+          <div class="my-fun-review-rating">${stars}</div>
+        </div>
+        <div class="my-fun-review-text">${review.text || ''}</div>
+        <div class="my-fun-review-date">
+          ${date}
+          <button class="my-fun-review-delete" onclick="deleteMyFunReview(${index})">Delete</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function deleteMyFunReview(index) {
+  if (!confirm('Delete this review?')) return;
+  
+  const reviewsKey = `reviews_${currentUser.id}`;
+  let myReviews = JSON.parse(localStorage.getItem(reviewsKey) || '[]');
+  
+  myReviews.splice(index, 1);
+  localStorage.setItem(reviewsKey, JSON.stringify(myReviews));
+  
+  renderMyFunReviews();
+}
+
+function saveReview(placeId, placeName, rating, text) {
+  if (!isLoggedIn || !currentUser) return;
+  
+  const reviewsKey = `reviews_${currentUser.id}`;
+  let myReviews = JSON.parse(localStorage.getItem(reviewsKey) || '[]');
+  
+  myReviews.push({
+    placeId,
+    placeName,
+    rating,
+    text,
+    date: new Date().toISOString()
+  });
+  
+  localStorage.setItem(reviewsKey, JSON.stringify(myReviews));
+}
+
 function openMyPublicProfile() {
   closeSideMenu();
   if (!isLoggedIn || !currentUser || state.verificationStatus !== 'verified') {
@@ -5944,67 +6266,6 @@ function calculatePopularity(content) {
   return (likes * 2) + recencyBonus;
 }
 
-// ============ MY UPLOADS ============
-async function loadMyUploads() {
-  if (!isLoggedIn || !currentUser || state.verificationStatus !== 'verified') {
-    document.getElementById('myUploadsSection').style.display = 'none';
-    return;
-  }
-  
-  document.getElementById('myUploadsSection').style.display = 'block';
-  
-  const myContent = userGeneratedContent.filter(c => c.user_id === currentUser.id);
-  const grid = document.getElementById('myUploadsGrid');
-  
-  if (myContent.length === 0) {
-    grid.innerHTML = '<p style="color:#888;font-size:13px;grid-column:1/-1;">You haven\'t uploaded anything yet.</p>';
-    return;
-  }
-  
-  grid.innerHTML = myContent.map(content => `
-    <div class="upload-thumb">
-      ${content.media_type === 'video' 
-        ? `<video src="${content.media_url}" muted></video><span class="upload-thumb-video-icon">▶</span>`
-        : `<img src="${content.media_url}" alt="">`
-      }
-      <div class="upload-thumb-overlay">
-        <button class="upload-thumb-delete" onclick="deleteMyUpload(${content.id})">🗑️ Delete</button>
-      </div>
-    </div>
-  `).join('');
-}
-
-async function deleteMyUpload(contentId) {
-  if (!confirm('Delete this upload? This cannot be undone.')) return;
-  
-  try {
-    const { error } = await db
-      .from('user_content')
-      .delete()
-      .eq('id', contentId)
-      .eq('user_id', currentUser.id);
-    
-    if (error) {
-      console.error('Error deleting content:', error);
-      alert('Error deleting content');
-      return;
-    }
-    
-    // Remove from local state
-    userGeneratedContent = userGeneratedContent.filter(c => c.id !== contentId);
-    
-    // Refresh UI
-    loadMyUploads();
-    renderDiscover();
-    
-    alert('Upload deleted successfully');
-    
-  } catch (err) {
-    console.error('deleteMyUpload error:', err);
-    alert('Error deleting upload');
-  }
-}
-
 // ============ SIDE MENU ============
 function openSideMenu() {
   // Show/hide My Public Profile based on verification status
@@ -6013,6 +6274,14 @@ function openSideMenu() {
     myProfileItem.style.display = 'flex';
   } else {
     myProfileItem.style.display = 'none';
+  }
+  
+  // Show/hide My Fun for logged in verified users
+  const myFunItem = document.getElementById('myFunItem');
+  if (isLoggedIn && state.verificationStatus === 'verified') {
+    myFunItem.style.display = 'flex';
+  } else {
+    myFunItem.style.display = 'none';
   }
   
   // Show admin dashboard link for admins
@@ -6657,6 +6926,9 @@ document.getElementById('followListModal').addEventListener('click', function(e)
 });
 document.getElementById('friendshipsModal').addEventListener('click', function(e) {
   if (e.target === this) closeFriendshipsModal();
+});
+document.getElementById('myFunModal').addEventListener('click', function(e) {
+  if (e.target === this) closeMyFunModal();
 });
 </script>
 </body>
