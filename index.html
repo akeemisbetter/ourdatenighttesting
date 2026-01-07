@@ -4415,9 +4415,30 @@ async function openUserProfileModal(userId, userName) {
   if (isOwnProfile && userProfile?.avatar) {
     userAvatar = userProfile.avatar;
   } else {
-    // Try to get avatar from user's content
-    const contentWithAvatar = userContent.find(c => c.user_avatar);
-    if (contentWithAvatar) userAvatar = contentWithAvatar.user_avatar;
+    // Fetch user's profile from database to get their avatar
+    try {
+      const { data: profileData, error } = await db
+        .from('profiles')
+        .select('avatar, name')
+        .eq('id', userId)
+        .single();
+      
+      if (!error && profileData && profileData.avatar) {
+        userAvatar = profileData.avatar;
+        // Update name if we got a better one
+        if (profileData.name && profileData.name !== userName) {
+          document.getElementById('userProfileName').textContent = profileData.name;
+        }
+      }
+    } catch (err) {
+      console.log('Error fetching user profile:', err);
+    }
+    
+    // Fallback to avatar from user's content if no profile avatar
+    if (!userAvatar) {
+      const contentWithAvatar = userContent.find(c => c.user_avatar);
+      if (contentWithAvatar) userAvatar = contentWithAvatar.user_avatar;
+    }
   }
   
   // Display avatar with animation if applicable
@@ -4532,7 +4553,9 @@ let followData = {
   activityFeed: [], // Activity from people I follow
   likedContent: [], // Array of content IDs I've liked (to prevent double-liking)
   // Global registry of all follow relationships (userId -> array of follower userIds)
-  allFollowers: {}
+  allFollowers: {},
+  // Cache of followed user info (userId -> {name, avatar})
+  followedUsers: {}
 };
 
 function loadFollowData() {
@@ -4540,8 +4563,9 @@ function loadFollowData() {
   if (saved) {
     const parsed = JSON.parse(saved);
     followData = { ...followData, ...parsed };
-    // Ensure allFollowers exists
+    // Ensure objects exist
     if (!followData.allFollowers) followData.allFollowers = {};
+    if (!followData.followedUsers) followData.followedUsers = {};
   }
 }
 
@@ -4620,12 +4644,29 @@ async function toggleFollow() {
       followData.allFollowers[currentProfileUserId].push(myUserId);
     }
     
+    // Store user info for the followed user
+    const userName = document.getElementById('userProfileName').textContent;
+    const avatarEl = document.getElementById('userProfileAvatar');
+    let userAvatar = null;
+    
+    // Get avatar from the profile modal
+    const avatarImg = avatarEl.querySelector('img');
+    if (avatarImg) {
+      userAvatar = avatarImg.src;
+    } else {
+      userAvatar = avatarEl.textContent || avatarEl.innerHTML;
+    }
+    
+    followData.followedUsers[currentProfileUserId] = {
+      name: userName,
+      avatar: userAvatar
+    };
+    
     btn.textContent = 'Following ✓';
     btn.classList.remove('follow');
     btn.classList.add('following');
     
     // Record activity
-    const userName = document.getElementById('userProfileName').textContent;
     recordFollowActivity(currentProfileUserId, userName);
   }
   
@@ -4634,9 +4675,30 @@ async function toggleFollow() {
   updateProfileFollowStats();
 }
 
-function recordFollowActivity(userId, userName) {
+async function recordFollowActivity(userId, userName) {
   // Get user's content to create activity entries
   const userContent = userGeneratedContent.filter(c => c.user_id === userId);
+  
+  // Try to get user's avatar from their profile if not in content
+  let userAvatar = null;
+  if (userContent.length > 0 && userContent[0].user_avatar) {
+    userAvatar = userContent[0].user_avatar;
+  } else {
+    // Fetch from profiles table
+    try {
+      const { data: profile } = await db
+        .from('profiles')
+        .select('avatar')
+        .eq('id', userId)
+        .single();
+      
+      if (profile && profile.avatar) {
+        userAvatar = profile.avatar;
+      }
+    } catch (err) {
+      console.log('Error fetching profile for activity:', err);
+    }
+  }
   
   userContent.forEach(content => {
     // Check if activity already exists
@@ -4649,7 +4711,7 @@ function recordFollowActivity(userId, userName) {
         type: 'upload',
         userId: userId,
         userName: userName,
-        userAvatar: content.user_avatar,
+        userAvatar: content.user_avatar || userAvatar,
         contentId: content.id,
         placeId: content.place_id,
         placeName: content.place_name,
@@ -4923,7 +4985,7 @@ function renderFriendshipsActivity() {
   }).join('');
 }
 
-function renderFriendshipsFollowing() {
+async function renderFriendshipsFollowing() {
   loadFollowData();
   const container = document.getElementById('friendshipsFollowingList');
   
@@ -4948,18 +5010,111 @@ function renderFriendshipsFollowing() {
     return;
   }
   
-  const followingUsers = followData.following.map(userId => {
-    const userContent = userGeneratedContent.find(c => c.user_id === userId);
-    if (!userContent) return null;
-    
-    return {
-      id: userId,
-      name: userContent.user_name,
-      avatar: userContent.user_avatar,
-      postCount: userGeneratedContent.filter(c => c.user_id === userId).length,
-      verified: userContent.user_verified
-    };
-  }).filter(u => u !== null);
+  // Show loading
+  container.innerHTML = '<div class="friendships-empty"><div>Loading...</div></div>';
+  
+  // Build users map - first check cache, then content, then fetch from DB
+  const usersMap = {};
+  
+  // First, use cached followedUsers data
+  followData.following.forEach(userId => {
+    if (followData.followedUsers && followData.followedUsers[userId]) {
+      const cached = followData.followedUsers[userId];
+      usersMap[userId] = {
+        id: userId,
+        name: cached.name,
+        avatar: cached.avatar,
+        postCount: userGeneratedContent.filter(c => c.user_id === userId).length,
+        verified: userGeneratedContent.some(c => c.user_id === userId && c.user_verified)
+      };
+    }
+  });
+  
+  // Then check user content for any we don't have
+  followData.following.forEach(userId => {
+    if (!usersMap[userId]) {
+      const userContent = userGeneratedContent.filter(c => c.user_id === userId);
+      if (userContent.length > 0) {
+        usersMap[userId] = {
+          id: userId,
+          name: userContent[0].user_name,
+          avatar: userContent[0].user_avatar,
+          postCount: userContent.length,
+          verified: userContent.some(c => c.user_verified)
+        };
+      }
+    }
+  });
+  
+  // Fetch profiles from database for users we still don't have info for
+  const missingUserIds = followData.following.filter(id => !usersMap[id]);
+  if (missingUserIds.length > 0) {
+    try {
+      const { data: profiles, error } = await db
+        .from('profiles')
+        .select('id, name, email, avatar')
+        .in('id', missingUserIds);
+      
+      if (!error && profiles) {
+        profiles.forEach(profile => {
+          usersMap[profile.id] = {
+            id: profile.id,
+            name: profile.name || profile.email?.split('@')[0] || 'User',
+            avatar: profile.avatar,
+            postCount: 0,
+            verified: false
+          };
+          
+          // Cache this for future use
+          followData.followedUsers[profile.id] = {
+            name: profile.name || profile.email?.split('@')[0] || 'User',
+            avatar: profile.avatar
+          };
+        });
+        saveFollowData();
+      }
+    } catch (err) {
+      console.log('Error fetching profiles:', err);
+    }
+  }
+  
+  // Update avatars from profiles for users who might have updated their avatar
+  const usersToUpdateAvatars = followData.following.filter(id => usersMap[id]);
+  if (usersToUpdateAvatars.length > 0) {
+    try {
+      const { data: profiles, error } = await db
+        .from('profiles')
+        .select('id, avatar, name')
+        .in('id', usersToUpdateAvatars);
+      
+      if (!error && profiles) {
+        profiles.forEach(profile => {
+          if (profile.avatar && usersMap[profile.id]) {
+            usersMap[profile.id].avatar = profile.avatar;
+          }
+          if (profile.name && usersMap[profile.id]) {
+            usersMap[profile.id].name = profile.name;
+          }
+        });
+      }
+    } catch (err) {
+      console.log('Error fetching profile avatars:', err);
+    }
+  }
+  
+  const followingUsers = followData.following
+    .map(userId => usersMap[userId])
+    .filter(u => u !== undefined);
+  
+  if (followingUsers.length === 0) {
+    container.innerHTML = `
+      <div class="friendships-empty">
+        <div class="friendships-empty-icon">👥</div>
+        <div>Could not load following list</div>
+      </div>
+    `;
+    return;
+  }
   
   container.innerHTML = `
     <div class="friendships-section-title">Following (${followingUsers.length})</div>
@@ -5106,6 +5261,8 @@ async function searchFriendships() {
 
 function renderFriendshipsUserItem(user, isFollowingUser) {
   let avatarHtml = '';
+  let avatarValue = user.avatar || user.name.charAt(0).toUpperCase();
+  
   if (user.avatar && user.avatar.startsWith('http')) {
     avatarHtml = `<img src="${user.avatar}" alt="">`;
   } else if (user.avatar) {
@@ -5114,19 +5271,22 @@ function renderFriendshipsUserItem(user, isFollowingUser) {
     avatarHtml = user.name.charAt(0).toUpperCase();
   }
   
+  // Escape the avatar for onclick
+  const escapedAvatar = (avatarValue || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
+  
   const followBtnText = isFollowingUser ? 'Following' : 'Follow';
   const followBtnClass = isFollowingUser ? 'following' : '';
   
   return `
     <div class="friendships-item">
-      <div class="friendships-avatar" onclick="viewFriendProfile('${user.id}', '${user.name}')">
+      <div class="friendships-avatar" onclick="viewFriendProfile('${user.id}', '${user.name.replace(/'/g, "\\'")}')">
         ${avatarHtml}
       </div>
-      <div class="friendships-info" onclick="viewFriendProfile('${user.id}', '${user.name}')">
+      <div class="friendships-info" onclick="viewFriendProfile('${user.id}', '${user.name.replace(/'/g, "\\'")}')">
         <div class="friendships-name">${user.name} ${user.verified ? '✓' : ''}</div>
         <div class="friendships-meta">${user.postCount} post${user.postCount !== 1 ? 's' : ''}</div>
       </div>
-      <button class="friendships-btn ${followBtnClass}" onclick="toggleFriendshipFollow('${user.id}', '${user.name}', this)">
+      <button class="friendships-btn ${followBtnClass}" onclick="toggleFriendshipFollow('${user.id}', '${user.name.replace(/'/g, "\\'")}', '${escapedAvatar}', this)">
         ${followBtnText}
       </button>
     </div>
@@ -5138,7 +5298,7 @@ function viewFriendProfile(userId, userName) {
   openUserProfileModal(userId, userName);
 }
 
-function toggleFriendshipFollow(userId, userName, btn) {
+function toggleFriendshipFollow(userId, userName, userAvatar, btn) {
   if (!isLoggedIn) {
     alert('Please log in to follow users');
     return;
@@ -5165,6 +5325,13 @@ function toggleFriendshipFollow(userId, userName, btn) {
     if (myUserId && !followData.allFollowers[userId].includes(myUserId)) {
       followData.allFollowers[userId].push(myUserId);
     }
+    
+    // Store user info
+    followData.followedUsers[userId] = {
+      name: userName,
+      avatar: userAvatar
+    };
+    
     btn.textContent = 'Following';
     btn.classList.add('following');
     recordFollowActivity(userId, userName);
@@ -5181,11 +5348,17 @@ function toggleFriendshipFollow(userId, userName, btn) {
 
 // Update profile tab follow stats
 function updateProfileFollowStats() {
+  loadFollowData();
+  
   const followersEl = document.getElementById('profileFollowers');
   const followingEl = document.getElementById('profileFollowing');
   
   if (followersEl) {
-    followersEl.textContent = followData.followers.length;
+    // Count my followers from allFollowers
+    const myFollowers = (isLoggedIn && currentUser) 
+      ? (followData.allFollowers[currentUser.id] || []).length 
+      : 0;
+    followersEl.textContent = myFollowers;
   }
   if (followingEl) {
     followingEl.textContent = followData.following.length;
