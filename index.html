@@ -5142,6 +5142,11 @@ function initApp() {
   renderPlan();
   renderProfile();
   document.querySelector('.nav-center').classList.add('active');
+  
+  // Start notification polling for real-time updates
+  if (isLoggedIn && currentUser) {
+    startNotificationPolling();
+  }
 }
 
 // ============ LOCATION DETAIL MODAL ============
@@ -5908,6 +5913,7 @@ async function toggleFollowFromList(userId, userName) {
     recordFollowActivity(userId, userName);
     
     // Send notification to the user being followed
+    console.log('Sending follow notification from list to:', userId);
     const followerName = userProfile?.name || 'Someone';
     const followerAvatar = userProfile?.avatar || null;
     await notifyNewFollower(
@@ -5916,6 +5922,7 @@ async function toggleFollowFromList(userId, userName) {
       followerName,        // follower name
       followerAvatar       // follower avatar
     );
+    console.log('Follow notification sent from list!');
   }
   saveFollowData();
   openFollowersList(); // Refresh list
@@ -6401,6 +6408,18 @@ async function toggleFriendshipFollow(userId, userName, userAvatar, btn) {
     btn.textContent = 'Following';
     btn.classList.add('following');
     recordFollowActivity(userId, userName);
+    
+    // Send notification to the user being followed
+    console.log('Sending follow notification from search to:', userId);
+    const followerName = userProfile?.name || 'Someone';
+    const followerAvatar = userProfile?.avatar || null;
+    await notifyNewFollower(
+      userId,              // target user (person being followed)
+      currentUser.id,      // follower id
+      followerName,        // follower name
+      followerAvatar       // follower avatar
+    );
+    console.log('Follow notification sent from search!');
   }
   
   saveFollowData();
@@ -6507,6 +6526,8 @@ function sortMyFun() {
 }
 
 // ============ NOTIFICATIONS ============
+let notificationPollInterval = null;
+
 async function loadNotifications() {
   if (!currentUser) return;
   
@@ -6687,6 +6708,76 @@ function clearAllNotifications() {
   userNotifications = [];
   saveNotifications();
   renderMyFunNotifications();
+}
+
+// Start polling for new notifications
+function startNotificationPolling() {
+  if (notificationPollInterval) {
+    clearInterval(notificationPollInterval);
+  }
+  
+  // Poll every 10 seconds
+  notificationPollInterval = setInterval(async () => {
+    if (!currentUser) return;
+    
+    // Check localStorage for new notifications (from other users on same device)
+    const notifKey = `notifications_${currentUser.id}`;
+    const storedNotifs = JSON.parse(localStorage.getItem(notifKey) || '[]');
+    
+    // Check if there are new notifications
+    if (storedNotifs.length > userNotifications.length) {
+      console.log('New notifications detected via polling!');
+      userNotifications = storedNotifs;
+      updateNotificationBadge();
+    }
+    
+    // Also check Supabase for cross-device notifications
+    try {
+      const { data, error } = await db
+        .from('notifications')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .eq('read', false)
+        .order('created_at', { ascending: false })
+        .limit(50);
+      
+      if (!error && data) {
+        let hasNew = false;
+        data.forEach(n => {
+          const exists = userNotifications.find(un => un.id === n.id);
+          if (!exists) {
+            hasNew = true;
+            userNotifications.unshift({
+              id: n.id,
+              type: n.type,
+              data: n.data,
+              read: n.read,
+              createdAt: n.created_at
+            });
+          }
+        });
+        
+        if (hasNew) {
+          console.log('New notifications from Supabase!');
+          userNotifications.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+          saveNotifications();
+        }
+      }
+    } catch (err) {
+      // Silently fail for Supabase polling
+    }
+  }, 10000); // 10 seconds
+  
+  console.log('Notification polling started');
+}
+
+// Stop polling
+function stopNotificationPolling() {
+  if (notificationPollInterval) {
+    clearInterval(notificationPollInterval);
+    notificationPollInterval = null;
+    console.log('Notification polling stopped');
+  }
 }
 
 function renderMyFunNotifications() {
