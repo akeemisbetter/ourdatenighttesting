@@ -222,12 +222,81 @@
     .date-empty-btn { display: inline-block; padding: 12px 24px; background: var(--secondary); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; text-decoration: none; }
     
     /* Plan Section */
-    .plan-card { background: white; border-radius: 16px; padding: 16px; }
-    .plan-label { font-weight: 600; margin-bottom: 8px; display: block; }
-    .plan-input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 14px; margin-bottom: 16px; }
+    .plan-card { background: white; border-radius: 16px; padding: 20px; }
+    .plan-label { font-weight: 600; margin-bottom: 8px; display: block; color: var(--text-primary); }
+    .plan-input { width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 12px; font-size: 14px; margin-bottom: 16px; }
     .part-count-row { display: flex; gap: 8px; margin-bottom: 16px; }
-    .part-count-btn { width: 40px; height: 40px; border-radius: 50%; border: none; font-weight: 600; cursor: pointer; background: #e9ecef; color: #555; }
-    .part-count-btn.active { background: var(--secondary); color: white; }
+    .part-count-btn { width: 44px; height: 44px; border-radius: 12px; border: 2px solid #e9ecef; font-weight: 600; cursor: pointer; background: white; color: #555; transition: all 0.2s; }
+    .part-count-btn:hover { border-color: var(--secondary); }
+    .part-count-btn.active { background: var(--secondary); color: white; border-color: var(--secondary); }
+    
+    /* New Part Builder */
+    .plan-part-builder { margin-bottom: 20px; }
+    .plan-part-item { background: #f8f9fa; border-radius: 16px; padding: 16px; margin-bottom: 12px; border: 2px solid transparent; transition: all 0.2s; }
+    .plan-part-item.has-selection { border-color: var(--secondary); background: linear-gradient(135deg, #f0f4ff 0%, #fff 100%); }
+    .plan-part-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .plan-part-number { width: 32px; height: 32px; border-radius: 50%; background: var(--secondary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0; }
+    .plan-part-title { flex: 1; font-weight: 600; color: var(--text-primary); }
+    .plan-part-remove { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 18px; padding: 4px; }
+    .plan-part-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    .plan-part-control { display: flex; flex-direction: column; gap: 6px; }
+    .plan-part-control label { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+    .plan-part-select { padding: 10px 12px; border: 2px solid #e9ecef; border-radius: 10px; font-size: 14px; background: white; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+    .plan-part-time { padding: 10px 12px; border: 2px solid #e9ecef; border-radius: 10px; font-size: 14px; width: 100%; }
+    .plan-part-duration { display: flex; gap: 6px; flex-wrap: wrap; }
+    .plan-duration-btn { padding: 8px 12px; border: 2px solid #e9ecef; border-radius: 8px; background: white; font-size: 12px; cursor: pointer; transition: all 0.2s; }
+    .plan-duration-btn:hover { border-color: var(--secondary); }
+    .plan-duration-btn.active { background: var(--secondary); color: white; border-color: var(--secondary); }
+    .plan-part-selected { display: flex; align-items: center; gap: 12px; padding: 12px; background: white; border-radius: 12px; border: 2px solid var(--secondary); }
+    .plan-part-selected-img { width: 60px; height: 60px; border-radius: 10px; object-fit: cover; }
+    .plan-part-selected-info { flex: 1; min-width: 0; }
+    .plan-part-selected-title { font-weight: 600; font-size: 14px; margin-bottom: 2px; }
+    .plan-part-selected-meta { font-size: 12px; color: var(--text-muted); }
+    .plan-part-selected-actions { display: flex; flex-direction: column; gap: 4px; }
+    .plan-part-btn { padding: 6px 12px; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
+    .plan-part-btn.view { background: #f0f0f0; color: var(--text-primary); }
+    .plan-part-btn.change { background: none; color: var(--secondary); }
+    .plan-part-choose { width: 100%; padding: 14px; border: 2px dashed #e9ecef; border-radius: 12px; background: white; color: var(--text-muted); font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .plan-part-choose:hover { border-color: var(--secondary); color: var(--secondary); }
+    .plan-travel-time { display: flex; align-items: center; gap: 8px; padding: 8px 0; margin-left: 16px; font-size: 12px; color: var(--text-muted); position: relative; }
+    .plan-travel-time::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, var(--secondary), #e9ecef); }
+    .plan-travel-icon { margin-left: 12px; }
+    .plan-add-part { width: 100%; padding: 14px; border: 2px dashed #e9ecef; border-radius: 12px; background: transparent; color: var(--text-muted); font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .plan-add-part:hover { border-color: var(--secondary); color: var(--secondary); }
+    
+    /* Activity Selection Modal */
+    .plan-select-modal { position: fixed; inset: 0; background: var(--bg-secondary); display: none; z-index: 400; flex-direction: column; }
+    .plan-select-modal.active { display: flex; }
+    .plan-select-header { background: white; padding: 16px 20px; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 10; }
+    .plan-select-header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .plan-select-back { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-primary); }
+    .plan-select-title { font-size: 18px; font-weight: 700; flex: 1; text-align: center; }
+    .plan-select-close { background: none; border: none; font-size: 24px; color: var(--text-muted); cursor: pointer; width: 24px; }
+    .plan-select-subtitle { font-size: 13px; color: var(--secondary); text-align: center; margin-bottom: 12px; }
+    .plan-select-filters { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
+    .plan-select-filter { padding: 8px 16px; border: 2px solid #e9ecef; border-radius: 20px; background: white; font-size: 13px; white-space: nowrap; cursor: pointer; transition: all 0.2s; }
+    .plan-select-filter.active { background: var(--secondary); color: white; border-color: var(--secondary); }
+    .plan-select-sort { display: flex; align-items: center; gap: 8px; padding: 12px 20px; background: white; border-bottom: 1px solid var(--border-color); }
+    .plan-select-sort label { font-size: 13px; color: var(--text-muted); }
+    .plan-select-sort select { padding: 6px 10px; border: 1px solid #e9ecef; border-radius: 6px; font-size: 13px; }
+    .plan-select-content { flex: 1; overflow-y: auto; padding: 16px; }
+    .plan-select-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .plan-activity-card { background: white; border-radius: 16px; overflow: hidden; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border: 2px solid transparent; }
+    .plan-activity-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .plan-activity-card.selected { border-color: var(--secondary); }
+    .plan-activity-card-img { height: 100px; overflow: hidden; position: relative; }
+    .plan-activity-card-img img { width: 100%; height: 100%; object-fit: cover; }
+    .plan-activity-card-badge { position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.7); color: white; padding: 4px 8px; border-radius: 8px; font-size: 10px; font-weight: 600; }
+    .plan-activity-card-price { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.7); color: #4caf50; padding: 4px 8px; border-radius: 8px; font-size: 11px; font-weight: 600; }
+    .plan-activity-card-body { padding: 12px; }
+    .plan-activity-card-title { font-weight: 600; font-size: 13px; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .plan-activity-card-meta { font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+    .plan-activity-card-actions { display: flex; gap: 6px; }
+    .plan-activity-card-btn { flex: 1; padding: 8px; border: none; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer; }
+    .plan-activity-card-btn.select { background: var(--secondary); color: white; }
+    .plan-activity-card-btn.view { background: #f0f0f0; color: var(--text-primary); }
+    
+    /* Legacy part styles */
     .part-row { display: flex; align-items: center; gap: 12px; background: #f8f9fa; border-radius: 12px; padding: 12px; margin-bottom: 8px; }
     .part-num { font-size: 18px; font-weight: 700; color: var(--secondary); width: 24px; }
     .part-select { flex: 1; background: white; border: none; padding: 10px 12px; border-radius: 8px; cursor: pointer; text-align: left; font-size: 14px; }
@@ -971,6 +1040,24 @@
     [data-theme="dark"] .date-card-btn-calendar:hover { background: var(--border-color); }
     [data-theme="dark"] .date-card-map-label { background: var(--bg-card); color: var(--text-primary); }
     [data-theme="dark"] .plan-card { background: var(--bg-card); }
+    [data-theme="dark"] .plan-input { background: var(--bg-secondary); border-color: var(--border-color); color: var(--text-primary); }
+    [data-theme="dark"] .part-count-btn { background: var(--bg-secondary); border-color: var(--border-color); color: var(--text-primary); }
+    [data-theme="dark"] .plan-part-item { background: var(--bg-secondary); }
+    [data-theme="dark"] .plan-part-item.has-selection { background: linear-gradient(135deg, rgba(102,126,234,0.1) 0%, var(--bg-secondary) 100%); }
+    [data-theme="dark"] .plan-part-select { background: var(--bg-card); border-color: var(--border-color); color: var(--text-primary); }
+    [data-theme="dark"] .plan-part-time { background: var(--bg-card); border-color: var(--border-color); color: var(--text-primary); }
+    [data-theme="dark"] .plan-duration-btn { background: var(--bg-card); border-color: var(--border-color); color: var(--text-primary); }
+    [data-theme="dark"] .plan-part-selected { background: var(--bg-card); }
+    [data-theme="dark"] .plan-part-choose { background: var(--bg-card); border-color: var(--border-color); }
+    [data-theme="dark"] .plan-add-part { border-color: var(--border-color); }
+    [data-theme="dark"] .plan-select-modal { background: var(--bg-primary); }
+    [data-theme="dark"] .plan-select-header { background: var(--bg-card); border-color: var(--border-color); }
+    [data-theme="dark"] .plan-select-filter { background: var(--bg-card); border-color: var(--border-color); color: var(--text-primary); }
+    [data-theme="dark"] .plan-select-sort { background: var(--bg-card); border-color: var(--border-color); }
+    [data-theme="dark"] .plan-select-sort select { background: var(--bg-secondary); border-color: var(--border-color); color: var(--text-primary); }
+    [data-theme="dark"] .plan-activity-card { background: var(--bg-card); }
+    [data-theme="dark"] .plan-activity-card-btn.view { background: var(--bg-secondary); color: var(--text-primary); }
+    [data-theme="dark"] .plan-part-btn.view { background: var(--bg-secondary); color: var(--text-primary); }
     [data-theme="dark"] .plan-header { color: var(--text-primary); }
     
     [data-theme="dark"] .nav-icon { color: var(--text-muted); }
@@ -1283,42 +1370,53 @@
   <!-- Tab: Plan -->
   <div class="content tab-content hidden" id="tab-plan">
     <div id="planSetup">
-      <h2 class="section-title">Plan Your Date 📅</h2>
+      <h2 class="section-title">Plan Your Date ✨</h2>
       <div class="plan-card">
-        <label class="plan-label">Start Date & Time</label>
-        <input type="datetime-local" class="plan-input" id="planDateTime">
+        <label class="plan-label">📅 Date</label>
+        <input type="date" class="plan-input" id="planDate" style="margin-bottom:12px;">
         
-        <label class="plan-label">How many parts?</label>
-        <div class="part-count-row" id="partCountRow"></div>
+        <label class="plan-label">🎯 Build Your Itinerary</label>
+        <div class="plan-part-builder" id="planPartBuilder">
+          <!-- Parts will be rendered here -->
+        </div>
         
-        <label class="plan-label">Preview Your Date</label>
-        <div id="partsPreview"></div>
+        <button class="plan-add-part" onclick="addPlanPart()" id="addPartBtn">
+          <span>+</span> Add Another Activity
+        </button>
         
-        <button class="btn-full secondary" onclick="startPlanSelection()">Plan My Date →</button>
+        <button class="btn-full secondary" onclick="savePlanDate()" id="savePlanBtn" style="margin-top:20px;">
+          Save Date Plan 🎉
+        </button>
       </div>
     </div>
-    
-    <div id="planSelecting" class="hidden">
-      <div class="plan-header">
-        <div class="plan-header-row">
-          <button class="plan-back" onclick="planBack()">←</button>
-          <div class="plan-header-center">
-            <div class="plan-header-title" id="planStepTitle">Part 1 of 2</div>
-            <div class="plan-header-subtitle" id="planStepType">Dinner</div>
-          </div>
-          <div style="width:24px;"></div>
-        </div>
-        <div class="progress-bar">
-          <div class="progress-fill" id="planProgress"></div>
-        </div>
+  </div>
+
+  <!-- Activity Selection Modal -->
+  <div class="plan-select-modal" id="planSelectModal">
+    <div class="plan-select-header">
+      <div class="plan-select-header-top">
+        <button class="plan-select-back" onclick="closePlanSelectModal()">←</button>
+        <div class="plan-select-title" id="planSelectTitle">Choose Activity</div>
+        <div class="plan-select-close"></div>
       </div>
-      <div style="padding:16px;" id="planActivities"></div>
+      <div class="plan-select-subtitle" id="planSelectSubtitle">Select a place for Part 1</div>
+      <div class="plan-select-filters" id="planSelectFilters">
+        <!-- Filters rendered by JS -->
+      </div>
     </div>
-    
-    <div id="planComplete" class="hidden">
-      <h2 class="complete-title">🎉 Your Date is Planned!</h2>
-      <div id="completedItems"></div>
-      <button class="btn-full secondary" onclick="finishPlan()">Done</button>
+    <div class="plan-select-sort">
+      <label>Sort by:</label>
+      <select id="planSelectSort" onchange="renderPlanActivities()">
+        <option value="rating">Top Rated</option>
+        <option value="distance">Nearest</option>
+        <option value="price-low">Price: Low to High</option>
+        <option value="price-high">Price: High to Low</option>
+      </select>
+    </div>
+    <div class="plan-select-content">
+      <div class="plan-select-grid" id="planSelectGrid">
+        <!-- Activities rendered by JS -->
+      </div>
     </div>
   </div>
 
@@ -3980,133 +4078,387 @@ async function removeDate(id) {
 }
 
 // ============ PLAN ============
-function renderPlan() {
-  if (!state.planDate) {
-    const now = new Date();
-    now.setHours(19, 0, 0, 0);
-    document.getElementById('planDateTime').value = now.toISOString().slice(0, 16);
+// Plan state
+let planParts = [];
+let currentSelectingPartIndex = null;
+let planSelectFilter = 'all';
+
+const ACTIVITY_TYPES = [
+  { value: 'dining', label: '🍽️ Dining', tag: 'restaurants' },
+  { value: 'drinks', label: '🍸 Drinks', tag: 'nightlife' },
+  { value: 'movie', label: '🎬 Movie', tag: 'movies' },
+  { value: 'outdoor', label: '🌳 Outdoor', tag: 'outdoor' },
+  { value: 'arts', label: '🎨 Arts & Culture', tag: 'arts' },
+  { value: 'wellness', label: '🧘 Wellness', tag: 'wellness' },
+  { value: 'shopping', label: '🛍️ Shopping', tag: 'shopping' }
+];
+
+const DURATIONS = [
+  { value: 30, label: '30m' },
+  { value: 60, label: '1h' },
+  { value: 90, label: '1.5h' },
+  { value: 120, label: '2h' }
+];
+
+function initPlanTab() {
+  // Set default date to today
+  const today = new Date();
+  document.getElementById('planDate').value = today.toISOString().split('T')[0];
+  
+  // Initialize with one empty part
+  if (planParts.length === 0) {
+    planParts = [{
+      type: 'dining',
+      time: '19:00',
+      duration: 90,
+      activity: null
+    }];
   }
   
-  document.getElementById('partCountRow').innerHTML = [1,2,3,4].map(n => `
-    <button class="part-count-btn ${state.numParts === n ? 'active' : ''}" onclick="setNumParts(${n})">${n}</button>
+  renderPlanBuilder();
+}
+
+function renderPlan() {
+  initPlanTab();
+}
+
+function renderPlanBuilder() {
+  const container = document.getElementById('planPartBuilder');
+  
+  container.innerHTML = planParts.map((part, index) => {
+    const hasSelection = part.activity !== null;
+    const prevPart = index > 0 ? planParts[index - 1] : null;
+    
+    // Calculate travel time from previous location
+    let travelHtml = '';
+    if (prevPart && prevPart.activity && part.activity) {
+      const travelMins = estimateTravelTime(prevPart.activity, part.activity);
+      travelHtml = `
+        <div class="plan-travel-time">
+          <span class="plan-travel-icon">🚶</span>
+          <span>~${travelMins} min travel</span>
+        </div>
+      `;
+    } else if (index > 0) {
+      travelHtml = `
+        <div class="plan-travel-time">
+          <span class="plan-travel-icon">📍</span>
+          <span>Select locations to see travel time</span>
+        </div>
+      `;
+    }
+    
+    return `
+      ${travelHtml}
+      <div class="plan-part-item ${hasSelection ? 'has-selection' : ''}">
+        <div class="plan-part-header">
+          <div class="plan-part-number">${index + 1}</div>
+          <div class="plan-part-title">Part ${index + 1}</div>
+          ${planParts.length > 1 ? `<button class="plan-part-remove" onclick="removePlanPart(${index})">✕</button>` : ''}
+        </div>
+        
+        <div class="plan-part-controls">
+          <div class="plan-part-control">
+            <label>Activity Type</label>
+            <select class="plan-part-select" onchange="updatePartType(${index}, this.value)">
+              ${ACTIVITY_TYPES.map(t => `
+                <option value="${t.value}" ${part.type === t.value ? 'selected' : ''}>${t.label}</option>
+              `).join('')}
+            </select>
+          </div>
+          <div class="plan-part-control">
+            <label>Time</label>
+            <input type="time" class="plan-part-time" value="${part.time}" onchange="updatePartTime(${index}, this.value)">
+          </div>
+        </div>
+        
+        <div class="plan-part-control" style="margin-bottom:12px;">
+          <label>Duration</label>
+          <div class="plan-part-duration">
+            ${DURATIONS.map(d => `
+              <button class="plan-duration-btn ${part.duration === d.value ? 'active' : ''}" 
+                      onclick="updatePartDuration(${index}, ${d.value})">${d.label}</button>
+            `).join('')}
+          </div>
+        </div>
+        
+        ${hasSelection ? `
+          <div class="plan-part-selected">
+            <img class="plan-part-selected-img" src="${part.activity.media[0]}" alt="">
+            <div class="plan-part-selected-info">
+              <div class="plan-part-selected-title">${part.activity.title}</div>
+              <div class="plan-part-selected-meta">
+                ${part.activity.category} • ${part.activity.address} • ${part.activity.price}
+              </div>
+            </div>
+            <div class="plan-part-selected-actions">
+              <button class="plan-part-btn view" onclick="openLocationModal('${part.activity.id}')">View</button>
+              <button class="plan-part-btn change" onclick="openActivitySelector(${index})">Change</button>
+            </div>
+          </div>
+        ` : `
+          <button class="plan-part-choose" onclick="openActivitySelector(${index})">
+            <span>🔍</span> Choose ${ACTIVITY_TYPES.find(t => t.value === part.type)?.label || 'Activity'}
+          </button>
+        `}
+      </div>
+    `;
+  }).join('');
+  
+  // Show/hide add part button (max 4 parts)
+  document.getElementById('addPartBtn').style.display = planParts.length >= 4 ? 'none' : 'flex';
+  
+  // Enable/disable save button
+  const hasAllSelections = planParts.every(p => p.activity !== null);
+  document.getElementById('savePlanBtn').disabled = !hasAllSelections;
+  document.getElementById('savePlanBtn').style.opacity = hasAllSelections ? 1 : 0.5;
+}
+
+function updatePartType(index, type) {
+  planParts[index].type = type;
+  planParts[index].activity = null; // Clear selection when type changes
+  renderPlanBuilder();
+}
+
+function updatePartTime(index, time) {
+  planParts[index].time = time;
+  
+  // Auto-adjust subsequent part times
+  for (let i = index + 1; i < planParts.length; i++) {
+    const prevPart = planParts[i - 1];
+    const prevEndTime = addMinutesToTime(prevPart.time, prevPart.duration);
+    
+    // Add travel time if both have activities
+    let travelTime = 15; // Default 15 min
+    if (prevPart.activity && planParts[i].activity) {
+      travelTime = estimateTravelTime(prevPart.activity, planParts[i].activity);
+    }
+    
+    planParts[i].time = addMinutesToTime(prevEndTime, travelTime);
+  }
+  
+  renderPlanBuilder();
+}
+
+function updatePartDuration(index, duration) {
+  planParts[index].duration = duration;
+  
+  // Auto-adjust subsequent part times
+  for (let i = index + 1; i < planParts.length; i++) {
+    const prevPart = planParts[i - 1];
+    const prevEndTime = addMinutesToTime(prevPart.time, prevPart.duration);
+    
+    let travelTime = 15;
+    if (prevPart.activity && planParts[i].activity) {
+      travelTime = estimateTravelTime(prevPart.activity, planParts[i].activity);
+    }
+    
+    planParts[i].time = addMinutesToTime(prevEndTime, travelTime);
+  }
+  
+  renderPlanBuilder();
+}
+
+function addMinutesToTime(timeStr, minutes) {
+  const [hours, mins] = timeStr.split(':').map(Number);
+  const totalMins = hours * 60 + mins + minutes;
+  const newHours = Math.floor(totalMins / 60) % 24;
+  const newMins = totalMins % 60;
+  return `${String(newHours).padStart(2, '0')}:${String(newMins).padStart(2, '0')}`;
+}
+
+function estimateTravelTime(from, to) {
+  // Simple estimation based on neighborhood
+  const sameArea = from.address?.split(',')[0] === to.address?.split(',')[0];
+  return sameArea ? 10 : 20;
+}
+
+function addPlanPart() {
+  if (planParts.length >= 4) return;
+  
+  const lastPart = planParts[planParts.length - 1];
+  const newTime = addMinutesToTime(lastPart.time, lastPart.duration + 15);
+  
+  // Suggest next activity type based on time
+  let suggestedType = 'dining';
+  const hour = parseInt(newTime.split(':')[0]);
+  if (hour >= 21) suggestedType = 'drinks';
+  else if (hour >= 18) suggestedType = 'dining';
+  else if (hour >= 14) suggestedType = 'outdoor';
+  else suggestedType = 'dining';
+  
+  planParts.push({
+    type: suggestedType,
+    time: newTime,
+    duration: 90,
+    activity: null
+  });
+  
+  renderPlanBuilder();
+}
+
+function removePlanPart(index) {
+  if (planParts.length <= 1) return;
+  planParts.splice(index, 1);
+  renderPlanBuilder();
+}
+
+function openActivitySelector(index) {
+  currentSelectingPartIndex = index;
+  const part = planParts[index];
+  
+  // Set filter to match part type
+  const typeConfig = ACTIVITY_TYPES.find(t => t.value === part.type);
+  planSelectFilter = typeConfig?.tag || 'all';
+  
+  document.getElementById('planSelectTitle').textContent = `Choose ${typeConfig?.label || 'Activity'}`;
+  document.getElementById('planSelectSubtitle').textContent = `Select a place for Part ${index + 1}`;
+  
+  renderPlanSelectFilters();
+  renderPlanActivities();
+  
+  document.getElementById('planSelectModal').classList.add('active');
+}
+
+function closePlanSelectModal() {
+  document.getElementById('planSelectModal').classList.remove('active');
+  currentSelectingPartIndex = null;
+}
+
+function renderPlanSelectFilters() {
+  const filters = [
+    { value: 'all', label: 'All' },
+    ...ACTIVITY_TYPES.map(t => ({ value: t.tag, label: t.label }))
+  ];
+  
+  document.getElementById('planSelectFilters').innerHTML = filters.map(f => `
+    <button class="plan-select-filter ${planSelectFilter === f.value ? 'active' : ''}" 
+            onclick="setPlanSelectFilter('${f.value}')">${f.label}</button>
   `).join('');
-  
-  document.getElementById('partsPreview').innerHTML = Array.from({length: state.numParts}).map((_, i) => `
-    <div class="part-row">
-      <span class="part-num">${i + 1}</span>
-      <button class="part-select" onclick="cyclePartType(${i})">${state.parts[i] || 'Pick part'}</button>
-    </div>
-  `).join('');
-  
-  document.getElementById('planSetup').classList.toggle('hidden', state.planStep !== 'setup');
-  document.getElementById('planSelecting').classList.toggle('hidden', state.planStep !== 'selecting');
-  document.getElementById('planComplete').classList.toggle('hidden', state.planStep !== 'complete');
-  
-  if (state.planStep === 'selecting') renderPlanSelecting();
-  if (state.planStep === 'complete') renderPlanComplete();
 }
 
-function setNumParts(n) {
-  state.numParts = n;
-  renderPlan();
+function setPlanSelectFilter(filter) {
+  planSelectFilter = filter;
+  renderPlanSelectFilters();
+  renderPlanActivities();
 }
 
-function cyclePartType(idx) {
-  const current = state.parts[idx];
-  const currentIdx = PART_TYPES.indexOf(current);
-  state.parts[idx] = PART_TYPES[(currentIdx + 1) % PART_TYPES.length];
-  renderPlan();
-}
-
-function startPlanSelection() {
-  state.planDate = document.getElementById('planDateTime').value;
-  state.planStep = 'selecting';
-  state.currentPartIndex = 0;
-  state.selectedPlanItems = [null, null, null, null];
-  renderPlan();
-}
-
-function renderPlanSelecting() {
-  document.getElementById('planStepTitle').textContent = `Part ${state.currentPartIndex + 1} of ${state.numParts}`;
-  document.getElementById('planStepType').textContent = state.parts[state.currentPartIndex];
-  document.getElementById('planProgress').style.width = `${((state.currentPartIndex + 1) / state.numParts) * 100}%`;
+function renderPlanActivities() {
+  let activities = [...NYC_ACTIVITIES];
   
-  const tag = getTagForPart(state.parts[state.currentPartIndex]);
-  const activities = tag ? NYC_ACTIVITIES.filter(a => a.tags.includes(tag)) : [];
+  // Filter by type
+  if (planSelectFilter !== 'all') {
+    activities = activities.filter(a => a.tags.includes(planSelectFilter));
+  }
   
-  document.getElementById('planActivities').innerHTML = activities.map(a => `
-    <button class="activity-btn" onclick="selectPlanActivity('${a.id}')">
-      <img src="${a.media[0]}" alt="${a.title}">
-      <div class="activity-btn-content">
-        <div class="activity-btn-title">${a.title}</div>
-        <div class="activity-btn-category">${a.category}</div>
-        <div class="activity-btn-meta">
-          <span style="color:var(--primary);">📍 ${a.distance}</span>
+  // Sort
+  const sortBy = document.getElementById('planSelectSort').value;
+  switch (sortBy) {
+    case 'rating':
+      activities.sort((a, b) => b.rating - a.rating);
+      break;
+    case 'distance':
+      // Sort by neighborhood proximity to previous selection
+      const prevActivity = currentSelectingPartIndex > 0 ? planParts[currentSelectingPartIndex - 1]?.activity : null;
+      if (prevActivity) {
+        activities.sort((a, b) => {
+          const aSameArea = a.address?.includes(prevActivity.address?.split(',')[0]) ? 0 : 1;
+          const bSameArea = b.address?.includes(prevActivity.address?.split(',')[0]) ? 0 : 1;
+          return aSameArea - bSameArea;
+        });
+      }
+      break;
+    case 'price-low':
+      activities.sort((a, b) => a.price.length - b.price.length);
+      break;
+    case 'price-high':
+      activities.sort((a, b) => b.price.length - a.price.length);
+      break;
+  }
+  
+  const currentSelection = planParts[currentSelectingPartIndex]?.activity;
+  
+  document.getElementById('planSelectGrid').innerHTML = activities.map(a => `
+    <div class="plan-activity-card ${currentSelection?.id === a.id ? 'selected' : ''}" onclick="selectPlanActivity('${a.id}')">
+      <div class="plan-activity-card-img">
+        <img src="${a.media[0]}" alt="${a.title}">
+        <span class="plan-activity-card-badge">${a.category}</span>
+        <span class="plan-activity-card-price">${a.price}</span>
+      </div>
+      <div class="plan-activity-card-body">
+        <div class="plan-activity-card-title">${a.title}</div>
+        <div class="plan-activity-card-meta">
           <span>⭐ ${a.rating}</span>
-          <span class="price">${a.price}</span>
+          <span>📍 ${a.address?.split(',')[0] || 'NYC'}</span>
+        </div>
+        <div class="plan-activity-card-actions">
+          <button class="plan-activity-card-btn view" onclick="event.stopPropagation(); openLocationModal('${a.id}')">View Details</button>
+          <button class="plan-activity-card-btn select">Select</button>
         </div>
       </div>
-      <span class="activity-btn-arrow">→</span>
-    </button>
+    </div>
   `).join('');
 }
 
 function selectPlanActivity(id) {
   const activity = NYC_ACTIVITIES.find(a => a.id === id);
-  state.selectedPlanItems[state.currentPartIndex] = activity;
+  if (!activity || currentSelectingPartIndex === null) return;
   
-  if (state.currentPartIndex < state.numParts - 1) {
-    state.currentPartIndex++;
-    renderPlan();
-  } else {
-    state.planStep = 'complete';
-    renderPlan();
-  }
-}
-
-function planBack() {
-  if (state.currentPartIndex > 0) {
-    state.currentPartIndex--;
-    renderPlan();
-  } else {
-    state.planStep = 'setup';
-    renderPlan();
-  }
-}
-
-function renderPlanComplete() {
-  const completed = state.selectedPlanItems.slice(0, state.numParts).filter(Boolean);
-  document.getElementById('completedItems').innerHTML = completed.map((a, i) => `
-    <div class="complete-item">
-      <span class="complete-num">${i + 1}</span>
-      <img class="complete-img" src="${a.media[0]}" alt="${a.title}">
-      <div class="complete-info">
-        <p>${a.title}</p>
-        <p>${state.parts[i]} • ${a.distance}</p>
-      </div>
-    </div>
-  `).join('');
-}
-
-async function finishPlan() {
-  const selected = state.selectedPlanItems.slice(0, state.numParts).filter(Boolean);
+  planParts[currentSelectingPartIndex].activity = activity;
   
-  // Save full activity details
-  const items = selected.map(s => ({
-    id: s.id,
-    title: s.title,
-    category: s.category,
-    address: s.address,
-    media: s.media,
-    price: s.price
+  // Auto-adjust travel times
+  for (let i = currentSelectingPartIndex + 1; i < planParts.length; i++) {
+    const prevPart = planParts[i - 1];
+    if (prevPart.activity && planParts[i].activity) {
+      const prevEndTime = addMinutesToTime(prevPart.time, prevPart.duration);
+      const travelTime = estimateTravelTime(prevPart.activity, planParts[i].activity);
+      planParts[i].time = addMinutesToTime(prevEndTime, travelTime);
+    }
+  }
+  
+  closePlanSelectModal();
+  renderPlanBuilder();
+}
+
+async function savePlanDate() {
+  const dateInput = document.getElementById('planDate').value;
+  if (!dateInput) {
+    alert('Please select a date');
+    return;
+  }
+  
+  const hasAllSelections = planParts.every(p => p.activity !== null);
+  if (!hasAllSelections) {
+    alert('Please select an activity for each part');
+    return;
+  }
+  
+  // Build datetime from date + first part time
+  const datetime = `${dateInput}T${planParts[0].time}:00`;
+  
+  // Build items array
+  const items = planParts.map(p => ({
+    id: p.activity.id,
+    title: p.activity.title,
+    category: p.activity.category,
+    address: p.activity.address,
+    media: p.activity.media,
+    price: p.activity.price,
+    time: p.time,
+    duration: p.duration
+  }));
+  
+  const activities = items.map(i => ({
+    ...i,
+    category: i.category
   }));
   
   const newDate = {
     id: Date.now(),
-    title: generateDateTitle(selected),
-    datetime: state.planDate,
+    title: generateDateTitle(activities),
+    datetime: datetime,
     status: 'upcoming',
-    activities: selected.map(s => s.title),
+    activities: items.map(i => i.title),
     items: items
   };
   
@@ -4116,10 +4468,16 @@ async function finishPlan() {
     await savePlannedDate(newDate);
   }
   
-  state.planStep = 'setup';
-  state.selectedPlanItems = [null, null, null, null];
-  alert('Your date plan has been added to Upcoming Dates!');
-  renderPlan();
+  // Reset plan builder
+  planParts = [{
+    type: 'dining',
+    time: '19:00',
+    duration: 90,
+    activity: null
+  }];
+  
+  alert('🎉 Your date has been saved!');
+  renderPlanBuilder();
   showTab('dates');
 }
 
@@ -7268,6 +7626,9 @@ document.getElementById('friendshipsModal').addEventListener('click', function(e
 });
 document.getElementById('myFunModal').addEventListener('click', function(e) {
   if (e.target === this) closeMyFunModal();
+});
+document.getElementById('planSelectModal').addEventListener('click', function(e) {
+  if (e.target === this) closePlanSelectModal();
 });
 </script>
 </body>
