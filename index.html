@@ -516,6 +516,8 @@
     /* Hamburger Menu */
     .hamburger-btn { background: none; border: none; cursor: pointer; padding: 8px; display: flex; flex-direction: column; gap: 4px; }
     .hamburger-btn span { display: block; width: 20px; height: 2px; background: white; border-radius: 2px; }
+    .hamburger-wrapper { position: relative; display: inline-flex; }
+    .hamburger-notif-badge { position: absolute; top: 0; right: 0; background: var(--primary); color: white; font-size: 10px; font-weight: 700; min-width: 16px; height: 16px; border-radius: 8px; display: flex; align-items: center; justify-content: center; padding: 0 4px; transform: translate(4px, -4px); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
     .side-menu { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: white; z-index: 400; transition: left 0.3s ease; box-shadow: 2px 0 10px rgba(0,0,0,0.1); }
     .side-menu.active { left: 0; }
     .side-menu-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 350; display: none; }
@@ -1275,11 +1277,14 @@
   <!-- Header -->
   <header class="header">
     <div class="header-left">
-      <button class="hamburger-btn" onclick="openSideMenu()">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
+      <div class="hamburger-wrapper">
+        <button class="hamburger-btn" onclick="openSideMenu()">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <span class="hamburger-notif-badge" id="hamburgerNotifBadge" style="display:none;">0</span>
+      </div>
       <span class="header-logo">💕</span>
       <span class="header-title">Our Date Night</span>
     </div>
@@ -2486,7 +2491,7 @@ async function checkSession() {
         state.verificationStatus = userProfile.verification_status || 'none';
         
         // Load notifications
-        loadNotifications();
+        await loadNotifications();
         
         if (userProfile.profile_type) {
           document.getElementById('app').classList.add('active');
@@ -5623,6 +5628,16 @@ async function toggleFollow() {
     
     // Record activity
     recordFollowActivity(currentProfileUserId, userName);
+    
+    // Send notification to the user being followed
+    const followerName = userProfile?.name || 'Someone';
+    const followerAvatar = userProfile?.avatar || null;
+    await notifyNewFollower(
+      currentProfileUserId,  // target user (person being followed)
+      currentUser.id,        // follower id
+      followerName,          // follower name
+      followerAvatar         // follower avatar
+    );
   }
   
   saveFollowData();
@@ -5883,12 +5898,22 @@ function renderFollowListItem(userId) {
   `;
 }
 
-function toggleFollowFromList(userId, userName) {
+async function toggleFollowFromList(userId, userName) {
   if (isFollowing(userId)) {
     followData.following = followData.following.filter(id => id !== userId);
   } else {
     followData.following.push(userId);
     recordFollowActivity(userId, userName);
+    
+    // Send notification to the user being followed
+    const followerName = userProfile?.name || 'Someone';
+    const followerAvatar = userProfile?.avatar || null;
+    await notifyNewFollower(
+      userId,              // target user (person being followed)
+      currentUser.id,      // follower id
+      followerName,        // follower name
+      followerAvatar       // follower avatar
+    );
   }
   saveFollowData();
   openFollowersList(); // Refresh list
@@ -6415,7 +6440,7 @@ let currentMyFunTab = 'uploads';
 let myFunSortOrder = 'newest';
 let userNotifications = [];
 
-function openMyFunModal() {
+async function openMyFunModal() {
   closeSideMenu();
   
   if (!isLoggedIn || !currentUser) {
@@ -6428,7 +6453,7 @@ function openMyFunModal() {
   document.getElementById('myFunSortSelect').value = 'newest';
   
   // Load notifications
-  loadNotifications();
+  await loadNotifications();
   
   showMyFunTab('uploads');
   document.getElementById('myFunModal').classList.add('active');
@@ -6480,17 +6505,61 @@ function sortMyFun() {
 }
 
 // ============ NOTIFICATIONS ============
-function loadNotifications() {
+async function loadNotifications() {
   if (!currentUser) return;
   
-  const notifKey = `notifications_${currentUser.id}`;
-  userNotifications = JSON.parse(localStorage.getItem(notifKey) || '[]');
+  try {
+    // Load from Supabase
+    const { data, error } = await db
+      .from('notifications')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .order('created_at', { ascending: false })
+      .limit(100);
+    
+    if (error) {
+      console.log('Notifications table may not exist, using localStorage fallback');
+      // Fallback to localStorage
+      const notifKey = `notifications_${currentUser.id}`;
+      userNotifications = JSON.parse(localStorage.getItem(notifKey) || '[]');
+    } else {
+      userNotifications = (data || []).map(n => ({
+        id: n.id,
+        type: n.type,
+        data: n.data,
+        read: n.read,
+        createdAt: n.created_at
+      }));
+    }
+  } catch (err) {
+    console.log('Using localStorage for notifications');
+    const notifKey = `notifications_${currentUser.id}`;
+    userNotifications = JSON.parse(localStorage.getItem(notifKey) || '[]');
+  }
+  
   updateNotificationBadge();
+}
+
+async function saveNotificationToSupabase(notification) {
+  if (!currentUser) return;
+  
+  try {
+    await db.from('notifications').insert({
+      user_id: notification.userId || currentUser.id,
+      type: notification.type,
+      data: notification.data,
+      read: false,
+      created_at: new Date().toISOString()
+    });
+  } catch (err) {
+    console.log('Could not save to Supabase, using localStorage');
+  }
 }
 
 function saveNotifications() {
   if (!currentUser) return;
   
+  // Save to localStorage as backup
   const notifKey = `notifications_${currentUser.id}`;
   localStorage.setItem(notifKey, JSON.stringify(userNotifications));
   updateNotificationBadge();
@@ -6499,6 +6568,7 @@ function saveNotifications() {
 function updateNotificationBadge() {
   const badge = document.getElementById('notificationBadge');
   const sideMenuBadge = document.getElementById('sideMenuNotifBadge');
+  const hamburgerBadge = document.getElementById('hamburgerNotifBadge');
   const unreadCount = userNotifications.filter(n => !n.read).length;
   
   // Update My Fun modal badge
@@ -6520,27 +6590,45 @@ function updateNotificationBadge() {
       sideMenuBadge.style.display = 'none';
     }
   }
+  
+  // Update hamburger menu badge
+  if (hamburgerBadge) {
+    if (unreadCount > 0) {
+      hamburgerBadge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+      hamburgerBadge.style.display = 'flex';
+    } else {
+      hamburgerBadge.style.display = 'none';
+    }
+  }
 }
 
-function addNotification(type, data) {
-  if (!currentUser) return;
+async function addNotification(type, data, targetUserId = null) {
+  const userId = targetUserId || currentUser?.id;
+  if (!userId) return;
   
   const notification = {
     id: Date.now(),
     type: type, // 'follower', 'like', 'badge', 'system'
     data: data,
     read: false,
-    createdAt: new Date().toISOString()
+    createdAt: new Date().toISOString(),
+    userId: userId
   };
   
-  userNotifications.unshift(notification);
+  // Save to Supabase for the target user
+  await saveNotificationToSupabase(notification);
   
-  // Keep only last 100 notifications
-  if (userNotifications.length > 100) {
-    userNotifications = userNotifications.slice(0, 100);
+  // If it's for the current user, also update local state
+  if (userId === currentUser?.id) {
+    userNotifications.unshift(notification);
+    
+    // Keep only last 100 notifications
+    if (userNotifications.length > 100) {
+      userNotifications = userNotifications.slice(0, 100);
+    }
+    
+    saveNotifications();
   }
-  
-  saveNotifications();
 }
 
 function markNotificationRead(notificationId) {
@@ -6685,30 +6773,30 @@ function getTimeAgo(dateString) {
   return date.toLocaleDateString();
 }
 
-// Helper to add follower notification
-function notifyNewFollower(followerId, followerName, followerAvatar) {
-  addNotification('follower', {
+// Helper to add follower notification - sends to the user being followed
+async function notifyNewFollower(targetUserId, followerId, followerName, followerAvatar) {
+  await addNotification('follower', {
     followerId,
     followerName,
     followerAvatar
-  });
+  }, targetUserId);
 }
 
-// Helper to add like notification
-function notifyContentLiked(likerId, likerName, contentId, contentThumb, contentType, placeName) {
-  addNotification('like', {
+// Helper to add like notification - sends to content owner
+async function notifyContentLiked(targetUserId, likerId, likerName, contentId, contentThumb, contentType, placeName) {
+  await addNotification('like', {
     likerId,
     likerName,
     contentId,
     contentThumb,
     contentType,
     placeName
-  });
+  }, targetUserId);
 }
 
-// Helper to add badge notification
-function notifyBadgeEarned(badgeId, badgeName, badgeIcon) {
-  addNotification('badge', {
+// Helper to add badge notification - sends to current user
+async function notifyBadgeEarned(badgeId, badgeName, badgeIcon) {
+  await addNotification('badge', {
     badgeId,
     badgeName,
     badgeIcon
@@ -6716,8 +6804,8 @@ function notifyBadgeEarned(badgeId, badgeName, badgeIcon) {
 }
 
 // Helper to add system notification
-function notifySystem(message) {
-  addNotification('system', { message });
+async function notifySystem(message, targetUserId = null) {
+  await addNotification('system', { message }, targetUserId);
 }
 
 function openBadgeDetail(badgeId) {
@@ -7097,6 +7185,21 @@ async function likeContent(contentId) {
     
     // Update local state
     content.likes = newLikes;
+    
+    // Send notification to content owner (if not liking own content)
+    if (content.user_id && content.user_id !== currentUser.id) {
+      const likerName = userProfile?.name || 'Someone';
+      const contentType = content.media_type === 'video' ? 'video' : 'photo';
+      await notifyContentLiked(
+        content.user_id,      // target user (content owner)
+        currentUser.id,       // liker id
+        likerName,            // liker name
+        contentId,            // content id
+        content.media_url,    // content thumbnail
+        contentType,          // photo or video
+        content.place_name    // place name
+      );
+    }
     
   } catch (err) {
     console.error('likeContent error:', err);
