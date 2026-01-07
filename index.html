@@ -183,10 +183,43 @@
     .btn-gray { background: #ddd; color: #333; }
     
     /* Date Cards */
-    .date-card { background: white; border-radius: 12px; padding: 16px; margin-bottom: 12px; }
-    .date-title { font-weight: 600; margin-bottom: 4px; }
-    .date-time { font-size: 13px; color: var(--secondary); margin-bottom: 4px; }
-    .date-activities { font-size: 12px; color: #666; }
+    .date-card { background: white; border-radius: 16px; margin-bottom: 16px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+    .date-card-hero { position: relative; height: 140px; overflow: hidden; }
+    .date-card-hero img { width: 100%; height: 100%; object-fit: cover; }
+    .date-card-hero-overlay { position: absolute; inset: 0; background: linear-gradient(transparent 30%, rgba(0,0,0,0.7)); }
+    .date-card-hero-content { position: absolute; bottom: 12px; left: 16px; right: 16px; color: white; }
+    .date-card-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; text-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+    .date-card-datetime { font-size: 13px; opacity: 0.9; display: flex; align-items: center; gap: 6px; }
+    .date-card-body { padding: 16px; }
+    .date-card-timeline { margin-bottom: 16px; }
+    .date-timeline-item { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
+    .date-timeline-item:last-child { border-bottom: none; }
+    .date-timeline-time { min-width: 60px; font-size: 13px; font-weight: 600; color: var(--secondary); }
+    .date-timeline-content { flex: 1; }
+    .date-timeline-place { font-weight: 600; color: var(--text-primary); margin-bottom: 2px; cursor: pointer; }
+    .date-timeline-place:hover { text-decoration: underline; }
+    .date-timeline-category { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+    .date-timeline-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--secondary); flex-shrink: 0; margin-top: 4px; }
+    .date-card-map { height: 120px; border-radius: 12px; overflow: hidden; margin-bottom: 16px; background: #e0e0e0; position: relative; }
+    .date-card-map img { width: 100%; height: 100%; object-fit: cover; }
+    .date-card-map-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.1); cursor: pointer; transition: background 0.2s; }
+    .date-card-map-overlay:hover { background: rgba(0,0,0,0.2); }
+    .date-card-map-label { background: white; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; color: var(--text-primary); box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+    .date-card-actions { display: flex; gap: 8px; }
+    .date-card-btn { flex: 1; padding: 12px; border: none; border-radius: 12px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; }
+    .date-card-btn-share { background: var(--secondary); color: white; }
+    .date-card-btn-share:hover { background: #5a67d8; }
+    .date-card-btn-calendar { background: var(--bg-secondary); color: var(--text-primary); }
+    .date-card-btn-calendar:hover { background: #e2e8f0; }
+    .date-card-btn-remove { background: none; color: var(--primary); border: 1px solid var(--primary); }
+    .date-card-btn-remove:hover { background: var(--primary); color: white; }
+    .date-card-status { position: absolute; top: 12px; right: 12px; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+    .date-card-status.upcoming { background: #10b981; color: white; }
+    .date-card-status.past { background: rgba(0,0,0,0.5); color: white; }
+    .date-empty { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+    .date-empty-icon { font-size: 48px; margin-bottom: 12px; }
+    .date-empty-text { margin-bottom: 16px; }
+    .date-empty-btn { display: inline-block; padding: 12px 24px; background: var(--secondary); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; text-decoration: none; }
     
     /* Plan Section */
     .plan-card { background: white; border-radius: 16px; padding: 16px; }
@@ -931,6 +964,12 @@
     [data-theme="dark"] .list-meta { color: var(--text-muted); }
     
     [data-theme="dark"] .date-card { background: var(--bg-card); }
+    [data-theme="dark"] .date-card-body { background: var(--bg-card); }
+    [data-theme="dark"] .date-timeline-item { border-color: var(--border-color); }
+    [data-theme="dark"] .date-timeline-place { color: var(--text-primary); }
+    [data-theme="dark"] .date-card-btn-calendar { background: var(--bg-secondary); color: var(--text-primary); }
+    [data-theme="dark"] .date-card-btn-calendar:hover { background: var(--border-color); }
+    [data-theme="dark"] .date-card-map-label { background: var(--bg-card); color: var(--text-primary); }
     [data-theme="dark"] .plan-card { background: var(--bg-card); }
     [data-theme="dark"] .plan-header { color: var(--text-primary); }
     
@@ -1235,9 +1274,9 @@
 
   <!-- Tab: Dates -->
   <div class="content tab-content hidden" id="tab-dates">
-    <h2 class="section-title">Upcoming Dates</h2>
+    <h2 class="section-title">📅 Upcoming Dates</h2>
     <div id="upcomingDates"></div>
-    <h2 class="section-title" style="margin-top:24px;">Past Dates</h2>
+    <h2 class="section-title" style="margin-top:32px;">📜 Past Dates</h2>
     <div id="pastDates"></div>
   </div>
 
@@ -3652,27 +3691,287 @@ function renderDates() {
   const past = state.dates.filter(d => d.status === 'past');
   
   document.getElementById('upcomingDates').innerHTML = upcoming.length === 0 
-    ? '<p style="color:#888;">No upcoming dates yet.</p>'
-    : upcoming.map(d => `
-      <div class="date-card">
-        <div class="date-title">${d.title}</div>
-        <div class="date-time">${formatDateTime(d.datetime)}</div>
-        <div class="date-activities">${(d.activities || []).join(' • ')}</div>
-        <button class="btn-small btn-gray" style="margin-top:8px;" onclick="removeDate(${d.id})">Remove</button>
-      </div>
-    `).join('');
+    ? `<div class="date-empty">
+        <div class="date-empty-icon">📅</div>
+        <div class="date-empty-text">No upcoming dates yet</div>
+        <button class="date-empty-btn" onclick="showTab('plan')">Plan a Date</button>
+      </div>`
+    : upcoming.map(d => renderDateCard(d, 'upcoming')).join('');
     
   document.getElementById('pastDates').innerHTML = past.length === 0
-    ? '<p style="color:#888;">Your date history will appear here.</p>'
-    : past.map(d => `
-      <div class="date-card" style="opacity:0.8;">
-        <div class="date-title">${d.title}</div>
-        <div class="date-time">${formatDateTime(d.datetime)}</div>
+    ? `<div class="date-empty">
+        <div class="date-empty-icon">📜</div>
+        <div class="date-empty-text">Your date history will appear here</div>
+      </div>`
+    : past.map(d => renderDateCard(d, 'past')).join('');
+}
+
+function renderDateCard(date, status) {
+  // Get activities with full details
+  const activities = (date.items || []).map((item, idx) => {
+    if (typeof item === 'string') {
+      // Legacy format - just activity name
+      const activity = NYC_ACTIVITIES.find(a => a.title === item);
+      return activity || { title: item, category: 'Activity', address: 'NYC' };
+    }
+    return item;
+  });
+  
+  // If no items but has activities array (legacy)
+  if (activities.length === 0 && date.activities) {
+    date.activities.forEach(name => {
+      const activity = NYC_ACTIVITIES.find(a => a.title === name);
+      activities.push(activity || { title: name, category: 'Activity', address: 'NYC' });
+    });
+  }
+  
+  // Get hero image from first activity
+  const heroImage = activities[0]?.media?.[0] || getVibeImage(date.title);
+  
+  // Calculate time blocks
+  const startTime = new Date(date.datetime);
+  const timeBlocks = activities.map((act, idx) => {
+    const blockTime = new Date(startTime.getTime() + idx * 90 * 60000); // 90 min per activity
+    return {
+      time: blockTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
+      ...act
+    };
+  });
+  
+  // Generate static map URL (using coordinates approximation for NYC)
+  const mapUrl = generateMapUrl(activities);
+  
+  const isPast = status === 'past';
+  
+  return `
+    <div class="date-card" style="${isPast ? 'opacity:0.85;' : ''}">
+      <div class="date-card-hero">
+        <img src="${heroImage}" alt="${date.title}">
+        <div class="date-card-hero-overlay"></div>
+        <span class="date-card-status ${status}">${status}</span>
+        <div class="date-card-hero-content">
+          <div class="date-card-title">${date.title}</div>
+          <div class="date-card-datetime">
+            <span>📅 ${formatDateOnly(date.datetime)}</span>
+            <span>•</span>
+            <span>🕐 ${formatTimeOnly(date.datetime)}</span>
+          </div>
+        </div>
       </div>
-    `).join('');
+      <div class="date-card-body">
+        <div class="date-card-timeline">
+          ${timeBlocks.map(block => `
+            <div class="date-timeline-item">
+              <div class="date-timeline-time">${block.time}</div>
+              <div class="date-timeline-dot"></div>
+              <div class="date-timeline-content">
+                <div class="date-timeline-place" onclick="openLocationModalByTitle('${block.title?.replace(/'/g, "\\'")}')">${block.title || 'Activity'}</div>
+                <div class="date-timeline-category">
+                  <span>${getCategoryEmoji(block.category)} ${block.category || 'Activity'}</span>
+                  ${block.address ? `<span>• ${block.address}</span>` : ''}
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+        
+        ${activities.length > 0 ? `
+          <div class="date-card-map" onclick="openDateMapView(${date.id})">
+            <img src="${mapUrl}" alt="Map">
+            <div class="date-card-map-overlay">
+              <span class="date-card-map-label">📍 View on Map</span>
+            </div>
+          </div>
+        ` : ''}
+        
+        <div class="date-card-actions">
+          <button class="date-card-btn date-card-btn-share" onclick="shareDate(${date.id})">
+            <span>📤</span> Share
+          </button>
+          <button class="date-card-btn date-card-btn-calendar" onclick="addToCalendar(${date.id})">
+            <span>📆</span> Add to Calendar
+          </button>
+          ${!isPast ? `
+            <button class="date-card-btn date-card-btn-remove" onclick="removeDate(${date.id})">
+              ✕
+            </button>
+          ` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function getVibeImage(title) {
+  const vibeImages = {
+    romantic: 'https://images.unsplash.com/photo-1529543544277-750e580b4119?w=800',
+    adventure: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800',
+    foodie: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800',
+    cultural: 'https://images.unsplash.com/photo-1564399579883-451a5d44ec08?w=800',
+    nightlife: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800',
+    default: 'https://images.unsplash.com/photo-1529543544277-750e580b4119?w=800'
+  };
+  
+  const lowerTitle = (title || '').toLowerCase();
+  if (lowerTitle.includes('romantic') || lowerTitle.includes('dinner')) return vibeImages.romantic;
+  if (lowerTitle.includes('adventure') || lowerTitle.includes('outdoor')) return vibeImages.adventure;
+  if (lowerTitle.includes('food') || lowerTitle.includes('brunch')) return vibeImages.foodie;
+  if (lowerTitle.includes('museum') || lowerTitle.includes('art')) return vibeImages.cultural;
+  if (lowerTitle.includes('night') || lowerTitle.includes('club')) return vibeImages.nightlife;
+  return vibeImages.default;
+}
+
+function getCategoryEmoji(category) {
+  const emojis = {
+    'Dining': '🍽️',
+    'Movie Theater': '🎬',
+    'Outdoor': '🏃',
+    'Arts & Culture': '🎨',
+    'Nightlife': '🍸',
+    'Shopping': '🛍️',
+    'Wellness': '🧘',
+    'Coffee': '☕',
+    'Drinks': '🍷',
+    'Activity': '🎯'
+  };
+  return emojis[category] || '📍';
+}
+
+function generateMapUrl(activities) {
+  // Generate a static map preview (using a generic NYC map as fallback)
+  // In production, you'd use Google Static Maps API or similar
+  const baseUrl = 'https://api.mapbox.com/styles/v1/mapbox/streets-v11/static';
+  
+  // Approximate NYC coordinates for different neighborhoods
+  const neighborhoods = {
+    'Lower East Side': [-73.988, 40.7185],
+    'Greenwich Village': [-73.9995, 40.7335],
+    'Williamsburg': [-73.9572, 40.7081],
+    'Midtown': [-73.9857, 40.7580],
+    'Times Square': [-73.9855, 40.7580],
+    'Central Park': [-73.9654, 40.7829],
+    'Brooklyn': [-73.9442, 40.6782],
+    'Chelsea': [-74.0014, 40.7465],
+    'Upper East Side': [-73.9597, 40.7736],
+    'SoHo': [-74.0000, 40.7233],
+    'TriBeCa': [-74.0071, 40.7163],
+    'Financial District': [-74.0060, 40.7074],
+    "Hell's Kitchen": [-73.9930, 40.7630],
+    'default': [-73.9857, 40.7484]
+  };
+  
+  // Get coordinates for activities
+  let markers = '';
+  let center = [-73.9857, 40.7484];
+  
+  if (activities.length > 0) {
+    const coords = activities.map(act => {
+      const addr = act.address || '';
+      for (const [hood, coord] of Object.entries(neighborhoods)) {
+        if (addr.includes(hood)) return coord;
+      }
+      return neighborhoods.default;
+    });
+    
+    // Calculate center
+    const avgLng = coords.reduce((sum, c) => sum + c[0], 0) / coords.length;
+    const avgLat = coords.reduce((sum, c) => sum + c[1], 0) / coords.length;
+    center = [avgLng, avgLat];
+    
+    // Build markers
+    markers = coords.map((c, i) => `pin-s-${i+1}+ff6b6b(${c[0]},${c[1]})`).join(',');
+  }
+  
+  // Fallback to a static NYC map image
+  return `https://images.unsplash.com/photo-1534430480872-3498386e7856?w=800&h=200&fit=crop`;
+}
+
+function formatDateOnly(datetime) {
+  const d = new Date(datetime);
+  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+}
+
+function formatTimeOnly(datetime) {
+  const d = new Date(datetime);
+  return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+}
+
+function openLocationModalByTitle(title) {
+  const activity = NYC_ACTIVITIES.find(a => a.title === title);
+  if (activity) {
+    openLocationModal(activity.id);
+  }
+}
+
+function openDateMapView(dateId) {
+  const date = state.dates.find(d => d.id === dateId);
+  if (!date) return;
+  
+  // Build location list for the date
+  const activities = (date.items || []).length > 0 ? date.items : 
+    (date.activities || []).map(name => NYC_ACTIVITIES.find(a => a.title === name)).filter(Boolean);
+  
+  if (activities.length === 0) {
+    alert('No locations to display');
+    return;
+  }
+  
+  // For now, open Google Maps with directions
+  const destinations = activities.map(a => encodeURIComponent(a.title + ', New York, NY')).join('/');
+  const mapsUrl = `https://www.google.com/maps/dir/${destinations}`;
+  window.open(mapsUrl, '_blank');
+}
+
+function shareDate(dateId) {
+  const date = state.dates.find(d => d.id === dateId);
+  if (!date) return;
+  
+  const activities = (date.items || []).map(i => i.title).join(' → ') ||
+    (date.activities || []).join(' → ');
+  
+  const shareText = `🗓️ ${date.title}\n📅 ${formatDateOnly(date.datetime)} at ${formatTimeOnly(date.datetime)}\n\n📍 Itinerary:\n${activities}\n\nPlanned with Our Date Night 💕`;
+  
+  if (navigator.share) {
+    navigator.share({
+      title: date.title,
+      text: shareText,
+      url: window.location.href
+    }).catch(console.log);
+  } else {
+    // Fallback to clipboard
+    navigator.clipboard.writeText(shareText).then(() => {
+      alert('Date itinerary copied to clipboard!');
+    }).catch(() => {
+      alert(shareText);
+    });
+  }
+}
+
+function addToCalendar(dateId) {
+  const date = state.dates.find(d => d.id === dateId);
+  if (!date) return;
+  
+  const startDate = new Date(date.datetime);
+  const endDate = new Date(startDate.getTime() + ((date.items?.length || date.activities?.length || 2) * 90 * 60000));
+  
+  const activities = (date.items || []).map(i => i.title).join(', ') ||
+    (date.activities || []).join(', ');
+  
+  // Format for Google Calendar
+  const formatGoogleDate = (d) => d.toISOString().replace(/-|:|\.\d{3}/g, '');
+  
+  const googleCalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE` +
+    `&text=${encodeURIComponent(date.title)}` +
+    `&dates=${formatGoogleDate(startDate)}/${formatGoogleDate(endDate)}` +
+    `&details=${encodeURIComponent('Itinerary: ' + activities + '\n\nPlanned with Our Date Night')}` +
+    `&location=${encodeURIComponent('New York, NY')}`;
+  
+  window.open(googleCalUrl, '_blank');
 }
 
 async function removeDate(id) {
+  if (!confirm('Remove this date from your upcoming plans?')) return;
+  
   state.dates = state.dates.filter(d => d.id !== id);
   if (isLoggedIn) {
     await removePlannedDate(id);
@@ -3791,12 +4090,24 @@ function renderPlanComplete() {
 
 async function finishPlan() {
   const selected = state.selectedPlanItems.slice(0, state.numParts).filter(Boolean);
+  
+  // Save full activity details
+  const items = selected.map(s => ({
+    id: s.id,
+    title: s.title,
+    category: s.category,
+    address: s.address,
+    media: s.media,
+    price: s.price
+  }));
+  
   const newDate = {
     id: Date.now(),
-    title: 'Planned Date Night',
+    title: generateDateTitle(selected),
     datetime: state.planDate,
     status: 'upcoming',
     activities: selected.map(s => s.title),
+    items: items
   };
   
   state.dates.push(newDate);
@@ -3809,6 +4120,34 @@ async function finishPlan() {
   state.selectedPlanItems = [null, null, null, null];
   alert('Your date plan has been added to Upcoming Dates!');
   renderPlan();
+  showTab('dates');
+}
+
+function generateDateTitle(activities) {
+  if (activities.length === 0) return 'Planned Date Night';
+  
+  const categories = activities.map(a => a.category);
+  
+  if (categories.includes('Dining') && categories.includes('Nightlife')) {
+    return 'Dinner & Drinks Night 🍷';
+  }
+  if (categories.includes('Dining') && categories.includes('Movie Theater')) {
+    return 'Dinner & Movie Date 🎬';
+  }
+  if (categories.includes('Arts & Culture')) {
+    return 'Cultural Date Night 🎨';
+  }
+  if (categories.includes('Outdoor')) {
+    return 'Outdoor Adventure Date 🌳';
+  }
+  if (categories.includes('Wellness')) {
+    return 'Relaxation Date 🧘';
+  }
+  if (categories.every(c => c === 'Dining')) {
+    return 'Foodie Date Night 🍽️';
+  }
+  
+  return 'Date Night ✨';
 }
 
 // ============ PROFILE ============
