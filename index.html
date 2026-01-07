@@ -2202,6 +2202,9 @@ async function checkSession() {
         state.swipedIds = await loadSwipedItems();
         state.dates = await loadPlannedDates();
         userGeneratedContent = await loadUserContent();
+        
+        // Load follows from Supabase
+        await loadFollowsFromSupabase();
       } catch (loadError) {
         console.error('Error loading user data:', loadError);
       }
@@ -4549,7 +4552,7 @@ function closeUserProfileModal() {
 // ============ FOLLOW SYSTEM ============
 let followData = {
   following: [], // Array of user IDs I'm following
-  followers: [], // Array of user IDs following me
+  followers: [], // Array of user IDs following me (loaded from Supabase)
   activityFeed: [], // Activity from people I follow
   likedContent: [], // Array of content IDs I've liked (to prevent double-liking)
   // Global registry of all follow relationships (userId -> array of follower userIds)
@@ -4571,6 +4574,119 @@ function loadFollowData() {
 
 function saveFollowData() {
   localStorage.setItem('followData', JSON.stringify(followData));
+}
+
+// Load follows from Supabase
+async function loadFollowsFromSupabase() {
+  if (!isLoggedIn || !currentUser) return;
+  
+  try {
+    // Load who I'm following
+    const { data: following, error: followingError } = await db
+      .from('follows')
+      .select('following_id')
+      .eq('follower_id', currentUser.id);
+    
+    if (!followingError && following) {
+      followData.following = following.map(f => f.following_id);
+    }
+    
+    // Load my followers
+    const { data: followers, error: followersError } = await db
+      .from('follows')
+      .select('follower_id')
+      .eq('following_id', currentUser.id);
+    
+    if (!followersError && followers) {
+      followData.followers = followers.map(f => f.follower_id);
+      // Also update allFollowers for my own ID
+      followData.allFollowers[currentUser.id] = followData.followers;
+    }
+    
+    saveFollowData();
+  } catch (err) {
+    console.log('Error loading follows from Supabase:', err);
+  }
+}
+
+// Save follow to Supabase
+async function saveFollowToSupabase(followingId) {
+  if (!isLoggedIn || !currentUser) return;
+  
+  try {
+    const { error } = await db
+      .from('follows')
+      .insert({
+        follower_id: currentUser.id,
+        following_id: followingId
+      });
+    
+    if (error && !error.message.includes('duplicate')) {
+      console.log('Error saving follow:', error);
+    }
+  } catch (err) {
+    console.log('Error saving follow to Supabase:', err);
+  }
+}
+
+// Remove follow from Supabase
+async function removeFollowFromSupabase(followingId) {
+  if (!isLoggedIn || !currentUser) return;
+  
+  try {
+    const { error } = await db
+      .from('follows')
+      .delete()
+      .eq('follower_id', currentUser.id)
+      .eq('following_id', followingId);
+    
+    if (error) {
+      console.log('Error removing follow:', error);
+    }
+  } catch (err) {
+    console.log('Error removing follow from Supabase:', err);
+  }
+}
+
+// Get follower count from Supabase
+async function getFollowerCountFromSupabase(userId) {
+  try {
+    const { data, error, count } = await db
+      .from('follows')
+      .select('*', { count: 'exact', head: true })
+      .eq('following_id', userId);
+    
+    if (!error && count !== null) {
+      return count;
+    }
+  } catch (err) {
+    console.log('Error getting follower count:', err);
+  }
+  
+  // Fallback to local data
+  return (followData.allFollowers[userId] || []).length;
+}
+
+// Get following count from Supabase
+async function getFollowingCountFromSupabase(userId) {
+  try {
+    const { data, error, count } = await db
+      .from('follows')
+      .select('*', { count: 'exact', head: true })
+      .eq('follower_id', userId);
+    
+    if (!error && count !== null) {
+      return count;
+    }
+  } catch (err) {
+    console.log('Error getting following count:', err);
+  }
+  
+  // Fallback to local data
+  if (isLoggedIn && currentUser && userId === currentUser.id) {
+    return followData.following.length;
+  }
+  return 0;
 }
 
 function isFollowing(userId) {
@@ -4633,6 +4749,9 @@ async function toggleFollow() {
     // Remove me from their followers
     followData.allFollowers[currentProfileUserId] = followData.allFollowers[currentProfileUserId].filter(id => id !== myUserId);
     
+    // Remove from Supabase
+    await removeFollowFromSupabase(currentProfileUserId);
+    
     btn.textContent = 'Follow';
     btn.classList.remove('following');
     btn.classList.add('follow');
@@ -4643,6 +4762,9 @@ async function toggleFollow() {
     if (!followData.allFollowers[currentProfileUserId].includes(myUserId)) {
       followData.allFollowers[currentProfileUserId].push(myUserId);
     }
+    
+    // Save to Supabase
+    await saveFollowToSupabase(currentProfileUserId);
     
     // Store user info for the followed user
     const userName = document.getElementById('userProfileName').textContent;
@@ -4671,8 +4793,8 @@ async function toggleFollow() {
   }
   
   saveFollowData();
-  updateFollowCounts();
-  updateProfileFollowStats();
+  await updateFollowCounts();
+  await updateProfileFollowStats();
 }
 
 async function recordFollowActivity(userId, userName) {
@@ -4752,37 +4874,103 @@ function updateFollowButton() {
   }
 }
 
-function updateFollowCounts() {
+async function updateFollowCounts() {
   // For the current profile being viewed
   if (!currentProfileUserId) return;
   
-  let followerCount = getFollowerCount(currentProfileUserId);
-  let followingCount = getFollowingCount(currentProfileUserId);
+  let followerCount = await getFollowerCountFromSupabase(currentProfileUserId);
+  let followingCount = await getFollowingCountFromSupabase(currentProfileUserId);
   
   document.getElementById('userProfileFollowers').textContent = followerCount;
   document.getElementById('userProfileFollowing').textContent = followingCount;
 }
 
-function openFollowersList() {
+async function openFollowersList() {
   if (!currentProfileUserId) return;
+  loadFollowData();
   
   document.getElementById('followListTitle').textContent = 'Followers';
   const content = document.getElementById('followListContent');
   
-  if (isOwnProfile && followData.followers.length === 0) {
-    content.innerHTML = '<div class="follow-list-empty">No followers yet.<br>Share your profile to get followers!</div>';
-  } else if (isOwnProfile) {
-    content.innerHTML = followData.followers.map(userId => renderFollowListItem(userId)).join('');
-  } else {
-    // Simulate followers for other users
-    content.innerHTML = '<div class="follow-list-empty">Followers list is private</div>';
+  // Show loading
+  content.innerHTML = '<div class="follow-list-empty">Loading...</div>';
+  document.getElementById('followListModal').classList.add('active');
+  
+  // Fetch followers from Supabase
+  let followers = [];
+  try {
+    const { data, error } = await db
+      .from('follows')
+      .select('follower_id')
+      .eq('following_id', currentProfileUserId);
+    
+    if (!error && data) {
+      followers = data.map(f => f.follower_id);
+    }
+  } catch (err) {
+    console.log('Error fetching followers:', err);
+    // Fallback to local data
+    followers = followData.allFollowers[currentProfileUserId] || [];
   }
   
-  document.getElementById('followListModal').classList.add('active');
+  if (followers.length === 0) {
+    content.innerHTML = '<div class="follow-list-empty">No followers yet.<br>Share your profile to get followers!</div>';
+    return;
+  }
+  
+  // Fetch profile info for followers
+  let profilesMap = {};
+  try {
+    const { data: profiles, error } = await db
+      .from('profiles')
+      .select('id, name, email, avatar')
+      .in('id', followers);
+    
+    if (!error && profiles) {
+      profiles.forEach(p => {
+        profilesMap[p.id] = p;
+      });
+    }
+  } catch (err) {
+    console.log('Error fetching follower profiles:', err);
+  }
+  
+  // Render each follower
+  const followerItems = followers.map(userId => {
+    const profile = profilesMap[userId];
+    const userContent = userGeneratedContent.find(c => c.user_id === userId);
+    const cachedUser = followData.followedUsers ? followData.followedUsers[userId] : null;
+    
+    const userName = profile?.name || userContent?.user_name || cachedUser?.name || profile?.email?.split('@')[0] || 'User';
+    const userAvatar = profile?.avatar || userContent?.user_avatar || cachedUser?.avatar || userName.charAt(0).toUpperCase();
+    const postCount = userGeneratedContent.filter(c => c.user_id === userId).length;
+    
+    let avatarHtml = '';
+    if (userAvatar && userAvatar.startsWith('http')) {
+      avatarHtml = `<img src="${userAvatar}" alt="">`;
+    } else {
+      avatarHtml = userAvatar;
+    }
+    
+    return `
+      <div class="follow-list-item">
+        <div class="follow-list-avatar" onclick="closeFollowListModal(); openUserProfileModal('${userId}', '${userName.replace(/'/g, "\\'")}')">
+          ${avatarHtml}
+        </div>
+        <div class="follow-list-info" onclick="closeFollowListModal(); openUserProfileModal('${userId}', '${userName.replace(/'/g, "\\'")}')">
+          <div class="follow-list-name">${userName}</div>
+          <div class="follow-list-meta">${postCount} posts</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+  
+  content.innerHTML = followerItems || '<div class="follow-list-empty">Could not load followers</div>';
 }
 
 function openFollowingList() {
   if (!currentProfileUserId) return;
+  loadFollowData();
   
   document.getElementById('followListTitle').textContent = 'Following';
   const content = document.getElementById('followListContent');
@@ -4791,26 +4979,37 @@ function openFollowingList() {
     if (followData.following.length === 0) {
       content.innerHTML = '<div class="follow-list-empty">Not following anyone yet.<br>Discover people to follow!</div>';
     } else {
-      content.innerHTML = followData.following.map(userId => {
-        // Find user info from content
+      const followingItems = followData.following.map(userId => {
+        // Find user info from content or cache
         const userContent = userGeneratedContent.find(c => c.user_id === userId);
-        if (!userContent) return '';
+        const cachedUser = followData.followedUsers ? followData.followedUsers[userId] : null;
+        
+        const userName = userContent?.user_name || cachedUser?.name || 'User';
+        const userAvatar = userContent?.user_avatar || cachedUser?.avatar || userName.charAt(0).toUpperCase();
+        const postCount = userGeneratedContent.filter(c => c.user_id === userId).length;
+        
+        let avatarHtml = '';
+        if (userAvatar && userAvatar.startsWith('http')) {
+          avatarHtml = `<img src="${userAvatar}" alt="">`;
+        } else {
+          avatarHtml = userAvatar;
+        }
         
         return `
           <div class="follow-list-item">
-            <div class="follow-list-avatar" onclick="closeFollowListModal(); openUserProfileModal('${userId}', '${userContent.user_name}')">
-              ${userContent.user_avatar && userContent.user_avatar.startsWith('http') 
-                ? `<img src="${userContent.user_avatar}" alt="">` 
-                : (userContent.user_avatar || userContent.user_name.charAt(0).toUpperCase())}
+            <div class="follow-list-avatar" onclick="closeFollowListModal(); openUserProfileModal('${userId}', '${userName.replace(/'/g, "\\'")}')">
+              ${avatarHtml}
             </div>
-            <div class="follow-list-info" onclick="closeFollowListModal(); openUserProfileModal('${userId}', '${userContent.user_name}')">
-              <div class="follow-list-name">${userContent.user_name}</div>
-              <div class="follow-list-meta">${userGeneratedContent.filter(c => c.user_id === userId).length} posts</div>
+            <div class="follow-list-info" onclick="closeFollowListModal(); openUserProfileModal('${userId}', '${userName.replace(/'/g, "\\'")}')">
+              <div class="follow-list-name">${userName}</div>
+              <div class="follow-list-meta">${postCount} posts</div>
             </div>
             <button class="follow-list-btn following" onclick="unfollowFromList('${userId}')">Following</button>
           </div>
         `;
       }).join('');
+      
+      content.innerHTML = followingItems || '<div class="follow-list-empty">Could not load following list</div>';
     }
   } else {
     content.innerHTML = '<div class="follow-list-empty">Following list is private</div>';
@@ -5298,7 +5497,7 @@ function viewFriendProfile(userId, userName) {
   openUserProfileModal(userId, userName);
 }
 
-function toggleFriendshipFollow(userId, userName, userAvatar, btn) {
+async function toggleFriendshipFollow(userId, userName, userAvatar, btn) {
   if (!isLoggedIn) {
     alert('Please log in to follow users');
     return;
@@ -5317,6 +5516,10 @@ function toggleFriendshipFollow(userId, userName, userAvatar, btn) {
     if (myUserId) {
       followData.allFollowers[userId] = followData.allFollowers[userId].filter(id => id !== myUserId);
     }
+    
+    // Remove from Supabase
+    await removeFollowFromSupabase(userId);
+    
     btn.textContent = 'Follow';
     btn.classList.remove('following');
   } else {
@@ -5325,6 +5528,9 @@ function toggleFriendshipFollow(userId, userName, userAvatar, btn) {
     if (myUserId && !followData.allFollowers[userId].includes(myUserId)) {
       followData.allFollowers[userId].push(myUserId);
     }
+    
+    // Save to Supabase
+    await saveFollowToSupabase(userId);
     
     // Store user info
     followData.followedUsers[userId] = {
@@ -5338,7 +5544,7 @@ function toggleFriendshipFollow(userId, userName, userAvatar, btn) {
   }
   
   saveFollowData();
-  updateProfileFollowStats();
+  await updateProfileFollowStats();
   
   // Refresh the current tab if we're on following tab
   if (currentFriendshipsTab === 'following') {
@@ -5347,21 +5553,27 @@ function toggleFriendshipFollow(userId, userName, userAvatar, btn) {
 }
 
 // Update profile tab follow stats
-function updateProfileFollowStats() {
+async function updateProfileFollowStats() {
   loadFollowData();
   
   const followersEl = document.getElementById('profileFollowers');
   const followingEl = document.getElementById('profileFollowing');
   
-  if (followersEl) {
-    // Count my followers from allFollowers
-    const myFollowers = (isLoggedIn && currentUser) 
-      ? (followData.allFollowers[currentUser.id] || []).length 
-      : 0;
-    followersEl.textContent = myFollowers;
+  if (followersEl && isLoggedIn && currentUser) {
+    // Get follower count from Supabase
+    const count = await getFollowerCountFromSupabase(currentUser.id);
+    followersEl.textContent = count;
+  } else if (followersEl) {
+    followersEl.textContent = 0;
   }
+  
   if (followingEl) {
-    followingEl.textContent = followData.following.length;
+    if (isLoggedIn && currentUser) {
+      const count = await getFollowingCountFromSupabase(currentUser.id);
+      followingEl.textContent = count;
+    } else {
+      followingEl.textContent = 0;
+    }
   }
 }
 
